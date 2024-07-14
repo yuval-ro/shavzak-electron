@@ -44,7 +44,7 @@ export default function TaskSelect({
     const colorB = colorOrder.indexOf(classifyOption({ idx, service_number: b.service_number }))
 
     if (colorA === colorB) {
-      return a.last_name.localeCompare(b.last_name)
+      return a.last_name_he.localeCompare(b.last_name_he)
     }
     return colorA - colorB
   }
@@ -56,7 +56,7 @@ export default function TaskSelect({
       disabled={isSelectDisabled ? isSelectDisabled(idx) : false}
     >
       <option></option>
-      {options.sort(sortFn).map(({ service_number, first_name, last_name }) => (
+      {options.sort(sortFn).map(({ service_number, first_name_he, last_name_he }) => (
         <option
           key={service_number} // Use service_number as the key
           value={service_number}
@@ -65,7 +65,7 @@ export default function TaskSelect({
             isOptionDisabled({ idx, service_number }) ? '' : getClassName({ idx, service_number })
           }
         >
-          {`${last_name}, ${first_name}`}
+          {`${last_name_he}, ${first_name_he}`}
         </option>
       ))}
     </Form.Select>

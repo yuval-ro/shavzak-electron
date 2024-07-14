@@ -2,7 +2,7 @@ import { Row, Col } from 'react-bootstrap'
 import { FiSunrise, FiSunset } from 'react-icons/fi'
 import { RiMoonClearLine } from 'react-icons/ri'
 
-import { formatShift } from '../helpers'
+import { formatShift } from '../../helpers'
 
 export default function HeaderRow({ shifts, startIdx, length }) {
   function getIcon(type) {

@@ -5,16 +5,28 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import Database from 'better-sqlite3'
+import fs from 'fs'
+import csv from 'csv-parser'
 
-const DB_FILENAME = 'people.db'
-const DB_TABLENAME = 'people'
+const CSV_FILENAME = 'people.csv'
 
-// Initialize the database
-const db = new Database(join(__dirname, '../../', DB_FILENAME), {
-  verbose: console.log,
-  fileMustExist: true
-})
+// // Initialize the database
+// const db = new Database(join(__dirname, '../../', DB_FILENAME), {
+//   verbose: console.log,
+//   fileMustExist: true
+// })
+
+function parseCSVToArray(filePath) {
+  const records = []
+
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data) => records.push(data))
+      .on('end', () => resolve(records))
+      .on('error', (error) => reject(error))
+  })
+}
 
 function createWindow() {
   // Create the browser window.
@@ -63,8 +75,14 @@ app.whenReady().then(() => {
   })
 
   // IPC communication to fetch data from renderer process
-  ipcMain.handle('get-users', async () => {
-    return db.prepare(`SELECT * FROM ${DB_TABLENAME}`).all()
+  ipcMain.handle('get-people', async () => {
+    try {
+      const rows = await parseCSVToArray(join(__dirname, '../../', CSV_FILENAME))
+      return rows
+    } catch (error) {
+      console.error('Error parsing CSV:', error)
+      return []
+    }
   })
 
   createWindow()
