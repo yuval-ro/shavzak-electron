@@ -54,12 +54,13 @@ export default function AssignmentPage({ people }) {
   }
 
   const eligible = {
-    guardCommander: (person) => person?.position === 'officer' || person?.role === 'nco_sergeant',
-    hapakCommander: (person) => person?.position === 'officer',
+    guardCommander: (person) =>
+      person?.service_type === 'officer' || person?.role === 'nco_sergeant',
+    hapakCommander: (person) => person?.service_type === 'officer',
     hapakDriver: (person) => person?.role === 'driver',
     hapakRadioman: (person) => person?.role === 'marksman' || person?.role === 'medic',
     hapakTrooper: (person) => person?.role === 'trooper',
-    guard: (person) => person?.position === 'enlisted' && person?.role === 'trooper'
+    guard: (person) => person?.service_type === 'enlisted' && person?.role === 'trooper'
   }
 
   const RowWrapper = styled.div`

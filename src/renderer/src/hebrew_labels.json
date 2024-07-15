@@ -1,34 +1,39 @@
 {
-  "props": {
+  "person": {
     "service_number": {
       "_title": "מספר אישי"
-    },
-    "id_number": {
-      "_title": "מספר זהות"
     },
     "sex": {
       "_title": "מין",
       "m": "זכר",
       "f": "נקבה"
     },
-    "unit": {
-      "_title": "יחידה",
-      "p1": ["מחלקה 1", "מח1"],
-      "p2": ["מחלקה 2", "מח2"]
+    "affiliation": {
+      "_title": "שיוך",
+      "p1": "מחלקה 1",
+      "p2": "מחלקה 2",
+      "hq": "מטה"
     },
-    "first_name_he": { "_title": "שם פרטי" },
-    "last_name_he": { "_title": "שם משפחה" },
+    "first_name": { "_title": "שם פרטי" },
+    "last_name": { "_title": "שם משפחה" },
     "role": {
       "_title": "תפקיד",
       "platoon_leader": "מ\"מ",
-      "platoon_sergeant": "סמ\"ח",
-      "sergeant": "מ\"כ",
-      "driver": "נהג",
-      "medic": "חובש",
-      "marksman": "קלע",
+      "platoon_senior_sergeant": "סמ\"ח",
+      "platoon_sergeant": "מ\"כ",
       "trooper": "לוחם"
     },
-    "position": {
+    "professions": {
+      "_title": "הסמכות",
+      "sergeant": "מ\"כ",
+      "medic": "חובש",
+      "marksman": "קלע",
+      "driver": "נהג",
+      "driver_david": "נהג דוד",
+      "driver_savannah": "נהג סוואנה",
+      "driver_logistics": "נהג דימקס"
+    },
+    "service_type": {
       "_title": "סוג שירות",
       "enlisted": "סדיר",
       "nco": "נגד",
@@ -52,6 +57,7 @@
     }
   },
   "task": {
+    "_title": "משימה",
     "taskCommander": "מפקד משימה",
     "teamCommander": "מפקד",
     "teamDriver": "נהג",

@@ -6,160 +6,105 @@ import labels from '../../../hebrew_labels.json'
 
 export default function AddPersonForm() {
   const hebrew = /^[\u0590-\u05FF-]*$/
-  const english = /^[A-Za-z-]+$/
+  const service_number = /^\d{7}$/
   const schema = yup.object().shape({
-    unit: yup.string().notOneOf(['0']).required(),
-    first_name_he: yup.string().required().matches(hebrew),
-    first_name_en: yup.string().required().matches(english),
-    last_name_he: yup.string().required().matches(hebrew),
-    last_name_en: yup.string().required().matches(english),
-    position: yup.string().notOneOf(['0']).required(),
-    rank: yup.string().notOneOf(['0']).required()
+    affiliation: yup.string().notOneOf(['0']).required(),
+    first_name: yup.string().required().matches(hebrew),
+    last_name: yup.string().required().matches(hebrew),
+    service_number: yup.string().required().matches(service_number),
+    service_type: yup.string().notOneOf(['0']).required(),
+    rank: yup.string().notOneOf(['0']).required(),
+    role: yup.string().notOneOf(['0']).required()
   })
-
-  const headerRow = [
-    'unit',
-    'first_name_he',
-    'first_name_en',
-    'last_name_he',
-    'last_name_en',
-    'role',
-    'position',
-    'sex',
-    'rank',
-    'service_number',
-    'id_number'
-  ]
 
   return (
     <Formik
       validationSchema={schema}
       initialValues={{
-        unit: '0',
-        first_name_he: '',
-        first_name_en: '',
-        last_name_he: '',
-        last_name_en: '',
-        position: '0',
-        rank: '0'
+        affiliation: '0',
+        first_name: '',
+        last_name: '',
+        service_number: '',
+        service_type: '0',
+        rank: '0',
+        profession: [],
+        role: '0'
       }}
       onSubmit={(values) => console.log(values)}
     >
       {({ handleSubmit, handleChange, handleBlur, values, errors, setFieldValue, submitCount }) => {
         useEffect(() => {
           setFieldValue('rank', '0')
-        }, [values.position, setFieldValue])
+        }, [values.service_type, setFieldValue])
         return (
           <Form noValidate onSubmit={handleSubmit}>
-            <Form.Group controlId="form_unit">
-              <Form.Label>{labels.props.unit._title}</Form.Label>
-              <Form.Select
-                name="unit"
-                value={values.unit}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isValid={!errors.unit && submitCount > 0}
-                isInvalid={errors.unit && submitCount > 0}
-              >
-                <option value="0" />
-                {Object.keys(labels.props.unit)
-                  .filter((key) => !key.startsWith('_'))
-                  .map((key, idx) => (
-                    <option key={idx} value={key}>
-                      {labels.props.unit[key][0]}
-                    </option>
-                  ))}
-              </Form.Select>
-              {/* <Form.Control.Feedback type="invalid">{errors.unit}</Form.Control.Feedback> */}
-            </Form.Group>
-
+            {/* service number & id number */}
             <Row>
-              <Col>
-                <Form.Group controlId="form_first_name_he">
-                  <Form.Label>{labels.props.first_name_he._title}</Form.Label>
-                  <Form.Control
-                    name="first_name_he"
-                    type="text"
-                    value={values.first_name_he}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isValid={!errors.first_name_he && submitCount > 0}
-                    isInvalid={errors.first_name_he && submitCount > 0}
-                  />
-                  {/* <Form.Control.Feedback type="invalid">{errors.first_name_he}</Form.Control.Feedback> */}
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group controlId="form_first_name_en">
-                  <Form.Label>First Name</Form.Label>
-                  <Form.Control
-                    name="first_name_en"
-                    type="text"
-                    value={values.first_name_en}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isValid={!errors.first_name_en && submitCount > 0}
-                    isInvalid={errors.first_name_en && submitCount > 0}
-                  />
-                  {/* <Form.Control.Feedback type="invalid">{errors.first_name_en}</Form.Control.Feedback> */}
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col>
-                <Form.Group controlId="form_last_name_he">
-                  <Form.Label>{labels.props.last_name_he._title}</Form.Label>
-                  <Form.Control
-                    name="last_name_he"
-                    type="text"
-                    value={values.last_name_he}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isValid={!errors.last_name_he && submitCount > 0}
-                    isInvalid={errors.last_name_he && submitCount > 0}
-                  />
-                  {/* <Form.Control.Feedback type="invalid">{errors.last_name_he}</Form.Control.Feedback> */}
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group controlId="form_last_name_en">
-                  <Form.Label>Last Name</Form.Label>
-                  <Form.Control
-                    name="last_name_en"
-                    type="text"
-                    value={values.last_name_en}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isValid={!errors.last_name_en && submitCount > 0}
-                    isInvalid={errors.last_name_en && submitCount > 0}
-                  />
-                  {/* <Form.Control.Feedback type="invalid">{errors.last_name_en}</Form.Control.Feedback> */}
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Row>
-              <Form.Group controlId="form_position" as={Col}>
-                <Form.Label>סוג שירות</Form.Label>
-                <Form.Select
-                  name="position"
-                  value={values.position}
+              <Form.Group controlId="form_service_number" as={Col}>
+                <Form.Label>מספר אישי</Form.Label>
+                <Form.Control
+                  name="service_number"
+                  type="text"
+                  value={values.service_number}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  isValid={!errors.position && submitCount > 0}
-                  isInvalid={errors.position && submitCount > 0}
+                  isValid={!errors.service_number && submitCount > 0}
+                  isInvalid={errors.service_number && submitCount > 0}
+                />
+                {/* <Form.Control.Feedback type="invalid">{errors.last_name_en}</Form.Control.Feedback> */}
+              </Form.Group>
+            </Row>
+            {/* first name & last name */}
+            <Row>
+              <Form.Group controlId="form_first_name" as={Col}>
+                <Form.Label>{labels.person.first_name._title}</Form.Label>
+                <Form.Control
+                  name="first_name"
+                  type="text"
+                  value={values.first_name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isValid={!errors.first_name && submitCount > 0}
+                  isInvalid={errors.first_name && submitCount > 0}
+                />
+                {/* <Form.Control.Feedback type="invalid">{errors.first_name}</Form.Control.Feedback> */}
+              </Form.Group>
+              <Form.Group controlId="form_last_name" as={Col}>
+                <Form.Label>{labels.person.last_name._title}</Form.Label>
+                <Form.Control
+                  name="last_name"
+                  type="text"
+                  value={values.last_name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isValid={!errors.last_name && submitCount > 0}
+                  isInvalid={errors.last_name && submitCount > 0}
+                />
+                {/* <Form.Control.Feedback type="invalid">{errors.last_name}</Form.Control.Feedback> */}
+              </Form.Group>
+            </Row>
+            {/* service type & rank*/}
+            <Row>
+              <Form.Group controlId="form_service_type" as={Col}>
+                <Form.Label>סוג שירות</Form.Label>
+                <Form.Select
+                  name="service_type"
+                  value={values.service_type}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isValid={!errors.service_type && submitCount > 0}
+                  isInvalid={errors.service_type && submitCount > 0}
                 >
                   <option value="0" />
-                  {Object.keys(labels.props.position)
+                  {Object.keys(labels.person.service_type)
                     .filter((key) => !key.startsWith('_'))
                     .map((key, idx) => (
                       <option key={idx} value={key}>
-                        {labels.props.position[key]}
+                        {labels.person.service_type[key]}
                       </option>
                     ))}
                 </Form.Select>
-                {/* <Form.Control.Feedback type="invalid">{errors.position}</Form.Control.Feedback> */}
+                {/* <Form.Control.Feedback type="invalid">{errors.service_type}</Form.Control.Feedback> */}
               </Form.Group>
               <Form.Group controlId="form_rank" as={Col}>
                 <Form.Label>דרגה</Form.Label>
@@ -168,17 +113,17 @@ export default function AddPersonForm() {
                   value={values.rank}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  isValid={!errors.rank && values.position !== '0' && submitCount > 0}
+                  isValid={!errors.rank && values.service_type !== '0' && submitCount > 0}
                   isInvalid={errors.rank && submitCount > 0}
-                  disabled={values.position === '0'}
+                  disabled={values.service_type === '0'}
                 >
                   <option value="0" />
-                  {Object.keys(labels.props.rank)
+                  {Object.keys(labels.person.rank)
                     .filter((key) => !key.startsWith('_'))
                     .filter((key) => {
-                      if (values.position === 'enlisted') {
+                      if (values.service_type === 'enlisted') {
                         return key.startsWith('e') && key[1] <= '3'
-                      } else if (values.position === 'nco') {
+                      } else if (values.service_type === 'nco') {
                         return key.startsWith('e') && key[1] >= '3'
                       } else {
                         return key.startsWith('o') // Officer
@@ -186,15 +131,94 @@ export default function AddPersonForm() {
                     })
                     .map((key, idx) => (
                       <option key={idx} value={key}>
-                        {labels.props.rank[key][0]}
+                        {labels.person.rank[key][0]}
                       </option>
                     ))}
                 </Form.Select>
                 {/* <Form.Control.Feedback type="invalid">{errors.rank}</Form.Control.Feedback> */}
               </Form.Group>
             </Row>
+            {/* affiliation & role */}
+            <Row>
+              <Form.Group controlId="form_affiliation" as={Col}>
+                <Form.Label>{labels.person.affiliation._title}</Form.Label>
+                <Form.Select
+                  name="affiliation"
+                  value={values.affiliation}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isValid={!errors.affiliation && submitCount > 0}
+                  isInvalid={errors.affiliation && submitCount > 0}
+                >
+                  <option value="0" />
+                  {Object.keys(labels.person.affiliation)
+                    .filter((key) => !key.startsWith('_'))
+                    .map((key, idx) => (
+                      <option key={idx} value={key}>
+                        {labels.person.affiliation[key]}
+                      </option>
+                    ))}
+                </Form.Select>
+                {/* <Form.Control.Feedback type="invalid">{errors.affiliation}</Form.Control.Feedback> */}
+              </Form.Group>
+              <Form.Group controlId="form_role" as={Col}>
+                <Form.Label>{labels.person.role._title}</Form.Label>
+                <Form.Select
+                  name="role"
+                  value={values.role}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isValid={!errors.affiliation && submitCount > 0}
+                  isInvalid={errors.affiliation && submitCount > 0}
+                >
+                  <option value="0" />
+                  {Object.keys(labels.person.role)
+                    .filter((key) => !key.startsWith('_'))
+                    .map((key, idx) => (
+                      <option key={idx} value={key}>
+                        {labels.person.role[key]}
+                      </option>
+                    ))}
+                </Form.Select>
+                {/* <Form.Control.Feedback type="invalid">{errors.affiliation}</Form.Control.Feedback> */}
+              </Form.Group>
+            </Row>
+            {/* role */}
+            <Row></Row>
+            {/* proffesions */}
+            <Row>
+              <Form.Group controlId="form_profession" as={Col}>
+                <Form.Label>{labels.person.profession._title}</Form.Label>
+                {Object.keys(labels.person.profession)
+                  .filter((key) => !key.startsWith('_'))
+                  .map((key, idx) => (
+                    <Form.Check
+                      key={idx}
+                      id={`checkbox-${key}`}
+                      label={labels.person.profession[key]}
+                      checked={values.profession.includes(key)} // Check if key exists in profession array
+                      onChange={(e) => {
+                        const { checked } = e.target
+                        if (checked) {
+                          // Add profession key to array
+                          setFieldValue('profession', [...values.profession, key])
+                        } else {
+                          // Remove profession key from array
+                          setFieldValue(
+                            'profession',
+                            values.profession.filter((item) => item !== key)
+                          )
+                        }
+                      }}
+                    />
+                  ))}
+              </Form.Group>
+            </Row>
+
             <Row as={Col} style={{ marginTop: '30px' }}>
-              <Button type="submit">Submit</Button>
+              <Button type="submit" variant="outline-primary">
+                שמור
+              </Button>
             </Row>
           </Form>
         )

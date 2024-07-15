@@ -5,28 +5,10 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import fs from 'fs'
-import csv from 'csv-parser'
+import PouchDB from 'pouchdb'
 
-const CSV_FILENAME = 'people.csv'
-
-// // Initialize the database
-// const db = new Database(join(__dirname, '../../', DB_FILENAME), {
-//   verbose: console.log,
-//   fileMustExist: true
-// })
-
-function parseCSVToArray(filePath) {
-  const records = []
-
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (data) => records.push(data))
-      .on('end', () => resolve(records))
-      .on('error', (error) => reject(error))
-  })
-}
+const peopleDb = new PouchDB('.db/people')
+// TODO Add vehicle DB
 
 function createWindow() {
   // Create the browser window.
@@ -75,10 +57,15 @@ app.whenReady().then(() => {
   })
 
   // IPC communication to fetch data from renderer process
-  ipcMain.handle('get-people', async () => {
+  ipcMain.handle('get-all-people', async () => {
     try {
-      const rows = await parseCSVToArray(join(__dirname, '../../', CSV_FILENAME))
-      return rows
+      const result = await peopleDb.allDocs({ include_docs: true })
+      const docs = result.rows.map((row) => {
+        const doc = row.doc
+        doc.service_number = doc._id
+        return doc
+      })
+      return docs
     } catch (error) {
       console.error('Error parsing CSV:', error)
       return []
