@@ -1,2 +1,2 @@
-import DatabasePage from './DatabasePage'
-export default DatabasePage
+import Page from './Page'
+export default Page

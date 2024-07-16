@@ -3,6 +3,6 @@ dist
 out
 .DS_Store
 *.log*
-.db
+db
 .vscode
 build

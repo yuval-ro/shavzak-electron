@@ -1,34 +1,42 @@
 import { useEffect, useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
-
-import Database from './pages/Database'
-import AddPersonForm from './pages/Database/AddPersonForm'
+import styled from 'styled-components'
+import DatabasePage from './pages/Database'
+import AddPersonForm from './pages/Database/forms/VehicleForm'
 
 export default function App() {
   const [people, setPeople] = useState([])
+  const [vehicles, setVehicles] = useState([])
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const people = await window.api.getAllPeople()
-        setPeople(people)
-        console.debug({ people })
-      } catch (error) {
-        console.error('Failed to fetch people:', error)
-      }
+    async function fetchPeople() {
+      const data = await window.api.getAllPeople()
+      return data
     }
-    fetchData()
+    const fetchVehicles = async () => {
+      const data = await window.api.getAllVehicles()
+      return data
+    }
+    fetchPeople().then((people) => setPeople(people))
+    fetchVehicles().then((vehicles) => setVehicles(vehicles))
   }, [])
+  
+  const OuterFrame = styled.div`
+    display: grid;
+    height: 100vh;
+    padding: 50px;
+    background-color: lightgray;
+  `
+  const InnerFrameContainer = styled.div`
+    background-color: white;
+    direction: rtl;
+  `
 
-  return <Database people={people} />
-  // return (
-  //   <Container fluid style={{ direction: 'rtl' }}>
-  //     <Row>
-  //       <Col>
-  //         <AddPersonForm />
-  //       </Col>
-  //       <Col xs={6}></Col>
-  //     </Row>
-  //   </Container>
-  // )
+  return (
+    <OuterFrame>
+      <InnerFrameContainer>
+        <DatabasePage data={{ people, vehicles }} />
+      </InnerFrameContainer>
+    </OuterFrame>
+  )
 }

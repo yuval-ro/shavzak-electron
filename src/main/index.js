@@ -7,7 +7,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import PouchDB from 'pouchdb'
 
-const peopleDb = new PouchDB('.db/people')
+const peopleDb = new PouchDB('db/people')
+const vehicleDb = new PouchDB('db/vehicles')
 // TODO Add vehicle DB
 
 function createWindow() {
@@ -58,18 +59,14 @@ app.whenReady().then(() => {
 
   // IPC communication to fetch data from renderer process
   ipcMain.handle('get-all-people', async () => {
-    try {
-      const result = await peopleDb.allDocs({ include_docs: true })
-      const docs = result.rows.map((row) => {
-        const doc = row.doc
-        doc.service_number = doc._id
-        return doc
-      })
-      return docs
-    } catch (error) {
-      console.error('Error parsing CSV:', error)
-      return []
-    }
+    const result = await peopleDb.allDocs({ include_docs: true })
+    const docs = result.rows.map((row) => row.doc)
+    return docs
+  })
+  ipcMain.handle('get-all-vehicles', async () => {
+    const result = await vehicleDb.allDocs({ include_docs: true })
+    const docs = result.rows.map((row) => row.doc)
+    return docs
   })
 
   createWindow()

@@ -1,4 +1,27 @@
 {
+  "vehicle": {
+    "plate_number": {
+      "_title": "מספר לוחית"
+    },
+    "type": {
+      "_title": "סוג רכב",
+      "david_manual": "דוד ידני",
+      "david_automatic": "דוד אוטומטי",
+      "savannah_armored": "סוואנה בט\"ש",
+      "savannah_unarmored": "סוואנה לבנה",
+      "hilux_armored": "היילקס בט\"ש",
+      "hilux_unarmored": "היילקס לבן",
+      "triton_armored": "טריטון בט\"ש",
+      "triton_unarmored": "טריטון לבן",
+      "tigris": "טיגריס",
+      "zeev": "זאב",
+      "truck": "משאית",
+      "panther": "פנתר"
+    },
+    "seats": {
+      "_title": "מספר מושבים"
+    }
+  },
   "person": {
     "service_number": {
       "_title": "מספר אישי"
@@ -16,11 +39,16 @@
     },
     "first_name": { "_title": "שם פרטי" },
     "last_name": { "_title": "שם משפחה" },
-    "role": {
+    "active_role": {
       "_title": "תפקיד",
-      "platoon_leader": "מ\"מ",
-      "platoon_senior_sergeant": "סמ\"ח",
-      "platoon_sergeant": "מ\"כ",
+      "company_co": "מ\"פ",
+      "company_xo": "סמ\"פ",
+      "oo": "קמב\"ץ",
+      "dnco": "נגד משמעת",
+      "os": "סמב\"ץ",
+      "platoon_co": "מ\"מ",
+      "platoon_xo": "סמ\"ח",
+      "sergeant": "מ\"כ",
       "trooper": "לוחם"
     },
     "professions": {
@@ -28,10 +56,18 @@
       "sergeant": "מ\"כ",
       "medic": "חובש",
       "marksman": "קלע",
-      "driver": "נהג",
-      "driver_david": "נהג דוד",
-      "driver_savannah": "נהג סוואנה",
-      "driver_logistics": "נהג דימקס"
+      "driver": "נהג"
+    },
+    "licenses": {
+      "_title": "היתרים",
+      "david_manual": "דוד ידני",
+      "david_automatic": "דוד אוטומטי",
+      "c": "רשיון ג",
+      "b": "רשיון ב",
+      "tigris": "טיגריס",
+      "zeev": "זאב",
+      "truck": "משאית",
+      "panther": "פנתר"
     },
     "service_type": {
       "_title": "סוג שירות",
