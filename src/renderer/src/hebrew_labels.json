@@ -18,6 +18,9 @@
       "truck": "משאית",
       "panther": "פנתר"
     },
+    "nickname": {
+      "_title": "כינוי"
+    },
     "seats": {
       "_title": "מספר מושבים"
     }

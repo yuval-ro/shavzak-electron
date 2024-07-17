@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { Tabs, Tab, Modal, Button, Row, Col, Form as BSForm } from 'react-bootstrap'
+import { Tabs, Tab, Button, Form } from 'react-bootstrap'
 import { FaPlus } from 'react-icons/fa'
 
 import Table from './Table'
-import Form from './forms/PersonForm'
 import labels from '../../hebrew_labels.json'
-import PersonForm from './forms/PersonForm'
+import { PersonForm } from './addFeature'
 
 export default function Page({ data }) {
-  const PersonForm = <Form labels={labels.person} onSubmit={handleFormSubmit} />
-  const VehicleForm = <Form labels={labels.vehicle} onSubmit={handleFormSubmit} />
+  const personForm = (
+    <PersonForm labels={labels.person} onSubmit={handleFormSubmit} onCancel={handleFormCancel} />
+  )
+  const vehicleForm = null // TODO <VehicleForm labels={labels.vehicle} onSubmit={handleFormSubmit} />
   const ManpowerTable = (
     <Table
       data={data?.people}
@@ -49,6 +50,9 @@ export default function Page({ data }) {
       labels={labels.person}
       abbreviated={true}
       onAddButtonClick={handleAddButtonClick}
+      labelFn={(person) =>
+        `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`
+      }
     />
   )
   const VehicleTable = (
@@ -69,11 +73,12 @@ export default function Page({ data }) {
       labels={labels.vehicle}
       abbreviated={true}
       onAddButtonClick={handleAddButtonClick}
+      labelFn={(vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`}
     />
   )
   const ControlRow = (
     <div style={{ display: 'flex', margin: '5px' }}>
-      <BSForm.Control type="text" placeholder="חיפוש" style={{ marginLeft: '10px' }} />
+      <Form.Control type="text" placeholder="חיפוש" style={{ marginLeft: '10px' }} />
       <Button
         variant="outline-primary"
         onClick={handleAddButtonClick}
@@ -93,7 +98,7 @@ export default function Page({ data }) {
   )
 
   const [showFormModal, setShowFormModal] = useState(false)
-  const [form, setForm] = useState(PersonForm)
+  const [form, setForm] = useState(personForm)
   const [activeTab, setActiveTab] = useState('people') // State to track the active tab
   const [searchFilter, setSearchFilter] = useState('')
 
@@ -101,25 +106,29 @@ export default function Page({ data }) {
     setActiveTab(key) // Update the active tab state
     console.debug({ key })
     if (key === 'people') {
-      setForm(PersonForm)
+      setForm(personForm)
     } else if (key === 'vehicles') {
-      setForm(VehicleForm) // Do nothing for vehicles as per the TODO IGNORE
+      setForm(vehicleForm) // Do nothing for vehicles as per the TODO IGNORE
     }
   }
 
   function handleAddButtonClick() {
     if (activeTab === 'people') {
-      setForm(PersonForm)
+      setForm(personForm)
       setShowFormModal(true) // Show the modal
     } else if (activeTab === 'vehicles') {
-      setForm(VehicleForm)
+      setForm(vehicleForm)
       setShowFormModal(true) // Show the modal
     }
   }
 
+  function handleFormCancel() {
+    setShowFormModal(false)
+  }
+
   function getModalHeader() {
     if (activeTab === 'people') {
-      return 'הוסף אדם'
+      return 'הוסף שוטר'
     } else if (activeTab === 'vehicles') {
       return 'הוסף רכב'
     }
@@ -131,24 +140,16 @@ export default function Page({ data }) {
 
   return (
     <div>
-      <Tabs defaultActiveKey="people" className="px-0">
-        <Tab eventKey="people" title="כוח אדם" onSelect={handleTabSelect}>
+      <Tabs defaultActiveKey="people" className="px-0" onSelect={handleTabSelect}>
+        <Tab eventKey="people" title="שוטרים">
           {ControlRow}
           {ManpowerTable}
         </Tab>
-        <Tab eventKey="vehicles" title="רכבים" onSelect={handleTabSelect}>
+        <Tab eventKey="vehicles" title="רכבים">
           {ControlRow}
           {VehicleTable}
         </Tab>
       </Tabs>
-      <Modal
-        show={showFormModal}
-        onHide={() => setShowFormModal(false)}
-        style={{ direction: 'rtl' }}
-      >
-        <Modal.Header>{getModalHeader()}</Modal.Header>
-        <Modal.Body>{form}</Modal.Body>
-      </Modal>
     </div>
   )
 }
