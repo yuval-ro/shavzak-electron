@@ -1,41 +1,55 @@
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
 import { MainPage as DatabaseMainPage } from './pages/Database'
-import { AddPersonModal, AddVehicleModal } from './pages/Database/addFeature'
-
-const OuterFrame = styled.div`
-  display: grid;
-  height: 100vh;
-  padding: 50px;
-  background-color: lightgray;
-`
-const InnerFrameContainer = styled.div`
-  background-color: white;
-  direction: rtl;
-`
 
 export default function App() {
-  const [people, setPeople] = useState([])
-  const [vehicles, setVehicles] = useState([])
+  const [data, setData] = useState({ people: [], vehicles: [] })
 
   useEffect(() => {
-    async function fetchPeople() {
-      const data = await window.api.getAllPeople()
-      return data
+    const fetchData = async () => {
+      const people = await window.api.readDocs('people')
+      const vehicles = await window.api.readDocs('vehicles')
+      setData({ people, vehicles })
     }
-    const fetchVehicles = async () => {
-      const data = await window.api.getAllVehicles()
-      return data
-    }
-    fetchPeople().then((people) => setPeople(people))
-    fetchVehicles().then((vehicles) => setVehicles(vehicles))
+
+    fetchData()
   }, [])
 
+  const handleEdit = async (collection, doc) => {
+    const updated = await window.api.updateDoc(collection, doc)
+    setData((prevData) => ({
+      ...prevData,
+      [collection]: prevData[collection].map((item) => (item._id === updated._id ? updated : item))
+    }))
+  }
+
+  const handleAdd = async (collection, doc) => {
+    const newDoc = await window.api.createDoc(collection, doc)
+    setData((prevData) => ({
+      ...prevData,
+      [collection]: [...prevData[collection], newDoc]
+    }))
+  }
+
+  const handleDelete = async (collection, doc) => {
+    await window.api.deleteDoc(collection, doc)
+    setData((prevData) => ({
+      ...prevData,
+      [collection]: prevData[collection].filter((item) => item._id !== doc._id)
+    }))
+  }
+
   return (
-    <OuterFrame>
-      <InnerFrameContainer>
-        <DatabaseMainPage data={{ people, vehicles }} />
-      </InnerFrameContainer>
-    </OuterFrame>
+    <div
+      style={{ display: 'grid', height: '100vh', padding: '50px', backgroundColor: 'lightgray' }}
+    >
+      <div style={{ backgroundColor: 'white', direction: 'rtl' }}>
+        <DatabaseMainPage
+          data={data}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </div>
+    </div>
   )
 }

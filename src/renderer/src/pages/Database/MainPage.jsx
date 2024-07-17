@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Tabs, Tab } from 'react-bootstrap'
 
 import Table from './Table'
-import labels from '../../hebrew_labels.json'
 import { AddPersonModal, AddVehicleModal } from './addFeature'
 import ControlRow from './ControlRow'
 
-export default function MainPage({ data }) {
+import labels from '#src/labels.json'
+
+export default function MainPage({ data, onAdd, onEdit, onDelete }) {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people') // State to track the active tab
 
@@ -23,13 +24,15 @@ export default function MainPage({ data }) {
   function handleModalSave(values) {
     // TODO Implement
     console.debug({ values })
+    setModal(null)
   }
+
   function handleModalCancel() {
-    setModal(false)
+    setModal(null)
   }
 
   return (
-    <div>
+    <>
       {modal}
       <Tabs
         defaultActiveKey="people"
@@ -41,6 +44,8 @@ export default function MainPage({ data }) {
         <Tab eventKey="people" title="שוטרים">
           <ControlRow onAddClick={handleAddButtonClick} />
           <Table
+            onDelete={(person) => onDelete('people', person)}
+            onEdit={(person) => onEdit('people', person)}
             data={data?.people}
             cols={[
               { key: 'service_number', translate: false },
@@ -86,6 +91,8 @@ export default function MainPage({ data }) {
         <Tab eventKey="vehicles" title="רכבים">
           <ControlRow onAddClick={handleAddButtonClick} />
           <Table
+            onDelete={(vehicle) => onDelete(vehicle)}
+            onEdit={(vehicle) => onEdit(vehicle)}
             data={data?.vehicles}
             cols={[
               { key: 'plate_number', translate: false },
@@ -106,6 +113,6 @@ export default function MainPage({ data }) {
           />
         </Tab>
       </Tabs>
-    </div>
+    </>
   )
 }

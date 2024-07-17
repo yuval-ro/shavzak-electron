@@ -32,7 +32,16 @@ const Scrollable = styled.div`
   overflow-y: auto;
 `
 
-export default function Table({ cols, data, labels, sortFn, abbreviated, labelFn }) {
+export default function Table({
+  cols,
+  data,
+  labels,
+  sortFn,
+  abbreviated,
+  labelFn,
+  onDelete,
+  onEdit
+}) {
   function renderCellValue({ key, translate }, item) {
     const value = item[key]
     if (translate) {
@@ -51,11 +60,13 @@ export default function Table({ cols, data, labels, sortFn, abbreviated, labelFn
   }
 
   function handleDelete(id) {
-    alert(`deleting id: ${id}`)
+    const item = data.find((item) => item._id === id)
+    onDelete(item)
   }
 
   function handleEdit(id) {
-    alert(`editing id: ${id}`)
+    const item = data.find((item) => item._id === id)
+    onEdit(item)
   }
 
   return (

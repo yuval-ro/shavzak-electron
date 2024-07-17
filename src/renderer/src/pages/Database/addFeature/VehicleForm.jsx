@@ -1,11 +1,12 @@
 import { forwardRef, useImperativeHandle } from 'react'
 import { Form, Row } from 'react-bootstrap'
 import { Formik } from 'formik'
+import * as yup from 'yup'
+import styled from 'styled-components'
+
 import SelectFormGroup from './SelectFormGroup'
 import TextFormGroup from './TextFormGroup'
-import * as yup from 'yup'
-
-import styled from 'styled-components'
+import labels_ from '#src/labels.json'
 
 const FormRow = styled(Row)`
   margin-bottom: 10px;
@@ -23,7 +24,8 @@ const initialValues = {
   nickname: ''
 }
 
-const VehicleForm = forwardRef(({ labels, onSubmit }, ref) => {
+const VehicleForm = forwardRef(({ onSubmit }, ref) => {
+  const labels = labels_?.vehicle
   return (
     <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
       {({

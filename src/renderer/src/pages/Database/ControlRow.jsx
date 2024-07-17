@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Form, Button } from 'react-bootstrap'
-import { FaPlus } from 'react-icons/fa'
 
 export default function ControlRow({ onAddClick }) {
   const [searchFilter, setSearchFilter] = useState('')
@@ -10,17 +9,16 @@ export default function ControlRow({ onAddClick }) {
       <Button
         variant="outline-primary"
         onClick={onAddClick}
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: '3px',
-          width: '70px',
-          justifyContent: 'space-between'
-        }}
+        // style={{
+        //   display: 'flex',
+        //   flexDirection: 'row',
+        //   alignItems: 'center',
+        //   padding: '3px',
+        //   width: '70px',
+        //   justifyContent: 'space-between'
+        // }}
       >
-        <small>הוספה</small>
-        <FaPlus />
+        הוסף
       </Button>
     </div>
   )

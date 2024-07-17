@@ -5,11 +5,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import PouchDB from 'pouchdb'
-
-const peopleDb = new PouchDB('db/people')
-const vehicleDb = new PouchDB('db/vehicles')
-// TODO Add vehicle DB
+import { handlers, middleware } from './db.js'
 
 function createWindow() {
   // Create the browser window.
@@ -57,17 +53,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC communication to fetch data from renderer process
-  ipcMain.handle('get-all-people', async () => {
-    const result = await peopleDb.allDocs({ include_docs: true })
-    const docs = result.rows.map((row) => row.doc)
-    return docs
-  })
-  ipcMain.handle('get-all-vehicles', async () => {
-    const result = await vehicleDb.allDocs({ include_docs: true })
-    const docs = result.rows.map((row) => row.doc)
-    return docs
-  })
+  ipcMain.handle('create-doc', middleware.validate(handlers.createOne))
+  ipcMain.handle('read-docs', middleware.validate(handlers.readAll))
+  ipcMain.handle('update-doc', middleware.validate(handlers.updateOne))
+  ipcMain.handle('delete-doc', middleware.validate(handlers.deleteOne))
 
   createWindow()
 
