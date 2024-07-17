@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-// import DatabasePage from './pages/Database'
+import { MainPage as DatabaseMainPage } from './pages/Database'
 import { AddPersonModal, AddVehicleModal } from './pages/Database/addFeature'
 
 const OuterFrame = styled.div`
@@ -32,19 +32,10 @@ export default function App() {
   }, [])
 
   return (
-    // <OuterFrame>
-    //   <InnerFrameContainer>
-    //     <DatabasePage data={{ people, vehicles }} />
-    //   </InnerFrameContainer>
-    // </OuterFrame>
-    <AddVehicleModal
-      show={true}
-      onSave={(values) => {
-        console.debug({ values })
-      }}
-      onCancel={() => {
-        alert('cancel')
-      }}
-    />
+    <OuterFrame>
+      <InnerFrameContainer>
+        <DatabaseMainPage data={{ people, vehicles }} />
+      </InnerFrameContainer>
+    </OuterFrame>
   )
 }

@@ -3,11 +3,11 @@ import { Modal, Button } from 'react-bootstrap'
 
 import { FormSubmitProvider } from './context'
 
-export default function AddModal({ show, onCancel, title, form }) {
+export default function AddModal({ onCancel, title, form }) {
   const formikRef = useRef()
 
   return (
-    <Modal keyboard={false} backdrop="static" show={show} style={{ direction: 'rtl' }}>
+    <Modal keyboard={false} backdrop="static" show={true} style={{ direction: 'rtl' }}>
       <Modal.Header style={{ fontWeight: 'bold' }}>{title}</Modal.Header>
       <FormSubmitProvider value={formikRef}>
         <Modal.Body style={{ paddingBottom: '5px', paddingTop: '10px' }}>
