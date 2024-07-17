@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Form, Button } from 'react-bootstrap'
 
 export default function ControlRow({ onAddClick }) {
-  const [searchFilter, setSearchFilter] = useState('')
+  const [searchFilter, setSearchFilter] = useState('') // TODO Implement this feature.
   return (
     <div style={{ display: 'flex', margin: '5px' }}>
       <Form.Control type="text" placeholder="חיפוש" style={{ marginLeft: '10px' }} />

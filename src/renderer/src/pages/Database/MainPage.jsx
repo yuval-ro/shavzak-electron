@@ -4,36 +4,71 @@ import { Tabs, Tab } from 'react-bootstrap'
 import Table from './Table'
 import { AddPersonModal, AddVehicleModal } from './addFeature'
 import ControlRow from './ControlRow'
+import ConfirmModal from './ConfirmModal'
 
 import labels from '#src/labels.json'
 
 export default function MainPage({ data, onAdd, onEdit, onDelete }) {
-  const [modal, setModal] = useState(null)
+  const [confirmModal, setConfirmModal] = useState(null)
+  const [deletionCandidate, setDeletionCandidate] = useState({})
+  const [editModal, setEditModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people') // State to track the active tab
 
   function handleAddButtonClick() {
     if (activeTab === 'people') {
-      setModal(<AddPersonModal onSave={handleModalSave} onCancel={handleModalCancel} />)
+      setEditModal(<AddPersonModal onSave={handleEditModalOk} onCancel={handleEditModalCancel} />)
     } else if (activeTab === 'vehicles') {
-      setModal(<AddVehicleModal onSave={handleModalSave} onCancel={handleModalCancel} />)
+      setEditModal(<AddVehicleModal onSave={handleEditModalOk} onCancel={handleEditModalCancel} />)
     } else {
-      setModal(null)
+      setEditModal(null)
     }
   }
 
-  function handleModalSave(values) {
+  function handleEditModalOk(values) {
     // TODO Implement
     console.debug({ values })
-    setModal(null)
+    setEditModal(null)
   }
 
-  function handleModalCancel() {
-    setModal(null)
+  function handleEditModalCancel() {
+    setEditModal(null)
+  }
+
+  function handleDeleteContextMenu(collection, item) {
+    setConfirmModal(
+      <ConfirmModal
+        title="מחיקת רשומה"
+        body={
+          <div style={{ textAlign: 'center' }}>
+            <span>האם אתה בטוח שאתה מעוניין למחוק את הרשומה?</span>
+            <br />
+            <span>הפעולה אינה הפיכה!</span>
+            <br />
+            <br />
+            <span style={{ fontWeight: 'bold' }}>{labelFn[collection](item)}</span>
+          </div>
+        }
+        onConfirm={() => {
+          onDelete(collection, item)
+          setConfirmModal(null)
+        }}
+        onCancel={() => setConfirmModal(null)}
+        okButtonVariant="outline-danger"
+      />
+    )
+    // TODO Call onDelete(collection, item)
+  }
+
+  const labelFn = {
+    people: (person) =>
+      `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`,
+    vehicles: (vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`
   }
 
   return (
     <>
-      {modal}
+      {confirmModal}
+      {editModal}
       <Tabs
         defaultActiveKey="people"
         className="px-0"
@@ -44,7 +79,7 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
         <Tab eventKey="people" title="שוטרים">
           <ControlRow onAddClick={handleAddButtonClick} />
           <Table
-            onDelete={(person) => onDelete('people', person)}
+            onDelete={(person) => handleDeleteContextMenu('people', person)}
             onEdit={(person) => onEdit('people', person)}
             data={data?.people}
             cols={[
@@ -83,15 +118,13 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
             labels={labels.person}
             abbreviated={true}
             onAddButtonClick={handleAddButtonClick}
-            labelFn={(person) =>
-              `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`
-            }
+            labelFn={labelFn.people}
           />
         </Tab>
         <Tab eventKey="vehicles" title="רכבים">
           <ControlRow onAddClick={handleAddButtonClick} />
           <Table
-            onDelete={(vehicle) => onDelete(vehicle)}
+            onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
             onEdit={(vehicle) => onEdit(vehicle)}
             data={data?.vehicles}
             cols={[
@@ -109,7 +142,7 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
             labels={labels.vehicle}
             abbreviated={true}
             onAddButtonClick={handleAddButtonClick}
-            labelFn={(vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`}
+            labelFn={labelFn.vehicles}
           />
         </Tab>
       </Tabs>
