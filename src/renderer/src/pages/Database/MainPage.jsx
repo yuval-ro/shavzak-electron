@@ -14,11 +14,17 @@ const StyledTable = styled(Table)``
 export default function MainPage({ data, onPost, onDelete }) {
   const [confirmModal, setConfirmModal] = useState(null)
   const [itemModal, setEntryModal] = useState(null)
-  const [activeTab, setActiveTab] = useState('people') // State to track the active tab
+  const [activeTab, setActiveTab] = useState('people')
+  const [keywordFilter, setKeywordFilter] = useState('')
+
   const labelFn = {
     people: (person) =>
       `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`,
     vehicles: (vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`
+  }
+
+  function handleSearchChange(keyword) {
+    setKeywordFilter(keyword)
   }
 
   function handleAddButtonClick() {
@@ -104,6 +110,28 @@ export default function MainPage({ data, onPost, onDelete }) {
     )
   }
 
+  function filterPeople(people) {
+    var result = people
+    if (keywordFilter !== '') {
+      result = result.filter(({ service_number, first_name, last_name }) =>
+        [service_number, first_name, last_name].some((item) => item && item.includes(keywordFilter))
+      )
+    }
+    return result
+  }
+
+  function filterVehicles(vehicles) {
+    var result = vehicles
+    if (keywordFilter !== '') {
+      result = result.filter(({ plate_number, type }) =>
+        [plate_number, labels.vehicle.type[type]].some(
+          (item) => item && item.includes(keywordFilter)
+        )
+      )
+    }
+    return result
+  }
+
   const tableStyle = {
     border: '1px solid lightgray',
     borderRadius: '8px',
@@ -122,8 +150,9 @@ export default function MainPage({ data, onPost, onDelete }) {
         }}
         style={{ paddingRight: '0px' }}
       >
-        <Tab eventKey="people" title="שוטרים">
+        <Tab eventKey="people" title="כוח אדם">
           <ControlRow
+            onSearchChange={handleSearchChange}
             onAddClick={(values) => handleAddButtonClick('people', values)}
             style={{ marginTop: '15px' }}
           />
@@ -141,7 +170,7 @@ export default function MainPage({ data, onPost, onDelete }) {
               { key: 'licenses', translate: true },
               { key: 'affiliation', translate: true }
             ]}
-            data={data?.people}
+            data={filterPeople(data?.people)} // TODO Implement filter according to keywordFilter (if it is not '')
             labels={labels.person}
             sortFn={(a, b) => {
               if (a.affiliation < b.affiliation) return -1
@@ -172,6 +201,7 @@ export default function MainPage({ data, onPost, onDelete }) {
         </Tab>
         <Tab eventKey="vehicles" title="רכבים" style={{ width: '100%' }}>
           <ControlRow
+            onSearchChange={handleSearchChange}
             onAddClick={(values) => handleAddButtonClick('vehicles', values)}
             style={{ marginTop: '15px' }}
           />
@@ -181,7 +211,7 @@ export default function MainPage({ data, onPost, onDelete }) {
               { key: 'type', translate: true },
               { key: 'seats', translate: false }
             ]}
-            data={data?.vehicles}
+            data={filterVehicles(data?.vehicles)} // TODO Implement filter according to keywordFilter (if it is not '')
             labels={labels.vehicle}
             sortFn={(a, b) => {
               if (a.type < b.type) return -1

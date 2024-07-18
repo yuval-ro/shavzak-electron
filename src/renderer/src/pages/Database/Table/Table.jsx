@@ -86,23 +86,29 @@ export default function Table({
         ))}
       </TableHeaderRow>
       <Scrollable>
-        {data.sort(sortFn).map((item, idx) => (
-          <ContextMenu
-            _id={item?._id}
-            label={labelFn(item)}
-            key={idx}
-            menuButton={
-              <TableDataRow>
-                <TableCol style={{ textAlign: 'center' }}>{idx + 1}</TableCol>
-                {cols.map((col, idx) => (
-                  <TableCol key={idx}>{renderCellValue(col, item)}</TableCol>
-                ))}
-              </TableDataRow>
-            }
-            onDelete={handleDelete}
-            onEdit={handleEdit}
-          />
-        ))}
+        {(data && data.length) > 0 ? (
+          data.sort(sortFn).map((item, idx) => (
+            <ContextMenu
+              _id={item?._id}
+              label={labelFn(item)}
+              key={idx}
+              menuButton={
+                <TableDataRow>
+                  <TableCol style={{ textAlign: 'center' }}>{idx + 1}</TableCol>
+                  {cols.map((col, idx) => (
+                    <TableCol key={idx}>{renderCellValue(col, item)}</TableCol>
+                  ))}
+                </TableDataRow>
+              }
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
+          ))
+        ) : (
+          <TableDataRow>
+            <TableCol style={{ textAlign: 'center' }}>לא נמצאו נתונים...</TableCol>
+          </TableDataRow>
+        )}
       </Scrollable>
     </TableContainer>
   )
