@@ -1,2 +1,2 @@
-import AssignmentPage from './AssignmentPage'
-export default AssignmentPage
+import Main from './Main'
+export default Main

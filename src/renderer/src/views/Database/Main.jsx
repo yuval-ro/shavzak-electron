@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Tabs, Tab } from 'react-bootstrap'
 
-import Table from './Table'
 import { AddPersonModal, EditPersonModal, AddVehicleModal, EditVehicleModal } from './addFeature'
-import ControlRow from '../../components/ControlRow'
 import ConfirmModal from './ConfirmModal'
+import Table from './Table'
+import ControlRow from './ControlRow'
 import labels from '#src/labels.json'
 
 export default function Main({ data, onPost, onDelete }) {

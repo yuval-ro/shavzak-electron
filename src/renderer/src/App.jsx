@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Nav, Navbar } from 'react-bootstrap'
 import Database from './views/Database'
-import Attendance from "./views/Attendance"
+import TopNavbar from './nav/TopNavbar'
+import Attendance from './views/Attendance'
 
 export default function App() {
   const [data, setData] = useState({ people: [], vehicles: [] })
-  const [currentPage, setCurrentPage] = useState('0')
+  const [currentView, setCurrentView] = useState('0')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,43 +33,29 @@ export default function App() {
     }))
   }
 
-  function renderCurrentPage() {
-    switch (currentPage) {
-      case '0':
-        return <Database.Main data={data} onPost={handlePost} onDelete={handleDelete} />
-      case '1':
-        return
-      case '2':
-        return
-      default:
-        return null
-    }
+  function handleNavKeySelect(key) {
+    setCurrentView(key)
   }
+
+  const views = [
+    {
+      title: 'נוכחות',
+      component: <Attendance.Main data={data} />
+    },
+    {
+      title: 'שיבוץ',
+      component: null
+    },
+    {
+      title: 'מסד נתונים',
+      component: <Database.Main data={data} onPost={handlePost} onDelete={handleDelete} />
+    }
+  ]
 
   return (
     <div style={{ direction: 'rtl' }}>
-      <Navbar style={{ backgroundColor: 'lightgray' }}>
-        <Navbar.Brand>פלוגה מד</Navbar.Brand>
-        <Nav
-          variant="underline"
-          activeKey={currentPage}
-          onSelect={(key) => setCurrentPage(key)}
-          style={{ dislpay: 'flex', justifyContent: 'start', marginRight: '30px' }}
-        >
-          <Nav.Item>
-            <Nav.Link eventKey="0">מסד נתונים</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="1">נוכחות</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="2">שיבוץ</Nav.Link>
-          </Nav.Item>
-        </Nav>
-      </Navbar>
-      <div style={{ width: '100%', alignContent: 'center', justifyContent: 'center' }}>
-        <div style={{ margin: '10px' }}>{renderCurrentPage()}</div>
-      </div>
+      <TopNavbar views={views} activeKey={currentView} onKeySelect={handleNavKeySelect} />
+      <div style={{ margin: '10px' }}>{views[currentView].component ?? null}</div>
     </div>
   )
 }

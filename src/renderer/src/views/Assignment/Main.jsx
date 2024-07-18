@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { Container, Row, Col, Accordion } from 'react-bootstrap'
 import styled from 'styled-components'
 
-import HeaderRow from './HeaderRow'
-import TaskRow from './TaskRow'
+import HeaderRow from './HeaderRow.jsx'
+import TaskRow from './TaskRow/index.js'
 import ControlRow from './ControlRow.jsx'
 import { generateShifts, formatShift } from '../../helpers.js'
 import labels from '../../hebrew_labels.json'
 
-export default function AssignmentPage({ people }) {
+export default function Main({ people }) {
   const [shifts, setShifts] = useState([])
   const [paginationIdx, setPaginationIdx] = useState(0)
   const [colsPerPage, setColsPerPage] = useState(3)
