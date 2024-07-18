@@ -17,6 +17,7 @@ const SCHEMA = yup.object().shape({
   affiliation: yup.string().notOneOf(['0']).required(),
   first_name: yup.string().required().matches(HEBREW_REGEX),
   last_name: yup.string().required().matches(HEBREW_REGEX),
+  sex: yup.string().notOneOf(['0']).required(),
   service_number: yup.string().required().matches(SERVICE_NUMBER_REGEX),
   service_type: yup.string().notOneOf(['0']).required(),
   rank: yup.string().notOneOf(['0']).required(),
@@ -26,6 +27,7 @@ const DEFAULT_VALUES = {
   affiliation: '0',
   first_name: '',
   last_name: '',
+  sex: '0',
   service_number: '',
   service_type: '0',
   rank: '0',
@@ -111,6 +113,17 @@ const PersonForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => 
             <FormRow>
               <TextFormGroup
                 name="last_name"
+                values={values}
+                labels={LABELS}
+                errors={errors}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                submitCount={submitCount}
+              />
+            </FormRow>
+            <FormRow>
+              <SelectFormGroup
+                name="sex"
                 values={values}
                 labels={LABELS}
                 errors={errors}

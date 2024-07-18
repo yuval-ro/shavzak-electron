@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Tabs, Tab } from 'react-bootstrap'
+import styled from 'styled-components'
 
 import Table from './Table'
 import { AddPersonModal, EditPersonModal, AddVehicleModal, EditVehicleModal } from './addFeature'
@@ -7,6 +8,8 @@ import ControlRow from './ControlRow'
 import ConfirmModal from './ConfirmModal'
 
 import labels from '#src/labels.json'
+
+const StyledTable = styled(Table)``
 
 export default function MainPage({ data, onPost, onDelete }) {
   const [confirmModal, setConfirmModal] = useState(null)
@@ -101,20 +104,31 @@ export default function MainPage({ data, onPost, onDelete }) {
     )
   }
 
+  const tableStyle = {
+    border: '1px solid lightgray',
+    borderRadius: '8px',
+    marginTop: '10px'
+  }
+
   return (
-    <>
+    <div>
       {confirmModal}
       {itemModal}
       <Tabs
+        variant="pills"
         defaultActiveKey="people"
-        className="px-0"
         onSelect={(key) => {
           setActiveTab(key)
         }}
+        style={{ paddingRight: '0px' }}
       >
         <Tab eventKey="people" title="שוטרים">
-          <ControlRow onAddClick={(values) => handleAddButtonClick('people', values)} />
+          <ControlRow
+            onAddClick={(values) => handleAddButtonClick('people', values)}
+            style={{ marginTop: '15px' }}
+          />
           <Table
+            style={tableStyle}
             cols={[
               { key: 'service_number', translate: false },
               { key: 'first_name', translate: false },
@@ -156,8 +170,11 @@ export default function MainPage({ data, onPost, onDelete }) {
             onDelete={(person) => handleDeleteContextMenu('people', person)}
           />
         </Tab>
-        <Tab eventKey="vehicles" title="רכבים">
-          <ControlRow onAddClick={(values) => handleAddButtonClick('vehicles', values)} />
+        <Tab eventKey="vehicles" title="רכבים" style={{ width: '100%' }}>
+          <ControlRow
+            onAddClick={(values) => handleAddButtonClick('vehicles', values)}
+            style={{ marginTop: '15px' }}
+          />
           <Table
             cols={[
               { key: 'plate_number', translate: false },
@@ -177,9 +194,10 @@ export default function MainPage({ data, onPost, onDelete }) {
             labelFn={labelFn.vehicles}
             onEdit={(vehicle) => handleEditContextMenu('vehicles', vehicle)}
             onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
+            style={tableStyle}
           />
         </Tab>
       </Tabs>
-    </>
+    </div>
   )
 }

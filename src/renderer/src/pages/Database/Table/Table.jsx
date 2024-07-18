@@ -1,24 +1,20 @@
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
-
 import ContextMenu from './ContextMenu'
 
-const IdxCol = styled(Col)`
-  max-width: 50px;
-  text-align: center;
-`
 const TableRow = styled(Row)`
   user-select: none;
-  cursor: pointer;
   height: 40px;
   align-items: center;
 `
 const TableHeaderRow = styled(TableRow)`
   font-weight: bold;
+  background-color: lightgray;
 `
 const TableDataRow = styled(TableRow)`
   user-select: none;
   cursor: pointer;
+  border-top: 1px solid lightgray;
   height: 40px;
   align-items: center;
   transition: background-color 0.3s ease; /* Optional: Add a smooth transition effect */
@@ -28,8 +24,19 @@ const TableDataRow = styled(TableRow)`
   }
 `
 const Scrollable = styled.div`
-  max-height: 500px; /* Adjust as  needed */
-  overflow-y: auto;
+  max-height: 700px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+`
+
+const TableContainer = styled.div`
+  overflow-x: hidden;
+`
+
+const TableCol = styled(Col)`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `
 
 export default function Table({
@@ -40,7 +47,8 @@ export default function Table({
   abbreviated,
   labelFn,
   onEdit,
-  onDelete
+  onDelete,
+  style = {}
 }) {
   function renderCellValue({ key, translate }, item) {
     const value = item[key]
@@ -70,11 +78,11 @@ export default function Table({
   }
 
   return (
-    <>
+    <TableContainer style={style}>
       <TableHeaderRow>
-        <IdxCol>מס"ד</IdxCol>
+        <TableCol style={{ textAlign: 'center' }}>מס"ד</TableCol>
         {cols.map((col, idx) => (
-          <Col key={idx}>{labels[col.key]._title}</Col>
+          <TableCol key={idx}>{labels[col.key]._title}</TableCol>
         ))}
       </TableHeaderRow>
       <Scrollable>
@@ -85,9 +93,9 @@ export default function Table({
             key={idx}
             menuButton={
               <TableDataRow>
-                <IdxCol>{idx + 1}</IdxCol>
+                <TableCol style={{ textAlign: 'center' }}>{idx + 1}</TableCol>
                 {cols.map((col, idx) => (
-                  <Col key={idx}>{renderCellValue(col, item)}</Col>
+                  <TableCol key={idx}>{renderCellValue(col, item)}</TableCol>
                 ))}
               </TableDataRow>
             }
@@ -96,6 +104,6 @@ export default function Table({
           />
         ))}
       </Scrollable>
-    </>
+    </TableContainer>
   )
 }

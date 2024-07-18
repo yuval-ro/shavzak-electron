@@ -1,23 +1,12 @@
 import { useState } from 'react'
 import { Form, Button } from 'react-bootstrap'
 
-export default function ControlRow({ onAddClick }) {
+export default function ControlRow({ onAddClick, style = {} }) {
   const [searchFilter, setSearchFilter] = useState('') // TODO Implement this feature.
   return (
-    <div style={{ display: 'flex', margin: '5px' }}>
+    <div style={{ ...style, display: 'flex' }}>
       <Form.Control type="text" placeholder="חיפוש" style={{ marginLeft: '10px' }} />
-      <Button
-        variant="outline-primary"
-        onClick={onAddClick}
-        // style={{
-        //   display: 'flex',
-        //   flexDirection: 'row',
-        //   alignItems: 'center',
-        //   padding: '3px',
-        //   width: '70px',
-        //   justifyContent: 'space-between'
-        // }}
-      >
+      <Button variant="outline-primary" onClick={onAddClick}>
         הוסף
       </Button>
     </div>
