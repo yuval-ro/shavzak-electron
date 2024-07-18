@@ -7,4 +7,5 @@ db
 .vscode
 build
 *.csv
-*.js
+generate_people_db.js
+generate_vehicles_db.js

@@ -1,17 +1,12 @@
 import { useState } from 'react'
 import { Tabs, Tab } from 'react-bootstrap'
-import styled from 'styled-components'
 
 import Table from './Table'
-import { AddPersonModal, EditPersonModal, AddVehicleModal, EditVehicleModal } from './addFeature'
 import ControlRow from './ControlRow'
 import ConfirmModal from './ConfirmModal'
-
 import labels from '#src/labels.json'
 
-const StyledTable = styled(Table)``
-
-export default function MainPage({ data, onPost, onDelete }) {
+export default function Main({ data, onPost, onDelete }) {
   const [confirmModal, setConfirmModal] = useState(null)
   const [itemModal, setEntryModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')

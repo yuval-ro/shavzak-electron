@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Nav, Navbar } from 'react-bootstrap'
-import Database from './pages/Database'
+import Database from './views/Database'
+import Attendance from "./views/Attendance"
 
 export default function App() {
   const [data, setData] = useState({ people: [], vehicles: [] })
@@ -35,7 +36,7 @@ export default function App() {
   function renderCurrentPage() {
     switch (currentPage) {
       case '0':
-        return <Database.MainPage data={data} onPost={handlePost} onDelete={handleDelete} />
+        return <Database.Main data={data} onPost={handlePost} onDelete={handleDelete} />
       case '1':
         return
       case '2':
