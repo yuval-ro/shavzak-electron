@@ -39,8 +39,8 @@ export default function Table({
   sortFn,
   abbreviated,
   labelFn,
-  onDelete,
-  onEdit
+  onEdit,
+  onDelete
 }) {
   function renderCellValue({ key, translate }, item) {
     const value = item[key]

@@ -43,10 +43,9 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-  ipcMain.handle('create-doc', middleware.validate(handlers.createOne))
-  ipcMain.handle('read-docs', middleware.validate(handlers.readAll))
-  ipcMain.handle('update-doc', middleware.validate(handlers.updateOne))
-  ipcMain.handle('delete-doc', middleware.validate(handlers.deleteOne))
+  ipcMain.handle('docs/put-one', middleware.validate(handlers.putOne))
+  ipcMain.handle('docs/read-all', middleware.validate(handlers.readAll))
+  ipcMain.handle('docs/delete-one', middleware.validate(handlers.deleteOne))
   createWindow()
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

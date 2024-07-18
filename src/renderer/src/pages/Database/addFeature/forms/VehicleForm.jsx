@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle } from 'react'
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { Form, Row } from 'react-bootstrap'
 import { Formik } from 'formik'
 import * as yup from 'yup'
@@ -11,23 +11,38 @@ import labels_ from '#src/labels.json'
 const FormRow = styled(Row)`
   margin-bottom: 10px;
 `
-const hebrew = /^[\u0590-\u05FF-]*$/
-const plate_number = /^\d{3}-\d{3}$|^\d{2}-\d{3}-\d{2}$|^\d{3}-\d{2}-\d{3}$/
-const validationSchema = yup.object().shape({
-  plate_number: yup.string().matches(plate_number).required(),
+const HEBREW_REGEX = /^[\u0590-\u05FF-]*$/
+const PLATE_NUMBER_REGEX = /^\d{3}-\d{3}$|^\d{2}-\d{3}-\d{2}$|^\d{3}-\d{2}-\d{3}$/
+const DEFAULT_SCHEMA = yup.object().shape({
+  plate_number: yup.string().matches(PLATE_NUMBER_REGEX).required(),
   type: yup.string().notOneOf(['0']).required(),
-  nickname: yup.string().required().matches(hebrew)
+  nickname: yup.string().matches(HEBREW_REGEX)
 })
-const initialValues = {
+const DEFAULT_VALUES = {
   plate_number: '',
   type: '0',
   nickname: ''
 }
+const LABELS = labels_?.vehicle
 
-const VehicleForm = forwardRef(({ onSubmit }, ref) => {
-  const labels = labels_?.vehicle
+const VehicleForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => {
+  const [schema, setSchema] = useState(DEFAULT_SCHEMA)
+  useEffect(() => {
+    if (takenIds.length > 0) {
+      setSchema((defaultSchema) =>
+        defaultSchema.shape({
+          ...defaultSchema.fields,
+          plate_number: yup.string().matches(PLATE_NUMBER_REGEX).required().notOneOf(takenIds)
+        })
+      )
+    }
+  }, [takenIds])
   return (
-    <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
+    <Formik
+      validationSchema={schema}
+      initialValues={initValues ? initValues : DEFAULT_VALUES}
+      onSubmit={onSubmit}
+    >
       {({
         handleSubmit,
         handleChange,
@@ -47,7 +62,7 @@ const VehicleForm = forwardRef(({ onSubmit }, ref) => {
               <TextFormGroup
                 name="plate_number"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -58,7 +73,7 @@ const VehicleForm = forwardRef(({ onSubmit }, ref) => {
               <SelectFormGroup
                 name="type"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -69,7 +84,7 @@ const VehicleForm = forwardRef(({ onSubmit }, ref) => {
               <TextFormGroup
                 name="nickname"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}

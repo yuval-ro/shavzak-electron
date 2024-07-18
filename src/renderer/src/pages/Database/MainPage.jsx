@@ -2,42 +2,85 @@ import { useState } from 'react'
 import { Tabs, Tab } from 'react-bootstrap'
 
 import Table from './Table'
-import { AddPersonModal, AddVehicleModal } from './addFeature'
+import { AddPersonModal, EditPersonModal, AddVehicleModal, EditVehicleModal } from './addFeature'
 import ControlRow from './ControlRow'
 import ConfirmModal from './ConfirmModal'
 
 import labels from '#src/labels.json'
 
-export default function MainPage({ data, onAdd, onEdit, onDelete }) {
+export default function MainPage({ data, onPost, onDelete }) {
   const [confirmModal, setConfirmModal] = useState(null)
-  const [deletionCandidate, setDeletionCandidate] = useState({})
-  const [editModal, setEditModal] = useState(null)
+  const [itemModal, setEntryModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people') // State to track the active tab
+  const labelFn = {
+    people: (person) =>
+      `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`,
+    vehicles: (vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`
+  }
 
   function handleAddButtonClick() {
     if (activeTab === 'people') {
-      setEditModal(<AddPersonModal onSave={handleEditModalOk} onCancel={handleEditModalCancel} />)
+      setEntryModal(
+        <AddPersonModal
+          takenIds={data?.people.map((person) => person._id)}
+          onSave={(values) => handleEditModalOk('people', values)}
+          onCancel={handleEditModalCancel}
+        />
+      )
     } else if (activeTab === 'vehicles') {
-      setEditModal(<AddVehicleModal onSave={handleEditModalOk} onCancel={handleEditModalCancel} />)
+      setEntryModal(
+        <AddVehicleModal
+          takenIds={data?.vehicles.map((vehicle) => vehicle._id)}
+          onSave={(values) => handleEditModalOk('vehicles', values)}
+          onCancel={handleEditModalCancel}
+        />
+      )
     } else {
-      setEditModal(null)
+      setEntryModal(null)
     }
   }
 
-  function handleEditModalOk(values) {
-    // TODO Implement
-    console.debug({ values })
-    setEditModal(null)
+  function handleEditModalOk(collection, item) {
+    onPost(collection, item)
+    setEntryModal(null)
   }
 
   function handleEditModalCancel() {
-    setEditModal(null)
+    setEntryModal(null)
+  }
+
+  function handleEditContextMenu(collection, existingValues) {
+    if (collection === 'people') {
+      setEntryModal(
+        <EditPersonModal
+          takenIds={data?.people
+            .map((person) => person._id)
+            .filter((id) => id !== existingValues._id)}
+          initValues={existingValues}
+          onSave={(values) => handleEditModalOk('people', values)}
+          onCancel={handleEditModalCancel}
+        />
+      )
+    } else if (collection === 'vehicles') {
+      setEntryModal(
+        <EditVehicleModal
+          takenIds={data?.vehicles
+            .map((vehicle) => vehicle._id)
+            .filter((id) => id !== existingValues._id)}
+          initValues={existingValues}
+          onSave={(values) => handleEditModalOk('vehicles', values)}
+          onCancel={handleEditModalCancel}
+        />
+      )
+    } else {
+      setEntryModal(null)
+    }
   }
 
   function handleDeleteContextMenu(collection, item) {
     setConfirmModal(
       <ConfirmModal
-        title="מחיקת רשומה"
+        title={`מחיקת רשומה קיימת - ${collection === 'people' ? 'שוטר' : 'רכב'}`}
         body={
           <div style={{ textAlign: 'center' }}>
             <span>האם אתה בטוח שאתה מעוניין למחוק את הרשומה?</span>
@@ -56,19 +99,12 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
         okButtonVariant="outline-danger"
       />
     )
-    // TODO Call onDelete(collection, item)
-  }
-
-  const labelFn = {
-    people: (person) =>
-      `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`,
-    vehicles: (vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`
   }
 
   return (
     <>
       {confirmModal}
-      {editModal}
+      {itemModal}
       <Tabs
         defaultActiveKey="people"
         className="px-0"
@@ -77,11 +113,8 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
         }}
       >
         <Tab eventKey="people" title="שוטרים">
-          <ControlRow onAddClick={handleAddButtonClick} />
+          <ControlRow onAddClick={(values) => handleAddButtonClick('people', values)} />
           <Table
-            onDelete={(person) => handleDeleteContextMenu('people', person)}
-            onEdit={(person) => onEdit('people', person)}
-            data={data?.people}
             cols={[
               { key: 'service_number', translate: false },
               { key: 'first_name', translate: false },
@@ -94,6 +127,8 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
               { key: 'licenses', translate: true },
               { key: 'affiliation', translate: true }
             ]}
+            data={data?.people}
+            labels={labels.person}
             sortFn={(a, b) => {
               if (a.affiliation < b.affiliation) return -1
               if (a.affiliation > b.affiliation) return 1
@@ -115,23 +150,22 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
               if (a.rank > b.rank) return -1
               return a.first_name.localeCompare(b.first_name)
             }}
-            labels={labels.person}
             abbreviated={true}
-            onAddButtonClick={handleAddButtonClick}
             labelFn={labelFn.people}
+            onEdit={(person) => handleEditContextMenu('people', person)}
+            onDelete={(person) => handleDeleteContextMenu('people', person)}
           />
         </Tab>
         <Tab eventKey="vehicles" title="רכבים">
-          <ControlRow onAddClick={handleAddButtonClick} />
+          <ControlRow onAddClick={(values) => handleAddButtonClick('vehicles', values)} />
           <Table
-            onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
-            onEdit={(vehicle) => onEdit(vehicle)}
-            data={data?.vehicles}
             cols={[
               { key: 'plate_number', translate: false },
               { key: 'type', translate: true },
               { key: 'seats', translate: false }
             ]}
+            data={data?.vehicles}
+            labels={labels.vehicle}
             sortFn={(a, b) => {
               if (a.type < b.type) return -1
               if (a.type > b.type) return 1
@@ -139,10 +173,10 @@ export default function MainPage({ data, onAdd, onEdit, onDelete }) {
               if (a.plate_number > b.plate_number) return 1
               return 0
             }}
-            labels={labels.vehicle}
             abbreviated={true}
-            onAddButtonClick={handleAddButtonClick}
             labelFn={labelFn.vehicles}
+            onEdit={(vehicle) => handleEditContextMenu('vehicles', vehicle)}
+            onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
           />
         </Tab>
       </Tabs>

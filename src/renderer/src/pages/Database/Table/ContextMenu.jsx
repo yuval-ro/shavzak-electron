@@ -16,20 +16,11 @@ export default function ContextMenu({ menuButton, label, _id, onEdit, onDelete }
         {label}
       </CustomMenuItem>
       <MenuDivider />
-      <CustomMenuItem
-        onClick={() => {
-          onEdit(_id)
-        }}
-      >
+      <CustomMenuItem onClick={() => onEdit(_id)}>
         <div>ערוך</div>
         <FaEdit />
       </CustomMenuItem>
-      <CustomMenuItem
-        className="text-danger"
-        onClick={() => {
-          onDelete(_id)
-        }}
-      >
+      <CustomMenuItem className="text-danger" onClick={() => onDelete(_id)}>
         <div>מחק</div>
         <FaTrashAlt />
       </CustomMenuItem>

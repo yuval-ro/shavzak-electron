@@ -3,10 +3,11 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  createDoc: (collection, doc) => ipcRenderer.invoke('create-doc', collection, doc),
-  readDocs: (collection) => ipcRenderer.invoke('read-docs', collection),
-  updateDoc: (collection, doc) => ipcRenderer.invoke('update-doc', collection, doc),
-  deleteDoc: (collection, doc) => ipcRenderer.invoke('delete-doc', collection, doc)
+  docs: {
+    putOne: (collection, doc) => ipcRenderer.invoke('docs/put-one', collection, doc),
+    readAll: (collection) => ipcRenderer.invoke('docs/read-all', collection),
+    deleteOne: (collection, doc) => ipcRenderer.invoke('docs/delete-one', collection, doc)
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

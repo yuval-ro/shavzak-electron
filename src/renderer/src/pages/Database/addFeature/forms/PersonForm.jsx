@@ -1,28 +1,28 @@
-import { useEffect, forwardRef, useImperativeHandle } from 'react'
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
 import { Form, Row } from 'react-bootstrap'
 import { Formik } from 'formik'
 import * as yup from 'yup'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
-import SelectFormGroup from './SelectFormGroup'
-import TextFormGroup from './TextFormGroup'
+import SelectFormGroup from './SelectFormGroup.jsx'
+import TextFormGroup from './TextFormGroup.jsx'
 import labels_ from '#src/labels.json'
+import { HEBREW_REGEX, SERVICE_NUMBER_REGEX } from './common.js'
 
 const FormRow = styled(Row)`
   margin-bottom: 10px;
 `
-const hebrew = /^[\u0590-\u05FF-]*$/
-const service_number = /^\d{7}$/
-const validationSchema = yup.object().shape({
+const SCHEMA = yup.object().shape({
   affiliation: yup.string().notOneOf(['0']).required(),
-  first_name: yup.string().required().matches(hebrew),
-  last_name: yup.string().required().matches(hebrew),
-  service_number: yup.string().required().matches(service_number),
+  first_name: yup.string().required().matches(HEBREW_REGEX),
+  last_name: yup.string().required().matches(HEBREW_REGEX),
+  service_number: yup.string().required().matches(SERVICE_NUMBER_REGEX),
   service_type: yup.string().notOneOf(['0']).required(),
   rank: yup.string().notOneOf(['0']).required(),
   active_role: yup.string().notOneOf(['0']).required()
 })
-const initialValues = {
+const DEFAULT_VALUES = {
   affiliation: '0',
   first_name: '',
   last_name: '',
@@ -32,11 +32,28 @@ const initialValues = {
   profession: [],
   role: '0'
 }
+const LABELS = labels_?.person
 
-const PersonForm = forwardRef(({ onSubmit }, ref) => {
-  const labels = labels_?.person
+const PersonForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => {
+  const isMounted = useRef(false)
+  const [schema, setSchema] = useState(SCHEMA)
+  useEffect(() => {
+    if (takenIds.length > 0) {
+      setSchema((defaultSchema) =>
+        defaultSchema.shape({
+          ...defaultSchema.fields,
+          service_number: yup.string().required().matches(SERVICE_NUMBER_REGEX).notOneOf(takenIds)
+        })
+      )
+    }
+  }, [takenIds])
+
   return (
-    <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
+    <Formik
+      validationSchema={schema}
+      initialValues={initValues ? initValues : DEFAULT_VALUES}
+      onSubmit={onSubmit}
+    >
       {({
         handleSubmit,
         handleChange,
@@ -50,23 +67,33 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
         useImperativeHandle(ref, () => ({
           submitForm: () => submitForm()
         }))
+        // TODO Prevent the below useEffects on component first-time load
         useEffect(() => {
-          setFieldValue('rank', '0')
-          setFieldValue('active_role', '0')
+          if (isMounted.current) {
+            setFieldValue('rank', '0')
+            setFieldValue('active_role', '0')
+          }
         }, [values.service_type, setFieldValue])
         useEffect(() => {
-          setFieldValue('active_role', '0')
+          if (isMounted.current) {
+            setFieldValue('active_role', '0')
+          }
         }, [values.rank, setFieldValue])
+        useEffect(() => {
+          isMounted.current = true
+        }, [])
+
         return (
           <Form noValidate onSubmit={handleSubmit}>
             <FormRow>
               <TextFormGroup
                 name="service_number"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
+                additionalValidations={[]}
                 submitCount={submitCount}
               />
             </FormRow>
@@ -74,7 +101,7 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
               <TextFormGroup
                 name="first_name"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -85,7 +112,7 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
               <TextFormGroup
                 name="last_name"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -96,7 +123,7 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
               <SelectFormGroup
                 name="service_type"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -107,7 +134,7 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
               <SelectFormGroup
                 name="rank"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 labelAbbreivated={true}
                 errors={errors}
                 handleChange={handleChange}
@@ -132,7 +159,7 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
               <SelectFormGroup
                 name="active_role"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -144,7 +171,7 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
               <SelectFormGroup
                 name="affiliation"
                 values={values}
-                labels={labels}
+                labels={LABELS}
                 errors={errors}
                 handleChange={handleChange}
                 handleBlur={handleBlur}
@@ -159,5 +186,9 @@ const PersonForm = forwardRef(({ onSubmit }, ref) => {
 })
 
 PersonForm.displayName = 'PersonForm'
+PersonForm.propTypes = {
+  initValues: PropTypes.object,
+  onSubmit: PropTypes.func
+}
 
 export default PersonForm

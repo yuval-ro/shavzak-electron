@@ -6,35 +6,27 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const people = await window.api.readDocs('people')
-      const vehicles = await window.api.readDocs('vehicles')
+      const people = await window.api.docs.readAll('people')
+      const vehicles = await window.api.docs.readAll('vehicles')
       setData({ people, vehicles })
     }
 
     fetchData()
   }, [])
 
-  const handleEdit = async (collection, doc) => {
-    const updated = await window.api.updateDoc(collection, doc)
+  const handlePost = async (collection, doc) => {
+    const updated = await window.api.docs.putOne(collection, doc)
     setData((prevData) => ({
       ...prevData,
       [collection]: prevData[collection].map((item) => (item._id === updated._id ? updated : item))
     }))
   }
 
-  const handleAdd = async (collection, doc) => {
-    const newDoc = await window.api.createDoc(collection, doc)
-    setData((prevData) => ({
-      ...prevData,
-      [collection]: [...prevData[collection], newDoc]
-    }))
-  }
-
   const handleDelete = async (collection, doc) => {
-    await window.api.deleteDoc(collection, doc)
+    const deletedId = await window.api.docs.deleteOne(collection, doc)
     setData((prevData) => ({
       ...prevData,
-      [collection]: prevData[collection].filter((item) => item._id !== doc._id)
+      [collection]: prevData[collection].filter((item) => item._id !== deletedId)
     }))
   }
 
@@ -43,12 +35,7 @@ export default function App() {
       style={{ display: 'grid', height: '100vh', padding: '50px', backgroundColor: 'lightgray' }}
     >
       <div style={{ backgroundColor: 'white', direction: 'rtl' }}>
-        <DatabaseMainPage
-          data={data}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <DatabaseMainPage data={data} onPost={handlePost} onDelete={handleDelete} />
       </div>
     </div>
   )

@@ -22,19 +22,15 @@ export function validate(handler) {
   }
 }
 
-async function createOne(_, collection, doc) {
-  doc._id = doc[id[collection]] // Attach ID
-  var query = await db[collection].put(doc)
-  query = await db[collection].get(query?.id)
-  return query
-}
-
 async function readAll(_, collection) {
   const query = await db[collection].allDocs({ include_docs: true })
   return query?.rows?.map((row) => row.doc)
 }
 
-async function updateOne(_, collection, doc) {
+async function putOne(_, collection, doc) {
+  if (!doc._id) {
+    doc._id = doc[id[collection]] // Attach ID
+  }
   var query = await db[collection].put(doc)
   query = await db[collection].get(query?.id)
   return query
@@ -50,8 +46,7 @@ export const middleware = {
 }
 
 export const handlers = {
-  createOne,
   readAll,
-  updateOne,
+  putOne,
   deleteOne
 }

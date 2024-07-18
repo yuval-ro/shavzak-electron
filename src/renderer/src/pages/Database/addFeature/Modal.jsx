@@ -1,19 +1,20 @@
 import { useRef, cloneElement } from 'react'
-import { Modal, Button } from 'react-bootstrap'
+import { Modal as BSModal, Button } from 'react-bootstrap'
+import PropTypes from 'prop-types'
 
 import { FormSubmitProvider } from './context'
 
-export default function AddModal({ onCancel, title, form }) {
+export default function Modal({ title, form, onCancel }) {
   const formikRef = useRef()
 
   return (
-    <Modal keyboard={false} backdrop="static" show={true} style={{ direction: 'rtl' }}>
-      <Modal.Header style={{ fontWeight: 'bold' }}>{title}</Modal.Header>
+    <BSModal keyboard={false} backdrop="static" show={true} style={{ direction: 'rtl' }}>
+      <BSModal.Header style={{ fontWeight: 'bold' }}>{title}</BSModal.Header>
       <FormSubmitProvider value={formikRef}>
-        <Modal.Body style={{ paddingBottom: '5px', paddingTop: '10px' }}>
+        <BSModal.Body style={{ paddingBottom: '5px', paddingTop: '10px' }}>
           {cloneElement(form, { ref: formikRef })}
-        </Modal.Body>
-        <Modal.Footer>
+        </BSModal.Body>
+        <BSModal.Footer>
           <div style={{ display: 'flex', justifyContent: 'start' }}>
             <Button
               style={{ width: '100px', marginLeft: '5px' }}
@@ -35,8 +36,14 @@ export default function AddModal({ onCancel, title, form }) {
               שמור
             </Button>
           </div>
-        </Modal.Footer>
+        </BSModal.Footer>
       </FormSubmitProvider>
-    </Modal>
+    </BSModal>
   )
+}
+
+Modal.propTypes = {
+  title: PropTypes.string,
+  form: PropTypes.elementType,
+  onCancel: PropTypes.func
 }
