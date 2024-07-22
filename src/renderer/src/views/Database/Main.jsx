@@ -154,17 +154,17 @@ export default function Main({ data, onPost, onDelete }) {
           />
           <Table
             style={tableStyle}
-            cols={[
-              { key: 'service_number', translate: false },
-              { key: 'first_name', translate: false },
-              { key: 'last_name', translate: false },
-              { key: 'sex', translate: true },
-              { key: 'service_type', translate: true },
-              { key: 'rank', translate: true },
-              { key: 'active_role', translate: true },
-              { key: 'professions', translate: true },
-              { key: 'licenses', translate: true },
-              { key: 'affiliation', translate: true }
+            rubrics={[
+              { key: 'affiliation', sortable: true, translate: true },
+              { key: 'service_number', sortable: true, translate: false },
+              { key: 'first_name', sortable: true, translate: false },
+              { key: 'last_name', sortable: true, translate: false },
+              { key: 'sex', sortable: true, translate: true },
+              { key: 'service_type', sortable: true, translate: true },
+              { key: 'rank', sortable: true, translate: true },
+              { key: 'active_role', sortable: true, translate: true },
+              { key: 'professions', sortable: false, translate: true },
+              { key: 'licenses', sortable: false, translate: true }
             ]}
             data={filterPeople(data?.people)} // TODO Implement filter according to keywordFilter (if it is not '')
             labels={labels.person}
@@ -202,7 +202,7 @@ export default function Main({ data, onPost, onDelete }) {
             style={{ marginTop: '15px' }}
           />
           <Table
-            cols={[
+            rubrics={[
               { key: 'plate_number', translate: false },
               { key: 'type', translate: true },
               { key: 'seats', translate: false }

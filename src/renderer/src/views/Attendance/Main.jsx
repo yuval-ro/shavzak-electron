@@ -1,19 +1,11 @@
 import { useState } from 'react'
-import { Tabs, Tab } from 'react-bootstrap'
 
 import Table from './Table'
-import ControlRow from './ControlRow'
+import SearchBar from './SearchBar'
 import labels from '#src/labels.json'
 
-export default function Main({ data }) {
-  const [activeTab, setActiveTab] = useState('people')
+export default function Main({ data, shifts, onChange }) {
   const [searchTerm, setSearchTerm] = useState('')
-
-  const labelFn = {
-    people: (person) =>
-      `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`,
-    vehicles: (vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`
-  }
 
   function handleSearchBarChange(keyword) {
     setSearchTerm(keyword)
@@ -29,16 +21,6 @@ export default function Main({ data }) {
     return result
   }
 
-  function filterVehicles(vehicles) {
-    var result = vehicles
-    if (searchTerm !== '') {
-      result = result.filter(({ plate_number, type }) =>
-        [plate_number, labels.vehicle.type[type]].some((item) => item && item.includes(searchTerm))
-      )
-    }
-    return result
-  }
-
   const tableStyle = {
     border: '1px solid lightgray',
     borderRadius: '8px',
@@ -46,95 +28,41 @@ export default function Main({ data }) {
   }
 
   return (
-    (
-      <div>
-        <Tabs
-          variant="pills"
-          defaultActiveKey="people"
-          onSelect={(key) => {
-            setActiveTab(key)
-          }}
-          style={{ paddingRight: '0px' }}
-        >
-          <Tab eventKey="people" title="כוח אדם">
-            <ControlRow
-              onSearchChange={handleSearchBarChange}
-              onAddClick={(values) => handleAddButtonClick('people', values)}
-              style={{ marginTop: '15px' }}
-            />
-            <Table
-              style={tableStyle}
-              cols={[
-                { key: 'service_number', translate: false },
-                { key: 'first_name', translate: false },
-                { key: 'last_name', translate: false },
-                { key: 'sex', translate: true },
-                { key: 'service_type', translate: true },
-                { key: 'rank', translate: true },
-                { key: 'active_role', translate: true },
-                { key: 'professions', translate: true },
-                { key: 'licenses', translate: true },
-                { key: 'affiliation', translate: true }
-              ]}
-              data={filterPeople(data?.people)} // TODO Implement filter according to keywordFilter (if it is not '')
-              labels={labels.person}
-              sortFn={(a, b) => {
-                if (a.affiliation < b.affiliation) return -1
-                if (a.affiliation > b.affiliation) return 1
-                if (
-                  a.service_type === 'officer' &&
-                  (b.service_type === 'enlisted' || b.service_type === 'nco')
-                )
-                  return -1
-                if (
-                  b.service_type === 'officer' &&
-                  (a.service_type === 'enlisted' || a.service_type === 'nco')
-                )
-                  return 1
-                if (a.service_type === 'nco' && b.service_type === 'enlisted') return -1
-                if (b.service_type === 'nco' && a.service_type === 'enlisted') return 1
-                if (a.active_role === 'platoon_sergeant' && b.active_role === 'trooper') return -1
-                if (b.active_role === 'platoon_sergeant' && a.active_role === 'trooper') return 1
-                if (a.rank < b.rank) return 1
-                if (a.rank > b.rank) return -1
-                return a.first_name.localeCompare(b.first_name)
-              }}
-              abbreviated={true}
-              labelFn={labelFn.people}
-              onEdit={(person) => handleEditContextMenu('people', person)}
-              onDelete={(person) => handleDeleteContextMenu('people', person)}
-            />
-          </Tab>
-          <Tab eventKey="vehicles" title="רכבים" style={{ width: '100%' }}>
-            <ControlRow
-              onSearchChange={handleSearchBarChange}
-              onAddClick={(values) => handleAddButtonClick('vehicles', values)}
-              style={{ marginTop: '15px' }}
-            />
-            <Table
-              cols={[
-                { key: 'plate_number', translate: false },
-                { key: 'type', translate: true },
-                { key: 'seats', translate: false }
-              ]}
-              data={filterVehicles(data?.vehicles)} // TODO Implement filter according to keywordFilter (if it is not '')
-              labels={labels.vehicle}
-              sortFn={(a, b) => {
-                if (a.type < b.type) return -1
-                if (a.type > b.type) return 1
-                if (a.plate_number < b.plate_number) return -1
-                if (a.plate_number > b.plate_number) return 1
-                return 0
-              }}
-              abbreviated={true}
-              labelFn={labelFn.vehicles}
-              onEdit={(vehicle) => handleEditContextMenu('vehicles', vehicle)}
-              onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
-              style={tableStyle}
-            />
-          </Tab>
-        </Tabs>
-      </div>
-    ) ?? null
+    <>
+      <SearchBar
+        onSearchChange={handleSearchBarChange}
+        onAddClick={(values) => handleAddButtonClick('people', values)}
+        style={{ marginTop: '15px' }}
+      />
+      <Table
+        shifts={shifts}
+        data={data}
+        style={tableStyle}
+        data={filterPeople(data?.people)}
+        labels={labels.person}
+        sortFn={(a, b) => {
+          if (a.affiliation < b.affiliation) return -1
+          if (a.affiliation > b.affiliation) return 1
+          if (
+            a.service_type === 'officer' &&
+            (b.service_type === 'enlisted' || b.service_type === 'nco')
+          )
+            return -1
+          if (
+            b.service_type === 'officer' &&
+            (a.service_type === 'enlisted' || a.service_type === 'nco')
+          )
+            return 1
+          if (a.service_type === 'nco' && b.service_type === 'enlisted') return -1
+          if (b.service_type === 'nco' && a.service_type === 'enlisted') return 1
+          if (a.active_role === 'platoon_sergeant' && b.active_role === 'trooper') return -1
+          if (b.active_role === 'platoon_sergeant' && a.active_role === 'trooper') return 1
+          if (a.rank < b.rank) return 1
+          if (a.rank > b.rank) return -1
+          return a.first_name.localeCompare(b.first_name)
+        }}
+        onToggle={onChange}
+      />
+    </>
   )
 }

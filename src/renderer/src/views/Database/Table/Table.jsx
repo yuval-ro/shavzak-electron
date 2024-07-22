@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
+
 import ContextMenu from './ContextMenu'
+import RubricTitle from './RubricTitle'
 
 const TableRow = styled(Row)`
   user-select: none;
@@ -17,10 +20,9 @@ const TableDataRow = styled(TableRow)`
   border-top: 1px solid lightgray;
   height: 40px;
   align-items: center;
-  transition: background-color 0.3s ease; /* Optional: Add a smooth transition effect */
 
   &:hover {
-    background-color: #f0f0f0; /* Change this to your desired hover color */
+    background-color: #f0f0f0;
   }
 `
 const Scrollable = styled.div`
@@ -28,11 +30,9 @@ const Scrollable = styled.div`
   overflow-y: scroll;
   overflow-x: hidden;
 `
-
 const TableContainer = styled.div`
   overflow-x: hidden;
 `
-
 const TableCol = styled(Col)`
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -40,7 +40,7 @@ const TableCol = styled(Col)`
 `
 
 export default function Table({
-  cols,
+  rubrics,
   data,
   labels,
   sortFn,
@@ -50,6 +50,9 @@ export default function Table({
   onDelete,
   style = {}
 }) {
+  const [activeRubric, setActiveRubric] = useState(null) // which rubric is the one the entries being sorted by
+  const [sortType, setSortType] = useState('ascending') // or 'descending'
+
   function renderCellValue({ key, translate }, item) {
     const value = item[key]
     if (translate) {
@@ -77,25 +80,57 @@ export default function Table({
     onEdit(item)
   }
 
+  function handleRubricClick(rubricKey) {
+    if (activeRubric === rubricKey) {
+      if (sortType === 'ascending') {
+        setSortType('descending')
+      } else {
+        setActiveRubric(null)
+        setSortType('ascending')
+      }
+    } else {
+      setActiveRubric(rubricKey)
+      setSortType('ascending')
+    }
+  }
+
+  function getSortedData() {
+    if (!activeRubric) return data
+
+    return [...data].sort((a, b) => {
+      if (a[activeRubric] < b[activeRubric]) return sortType === 'ascending' ? -1 : 1
+      if (a[activeRubric] > b[activeRubric]) return sortType === 'ascending' ? 1 : -1
+      return 0
+    })
+  }
+
+  const sortedData = getSortedData()
+
   return (
     <TableContainer style={style}>
       <TableHeaderRow>
-        <TableCol style={{ textAlign: 'center' }}>מס"ד</TableCol>
-        {cols.map((col, idx) => (
-          <TableCol key={idx}>{labels[col.key]._title}</TableCol>
+        {rubrics.map((rubric, idx) => (
+          <TableCol key={idx}>
+            <RubricTitle
+              title={labels[rubric.key]._title}
+              active={activeRubric === rubric.key}
+              sortType={sortType}
+              onClick={() => handleRubricClick(rubric.key)}
+              disabled={!rubric.sortable}
+            />
+          </TableCol>
         ))}
       </TableHeaderRow>
       <Scrollable>
-        {(data && data.length) > 0 ? (
-          data.sort(sortFn).map((item, idx) => (
+        {(sortedData && sortedData.length) > 0 ? (
+          sortedData.map((item, idx) => (
             <ContextMenu
               _id={item?._id}
               label={labelFn(item)}
               key={idx}
               menuButton={
                 <TableDataRow>
-                  <TableCol style={{ textAlign: 'center' }}>{idx + 1}</TableCol>
-                  {cols.map((col, idx) => (
+                  {rubrics.map((col, idx) => (
                     <TableCol key={idx}>{renderCellValue(col, item)}</TableCol>
                   ))}
                 </TableDataRow>

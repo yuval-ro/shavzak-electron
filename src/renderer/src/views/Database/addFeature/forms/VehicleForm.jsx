@@ -11,12 +11,12 @@ import labels_ from '#src/labels.json'
 const FormRow = styled(Row)`
   margin-bottom: 10px;
 `
-const HEBREW_REGEX = /^[\u0590-\u05FF-]*$/
-const PLATE_NUMBER_REGEX = /^\d{3}-\d{3}$|^\d{2}-\d{3}-\d{2}$|^\d{3}-\d{2}-\d{3}$/
+const PLATE_NUMBER_REGEX = /^[\u0590-\u05FF-0-9]*$/
+const NICKNAME = /^[\u0590-\u05FF 0-9]*$/
 const DEFAULT_SCHEMA = yup.object().shape({
   plate_number: yup.string().matches(PLATE_NUMBER_REGEX).required(),
   type: yup.string().notOneOf(['0']).required(),
-  nickname: yup.string().matches(HEBREW_REGEX)
+  nickname: yup.string().matches(NICKNAME)
 })
 const DEFAULT_VALUES = {
   plate_number: '',

@@ -1,6 +1,5 @@
 import { useRef, cloneElement } from 'react'
 import { Modal as BSModal, Button } from 'react-bootstrap'
-import PropTypes from 'prop-types'
 
 import { FormSubmitProvider } from './context'
 
@@ -8,7 +7,7 @@ export default function Modal({ title, form, onCancel }) {
   const formikRef = useRef()
 
   return (
-    <BSModal keyboard={false} backdrop="static" show={true} style={{ direction: 'rtl' }}>
+    <BSModal centered keyboard={false} backdrop="static" show={true} style={{ direction: 'rtl' }}>
       <BSModal.Header style={{ fontWeight: 'bold' }}>{title}</BSModal.Header>
       <FormSubmitProvider value={formikRef}>
         <BSModal.Body style={{ paddingBottom: '5px', paddingTop: '10px' }}>
@@ -40,10 +39,4 @@ export default function Modal({ title, form, onCancel }) {
       </FormSubmitProvider>
     </BSModal>
   )
-}
-
-Modal.propTypes = {
-  title: PropTypes.string,
-  form: PropTypes.elementType,
-  onCancel: PropTypes.func
 }

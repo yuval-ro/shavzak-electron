@@ -50,6 +50,21 @@ const PersonForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => 
     }
   }, [takenIds])
 
+  const availableRolesByRank = {
+    e1: ['trooper', 'os'],
+    e2: ['trooper', 'os', 'sergeant'],
+    e3: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
+    e4: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
+    e5: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
+    e6: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
+    e7: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
+    e8: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
+    o1: ['platoon_co'],
+    o2: ['platoon_co', 'oo'],
+    o3: ['platoon_co', 'oo', 'company_xo'],
+    o4: ['company_co']
+  }
+
   return (
     <Formik
       validationSchema={schema}
@@ -178,6 +193,9 @@ const PersonForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => 
                 handleBlur={handleBlur}
                 submitCount={submitCount}
                 disabled={!(values.rank !== '0' && values.service_type !== '0')}
+                additionalOptionFilters={[
+                  (key) => values.rank !== '0' && availableRolesByRank[values.rank].includes(key)
+                ]}
               />
             </FormRow>
             <FormRow>

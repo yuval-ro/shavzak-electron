@@ -1,6 +1,6 @@
 import { Form } from 'react-bootstrap'
 
-export default function ControlRow({ onSearchChange, style = {} }) {
+export default function SearchBar({ onSearchChange, style = {} }) {
   return (
     <div style={{ ...style, display: 'flex' }}>
       <Form.Control
