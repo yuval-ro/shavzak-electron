@@ -36,9 +36,8 @@ export default function Main({ data, shifts, onChange }) {
       />
       <Table
         shifts={shifts}
-        data={data}
-        style={tableStyle}
         data={filterPeople(data?.people)}
+        style={tableStyle}
         labels={labels.person}
         sortFn={(a, b) => {
           if (a.affiliation < b.affiliation) return -1

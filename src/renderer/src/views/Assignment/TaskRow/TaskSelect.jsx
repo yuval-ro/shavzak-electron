@@ -1,5 +1,9 @@
 import { Form } from 'react-bootstrap'
 
+import labels from '#src/labels.json'
+
+// TODO https://react-select.com/home#getting-started
+
 export default function TaskSelect({
   shifts,
   options,
@@ -9,15 +13,15 @@ export default function TaskSelect({
   isSelectDisabled,
   isOptionDisabled
 }) {
-  function classifyOption({ idx, service_number }) {
+  function classify(idx, person) {
     if (
-      (shifts[idx - 1] && Object.values(shifts[idx - 1]).includes(service_number)) ||
-      (shifts[idx + 1] && Object.values(shifts[idx + 1]).includes(service_number))
+      (shifts[idx - 1] && shifts[idx - 1].assigned.includes(person._id)) ||
+      (shifts[idx + 1] && shifts[idx + 1].assigned.includes(person._id))
     ) {
       return 'red'
     } else if (
-      (shifts[idx - 2] && Object.values(shifts[idx - 2]).includes(service_number)) ||
-      (shifts[idx + 2] && Object.values(shifts[idx + 2]).includes(service_number))
+      (shifts[idx - 2] && shifts[idx - 2].assigned.includes(person._id)) ||
+      (shifts[idx + 2] && shifts[idx + 2].assigned.includes(person._id))
     ) {
       return 'yellow'
     } else {
@@ -25,23 +29,10 @@ export default function TaskSelect({
     }
   }
 
-  function getClassName({ idx, service_number }) {
-    const class_ = classifyOption({ idx, service_number })
-    switch (class_) {
-      case 'red':
-        return 'text-danger bg-danger-subtle'
-      case 'yellow':
-        return 'bg-warning-subtle'
-      case 'green':
-      default:
-        return 'bg-success-subtle'
-    }
-  }
-
   function sortFn(a, b) {
     const colorOrder = ['green', 'yellow', 'red']
-    const colorA = colorOrder.indexOf(classifyOption({ idx, service_number: a.service_number }))
-    const colorB = colorOrder.indexOf(classifyOption({ idx, service_number: b.service_number }))
+    const colorA = colorOrder.indexOf(classify(idx, a))
+    const colorB = colorOrder.indexOf(classify(idx, b))
 
     if (colorA === colorB) {
       return a.last_name.localeCompare(b.last_name)
@@ -55,17 +46,29 @@ export default function TaskSelect({
       onChange={onChange}
       disabled={isSelectDisabled ? isSelectDisabled(idx) : false}
     >
-      <option></option>
-      {options.sort(sortFn).map(({ service_number, first_name, last_name }) => (
+      <option value="0"></option>
+      {options.sort(sortFn).map((person) => (
         <option
-          key={service_number} // Use service_number as the key
-          value={service_number}
-          disabled={isOptionDisabled ? isOptionDisabled({ idx, service_number }) : false}
-          className={
-            isOptionDisabled({ idx, service_number }) ? '' : getClassName({ idx, service_number })
-          }
+          key={person._id} // Use service_number as the key
+          value={person.service_number}
+          disabled={isOptionDisabled ? isOptionDisabled(shifts[idx]._id, person._id) : false}
+          className={(() => {
+            if (isOptionDisabled(shifts[idx]._id, person._id)) {
+              return ''
+            }
+            const class_ = classify(idx, person)
+            switch (class_) {
+              case 'red':
+                return 'text-danger bg-danger-subtle'
+              case 'yellow':
+                return 'bg-warning-subtle'
+              case 'green':
+              default:
+                return 'bg-success-subtle'
+            }
+          })()}
         >
-          {`${last_name}, ${first_name}`}
+          {`${labels.person.rank[person.rank][1]} ${person.last_name} ${person.first_name}`}
         </option>
       ))}
     </Form.Select>

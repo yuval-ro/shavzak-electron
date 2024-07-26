@@ -1,11 +1,12 @@
 import Modal from './Modal'
 import PersonForm from './forms/PersonForm'
-import VehicleForm from './forms/VehicleForm'
+// import VehicleForm from './forms/VehicleForm'
 
 export function AddPersonModal({ takenIds, onSave, onCancel }) {
   return (
     <Modal
-      title="הוספת רשומה חדשה - שוטר"
+      mode="new"
+      type="person"
       form={<PersonForm takenIds={takenIds} onSubmit={onSave} />}
       onCancel={onCancel}
     />
@@ -15,8 +16,10 @@ export function AddPersonModal({ takenIds, onSave, onCancel }) {
 export function AddVehicleModal({ takenIds, onSave, onCancel }) {
   return (
     <Modal
-      title="הוספת רשומה חדשה - רכב"
-      form={<VehicleForm takenIds={takenIds} onSubmit={onSave} />}
+      mode="new"
+      type="vehicle"
+      // form={<VehicleForm takenIds={takenIds} onSubmit={onSave} />}
+      form={null} // TODO Update
       onCancel={onCancel}
     />
   )
@@ -25,7 +28,8 @@ export function AddVehicleModal({ takenIds, onSave, onCancel }) {
 export function EditPersonModal({ takenIds, initValues, onSave, onCancel }) {
   return (
     <Modal
-      title="עריכת רשומה קיימת - שוטר"
+      mode="existing"
+      type="person"
       form={<PersonForm takenIds={takenIds} initValues={initValues} onSubmit={onSave} />}
       onCancel={onCancel}
     />
@@ -35,9 +39,10 @@ export function EditPersonModal({ takenIds, initValues, onSave, onCancel }) {
 export function EditVehicleModal({ takenIds, initValues, onSave, onCancel }) {
   return (
     <Modal
-      selfId={initValues._id}
-      title="עריכת רשומה קיימת - רכב"
-      form={<VehicleForm takenIds={takenIds} initValues={initValues} onSubmit={onSave} />}
+      mode="existing"
+      type="vehicle"
+      // form={<VehicleForm takenIds={takenIds} initValues={initValues} onSubmit={onSave} />}
+      form={null} // TODO Update
       onCancel={onCancel}
     />
   )

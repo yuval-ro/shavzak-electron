@@ -5,7 +5,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { handlers, middleware } from './db.js'
+import { DB } from './DB.js'
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -38,14 +38,16 @@ function createWindow() {
   }
 }
 
+const db = new DB()
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-  ipcMain.handle('docs/put-one', middleware.validate(handlers.putOne))
-  ipcMain.handle('docs/read-all', middleware.validate(handlers.readAll))
-  ipcMain.handle('docs/delete-one', middleware.validate(handlers.deleteOne))
+  ipcMain.handle('docs/read-all', (event, request) => db.handle(request).readAll())
+  ipcMain.handle('docs/put-one', (event, request) => db.handle(request).putOne())
+  ipcMain.handle('docs/delete-one', (event, request) => db.handle(request).deleteOne())
   createWindow()
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

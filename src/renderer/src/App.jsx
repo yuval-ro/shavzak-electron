@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
-import Database from './views/Database'
+import { ThemeProvider } from 'react-bootstrap'
+
 import TopNavbar from './nav/TopNavbar'
+import Database from './views/Database'
 import Attendance from './views/Attendance'
+import Assignment from './views/Assignment'
+import { toSnakeCase, toCamelCase } from './helpers'
 
 function getTime(days, hour) {
   let time = new Date()
@@ -39,13 +43,16 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const people = await window.api.docs.readAll('people')
-      const vehicles = await window.api.docs.readAll('vehicles')
-      setData({ people, vehicles })
+      const dbPeople = await window.api.docs.readAll('people')
+      const dbVehicles = await window.api.docs.readAll('vehicles')
+      setData({
+        people: dbPeople.map((doc) => toCamelCase(doc)),
+        vehicles: dbVehicles.map((doc) => toCamelCase(doc))
+      })
       setShifts((oldShifts) => {
         const newShifts = oldShifts.map((shift) => {
           const newShift = shift
-          newShift.available = people.map((person) => person._id)
+          newShift.available = dbPeople.map((person) => person._id)
           return newShift
         })
         return newShifts
@@ -55,7 +62,7 @@ export default function App() {
   }, [])
 
   async function handlePost(collection, doc) {
-    const updated = await window.api.docs.putOne(collection, doc)
+    const updated = await window.api.docs.putOne(collection, toSnakeCase(doc))
     setData((prevData) => ({
       ...prevData,
       [collection]: prevData[collection].map((item) => (item._id === updated._id ? updated : item))
@@ -63,10 +70,10 @@ export default function App() {
   }
 
   async function handleDelete(collection, doc) {
-    const deletedId = await window.api.docs.deleteOne(collection, doc)
+    const deleted = await window.api.docs.deleteOne(collection, toSnakeCase(doc))
     setData((prevData) => ({
       ...prevData,
-      [collection]: prevData[collection].filter((item) => item._id !== deletedId)
+      [collection]: prevData[collection].filter((item) => item._id !== deleted._id)
     }))
   }
 
@@ -93,17 +100,17 @@ export default function App() {
       component: <Database.Main data={data} onPost={handlePost} onDelete={handleDelete} />
     },
     {
-      title: 'נוכחות',
-      component: <Attendance.Main data={data} shifts={shifts} onChange={handleAttendanceChange} />
+      title: 'נוכחות'
+      // component: <Attendance.Main data={data} shifts={shifts} onChange={handleAttendanceChange} />
     },
     {
-      title: 'שיבוץ',
-      component: null
+      title: 'שיבוץ'
+      // component: <Assignment.Main data={data} shifts={shifts} />
     }
   ]
 
   return (
-    <div style={{ direction: 'rtl' }}>
+    <ThemeProvider dir="rtl">
       <TopNavbar
         titles={views.map((view) => view?.title)}
         activeKey={activeView}
@@ -116,6 +123,6 @@ export default function App() {
           </div>
         ))}
       </div>
-    </div>
+    </ThemeProvider>
   )
 }

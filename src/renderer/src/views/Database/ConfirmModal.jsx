@@ -2,7 +2,7 @@ import { Modal, Button } from 'react-bootstrap'
 
 export default function ConfirmModal({ title, body, onConfirm, onCancel, okButtonVariant }) {
   return (
-    <Modal keyboard={false} backdrop="static" show={true} style={{ direction: 'rtl' }} centered>
+    <Modal keyboard={false} backdrop="static" show={true} centered>
       <Modal.Header style={{ fontWeight: 'bold' }}>{title}</Modal.Header>
       <Modal.Body style={{ paddingBottom: '5px', paddingTop: '10px' }}>{body}</Modal.Body>
       <Modal.Footer>

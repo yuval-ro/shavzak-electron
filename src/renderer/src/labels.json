@@ -1,18 +1,19 @@
 {
   "vehicle": {
-    "plate_number": {
+    "_title": "רכב",
+    "plateNumber": {
       "_title": "מספר לוחית"
     },
     "type": {
       "_title": "סוג רכב",
-      "david_manual": "דוד ידני",
-      "david_automatic": "דוד אוטומטי",
-      "savannah_armored": "סוואנה בט\"ש",
-      "savannah_unarmored": "סוואנה לבנה",
-      "hilux_armored": "היילקס בט\"ש",
-      "hilux_unarmored": "היילקס לבן",
-      "triton_armored": "טריטון בט\"ש",
-      "triton_unarmored": "טריטון לבן",
+      "davidManual": "דוד ידני",
+      "davidAutomatic": "דוד אוטומטי",
+      "savannahArmored": "סוואנה בט\"ש",
+      "savannahUnarmored": "סוואנה לבנה",
+      "hiluxArmored": "היילקס בט\"ש",
+      "hiluxUnarmored": "היילקס לבן",
+      "tritonArmored": "טריטון בט\"ש",
+      "tritonUnarmored": "טריטון לבן",
       "tigris": "טיגריס",
       "zeev": "זאב",
       "truck": "משאית",
@@ -26,7 +27,8 @@
     }
   },
   "person": {
-    "service_number": {
+    "_title": "שוטר",
+    "serviceNumber": {
       "_title": "מספר אישי"
     },
     "sex": {
@@ -40,39 +42,42 @@
       "p2": "מחלקה 2",
       "hq": "מטה"
     },
-    "first_name": { "_title": "שם פרטי" },
-    "last_name": { "_title": "שם משפחה" },
-    "active_role": {
+    "firstName": { "_title": "שם פרטי" },
+    "lastName": { "_title": "שם משפחה" },
+    "activeRole": {
       "_title": "תפקיד",
       "trooper": "לוחם",
-      "sergeant": "מ\"כ",
-      "company_co": "מ\"פ",
-      "company_xo": "סמ\"פ",
-      "oo": "קמב\"ץ",
-      "dnco": "נגד משמעת",
       "os": "סמב\"ץ",
-      "platoon_co": "מ\"מ",
-      "platoon_xo": "סמ\"ח"
+      "platoonSergeant": "מ\"כ",
+      "platoonXo": "סמ\"ח",
+      "platoonCo": "מ\"מ",
+      "companyCo": "מ\"פ",
+      "companyXo": "סמ\"פ",
+      "companyOo": "קמב\"ץ",
+      "companyDnco": "נגד משמעת"
     },
     "professions": {
       "_title": "הסמכות",
       "sergeant": "מ\"כ",
       "medic": "חובש",
       "marksman": "קלע",
-      "driver": "נהג"
+      "driver": "נהג",
+      "fieldOfficer": "קצין שטח"
     },
     "licenses": {
       "_title": "היתרים",
-      "david_manual": "דוד ידני",
-      "david_automatic": "דוד אוטומטי",
-      "c": "רשיון ג",
-      "b": "רשיון ב",
+      "davidManual": "דוד ידני",
+      "davidAutomatic": "דוד אוטומטי",
+      "private": "רכב לבן",
       "tigris": "טיגריס",
       "zeev": "זאב",
       "truck": "משאית",
-      "panther": "פנתר"
+      "panther": "פנתר",
+      "savannahArmored": "סוואנה בט\"ש",
+      "savannahUnarmored": "סוואנה לבנה",
+      "riotTruck": "מכתזי\"ת"
     },
-    "service_type": {
+    "serviceType": {
       "_title": "סוג שירות",
       "enlisted": "סדיר",
       "nco": "נגד",
@@ -80,18 +85,18 @@
     },
     "rank": {
       "_title": "דרגה",
-      "o1": ["מפקח משנה", "ממ\"ש"],
-      "o2": ["מפקח"],
-      "o3": ["פקד"],
-      "o4": ["רב-פקד", "רפ\"ק"],
-      "e1": ["רב-שוטר", "רש\"ט"],
-      "e2": ["סמל שני", "סמ\"ש"],
-      "e3": ["סמל ראשון", "סמ\"ר"],
-      "e4": ["רב-סמל", "רס\"ל"],
-      "e5": ["רב-סמל ראשון", "רס\"ר"],
-      "e6": ["רב-סמל מתקדם", "רס\"מ"],
-      "e7": ["רב-סמל בכיר", "רס\"ב"],
-      "e8": ["רב-נגד", "רנ\"ג"]
+      "o1": "ממ\"ש",
+      "o2": "מפקח",
+      "o3": "פקד",
+      "o4": "רפ\"ק",
+      "e1": "רש\"ט",
+      "e2": "סמ\"ש",
+      "e3": "סמ\"ר",
+      "e4": "רס\"ל",
+      "e5": "רס\"ר",
+      "e6": "רס\"מ",
+      "e7": "רס\"ב",
+      "e8": "רנ\"ג"
     }
   },
   "shift": {
@@ -110,7 +115,7 @@
     "teamDriver": "נהג",
     "teamTrooper": "לוחם",
     "guardNorth": "צפונית",
-    "guardGate": "שג",
+    "guardGate": "ש\"ג",
     "guardSouth": "דרומית",
     "guardPatrol": "פטרול",
     "guardCommander": "מפקד אבטחת מחנה",

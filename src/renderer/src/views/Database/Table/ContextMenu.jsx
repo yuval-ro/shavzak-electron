@@ -9,18 +9,18 @@ const CustomMenuItem = styled(MenuItem)`
   justify-content: space-evenly;
 `
 
-export default function ContextMenu({ menuButton, label, _id, onEdit, onDelete }) {
+export default function ContextMenu({ menuButton, label, onEdit, onDelete }) {
   return (
     <Menu align="end" viewScroll="close" menuButton={menuButton} transition>
       <CustomMenuItem disabled style={{ color: 'black' }}>
         {label}
       </CustomMenuItem>
       <MenuDivider />
-      <CustomMenuItem onClick={() => onEdit(_id)}>
+      <CustomMenuItem onClick={onEdit}>
         <div>ערוך</div>
         <FaEdit />
       </CustomMenuItem>
-      <CustomMenuItem className="text-danger" onClick={() => onDelete(_id)}>
+      <CustomMenuItem className="text-danger" onClick={onDelete}>
         <div>מחק</div>
         <FaTrashAlt />
       </CustomMenuItem>

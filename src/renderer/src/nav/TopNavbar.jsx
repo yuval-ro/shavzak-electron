@@ -2,7 +2,7 @@ import { Navbar, Nav } from 'react-bootstrap'
 
 export default function TopNavbar({ titles, activeKey, onKeySelect }) {
   return (
-    <Navbar style={{ backgroundColor: 'lightgray' }}>
+    <Navbar className="bg-light">
       <Navbar.Brand>פלוגה מד</Navbar.Brand>
       <Nav
         variant="underline"

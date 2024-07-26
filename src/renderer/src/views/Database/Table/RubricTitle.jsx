@@ -20,7 +20,7 @@ const Title = styled.span`
   }
 
   ${({ disabled }) =>
-    !disabled &&
+    disabled &&
     `
     &:hover::after {
       transform: scaleX(1);
@@ -28,10 +28,10 @@ const Title = styled.span`
   `}
 `
 
-const RubricTitle = ({ title, active, sortType, onClick, disabled = false }) => (
-  <Title onClick={disabled ? null : onClick} active={active} disabled={disabled}>
+const RubricTitle = ({ title, active, sortType, onClick, disabled }) => (
+  <Title onClick={onClick} active={active} disabled={disabled}>
     {title}
-    {!disabled && active && (sortType === 'ascending' ? ' ▲' : ' ▼')}
+    {active && (sortType === 'ascending' ? ' ▲' : ' ▼')}
   </Title>
 )
 

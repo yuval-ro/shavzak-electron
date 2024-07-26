@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { Tabs, Tab } from 'react-bootstrap'
 
 import { AddPersonModal, EditPersonModal, AddVehicleModal, EditVehicleModal } from './addFeature'
 import ConfirmModal from './ConfirmModal'
 import Table from './Table'
-import ControlRow from './ControlRow'
+import Toolbar from './Toolbar'
 import labels from '#src/labels.json'
 
 export default function Main({ data, onPost, onDelete }) {
@@ -14,8 +13,8 @@ export default function Main({ data, onPost, onDelete }) {
   const [keywordFilter, setKeywordFilter] = useState('')
 
   const labelFn = {
-    people: (person) =>
-      `${labels.person.rank[person?.rank][1] ?? labels.person.rank[person?.rank][0]} ${person?.first_name} ${person?.last_name}`,
+    people: ({ firstName, lastName, rank }) =>
+      labels.person.rank[rank] + ' ' + firstName + ' ' + lastName,
     vehicles: (vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate_number}`
   }
 
@@ -28,16 +27,16 @@ export default function Main({ data, onPost, onDelete }) {
       setEntryModal(
         <AddPersonModal
           takenIds={data?.people.map((person) => person._id)}
-          onSave={(values) => handleEditModalOk('people', values)}
-          onCancel={handleEditModalCancel}
+          onSave={(values) => handleFormModalOk('people', values)}
+          onCancel={handleFormModalCancel}
         />
       )
     } else if (activeTab === 'vehicles') {
       setEntryModal(
         <AddVehicleModal
           takenIds={data?.vehicles.map((vehicle) => vehicle._id)}
-          onSave={(values) => handleEditModalOk('vehicles', values)}
-          onCancel={handleEditModalCancel}
+          onSave={(values) => handleFormModalOk('vehicles', values)}
+          onCancel={handleFormModalCancel}
         />
       )
     } else {
@@ -45,12 +44,13 @@ export default function Main({ data, onPost, onDelete }) {
     }
   }
 
-  function handleEditModalOk(collection, item) {
-    onPost(collection, item)
+  function handleFormModalOk(collection, doc) {
+    console.debug({doc})
+    // onPost(collection, doc)
     setEntryModal(null)
   }
 
-  function handleEditModalCancel() {
+  function handleFormModalCancel() {
     setEntryModal(null)
   }
 
@@ -62,8 +62,8 @@ export default function Main({ data, onPost, onDelete }) {
             .map((person) => person._id)
             .filter((id) => id !== existingValues._id)}
           initValues={existingValues}
-          onSave={(values) => handleEditModalOk('people', values)}
-          onCancel={handleEditModalCancel}
+          onSave={(values) => handleFormModalOk('people', values)}
+          onCancel={handleFormModalCancel}
         />
       )
     } else if (collection === 'vehicles') {
@@ -73,8 +73,8 @@ export default function Main({ data, onPost, onDelete }) {
             .map((vehicle) => vehicle._id)
             .filter((id) => id !== existingValues._id)}
           initValues={existingValues}
-          onSave={(values) => handleEditModalOk('vehicles', values)}
-          onCancel={handleEditModalCancel}
+          onSave={(values) => handleFormModalOk('vehicles', values)}
+          onCancel={handleFormModalCancel}
         />
       )
     } else {
@@ -106,6 +106,10 @@ export default function Main({ data, onPost, onDelete }) {
     )
   }
 
+  function handleTabChange(selectedTab) {
+    setActiveTab(selectedTab)
+  }
+
   function filterPeople(people) {
     var result = people
     if (keywordFilter !== '') {
@@ -134,96 +138,64 @@ export default function Main({ data, onPost, onDelete }) {
     marginTop: '10px'
   }
 
+  const tabs = {
+    people: (
+      <Table
+        style={tableStyle}
+        rubrics={[
+          'affiliation',
+          'serviceNumber',
+          'firstName',
+          'lastName',
+          'sex',
+          'serviceType',
+          'rank',
+          'activeRole',
+          'professions',
+          'licenses'
+        ]}
+        data={filterPeople(data.people)} // TODO Implement filter according to keywordFilter (if it is not '')
+        labels={labels.person}
+        labelFn={labelFn.people}
+        onEdit={(person) => handleEditContextMenu('people', person)}
+        onDelete={(person) => handleDeleteContextMenu('people', person)}
+      />
+    ),
+    vehicles: null
+    // <Table
+    //   rubrics={[
+    //     { key: 'plate_number', translate: false },
+    //     { key: 'type', translate: true },
+    //     { key: 'seats', translate: false }
+    //   ]}
+    //   data={filterVehicles(data?.vehicles)} // TODO Implement filter according to keywordFilter (if it is not '')
+    //   labels={labels.vehicle}
+    //   sortFn={(a, b) => {
+    //     if (a.type < b.type) return -1
+    //     if (a.type > b.type) return 1
+    //     if (a.plate_number < b.plate_number) return -1
+    //     if (a.plate_number > b.plate_number) return 1
+    //     return 0
+    //   }}
+    //   abbreviated={true}
+    //   labelFn={labelFn.vehicles}
+    //   onEdit={(vehicle) => handleEditContextMenu('vehicles', vehicle)}
+    //   onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
+    //   style={tableStyle}
+    // />
+  }
+
   return (
-    <div>
+    <>
       {confirmModal}
       {itemModal}
-      <Tabs
-        variant="pills"
-        defaultActiveKey="people"
-        onSelect={(key) => {
-          setActiveTab(key)
-        }}
-        style={{ paddingRight: '0px' }}
-      >
-        <Tab eventKey="people" title="כוח אדם">
-          <ControlRow
-            onSearchChange={handleSearchChange}
-            onAddClick={(values) => handleAddButtonClick('people', values)}
-            style={{ marginTop: '15px' }}
-          />
-          <Table
-            style={tableStyle}
-            rubrics={[
-              { key: 'affiliation', sortable: true, translate: true },
-              { key: 'service_number', sortable: true, translate: false },
-              { key: 'first_name', sortable: true, translate: false },
-              { key: 'last_name', sortable: true, translate: false },
-              { key: 'sex', sortable: true, translate: true },
-              { key: 'service_type', sortable: true, translate: true },
-              { key: 'rank', sortable: true, translate: true },
-              { key: 'active_role', sortable: true, translate: true },
-              { key: 'professions', sortable: false, translate: true },
-              { key: 'licenses', sortable: false, translate: true }
-            ]}
-            data={filterPeople(data?.people)} // TODO Implement filter according to keywordFilter (if it is not '')
-            labels={labels.person}
-            sortFn={(a, b) => {
-              if (a.affiliation < b.affiliation) return -1
-              if (a.affiliation > b.affiliation) return 1
-              if (
-                a.service_type === 'officer' &&
-                (b.service_type === 'enlisted' || b.service_type === 'nco')
-              )
-                return -1
-              if (
-                b.service_type === 'officer' &&
-                (a.service_type === 'enlisted' || a.service_type === 'nco')
-              )
-                return 1
-              if (a.service_type === 'nco' && b.service_type === 'enlisted') return -1
-              if (b.service_type === 'nco' && a.service_type === 'enlisted') return 1
-              if (a.active_role === 'platoon_sergeant' && b.active_role === 'trooper') return -1
-              if (b.active_role === 'platoon_sergeant' && a.active_role === 'trooper') return 1
-              if (a.rank < b.rank) return 1
-              if (a.rank > b.rank) return -1
-              return a.first_name.localeCompare(b.first_name)
-            }}
-            abbreviated={true}
-            labelFn={labelFn.people}
-            onEdit={(person) => handleEditContextMenu('people', person)}
-            onDelete={(person) => handleDeleteContextMenu('people', person)}
-          />
-        </Tab>
-        <Tab eventKey="vehicles" title="רכבים" style={{ width: '100%' }}>
-          <ControlRow
-            onSearchChange={handleSearchChange}
-            onAddClick={(values) => handleAddButtonClick('vehicles', values)}
-            style={{ marginTop: '15px' }}
-          />
-          <Table
-            rubrics={[
-              { key: 'plate_number', translate: false },
-              { key: 'type', translate: true },
-              { key: 'seats', translate: false }
-            ]}
-            data={filterVehicles(data?.vehicles)} // TODO Implement filter according to keywordFilter (if it is not '')
-            labels={labels.vehicle}
-            sortFn={(a, b) => {
-              if (a.type < b.type) return -1
-              if (a.type > b.type) return 1
-              if (a.plate_number < b.plate_number) return -1
-              if (a.plate_number > b.plate_number) return 1
-              return 0
-            }}
-            abbreviated={true}
-            labelFn={labelFn.vehicles}
-            onEdit={(vehicle) => handleEditContextMenu('vehicles', vehicle)}
-            onDelete={(vehicle) => handleDeleteContextMenu('vehicles', vehicle)}
-            style={tableStyle}
-          />
-        </Tab>
-      </Tabs>
-    </div>
+      <Toolbar
+        onSearchChange={handleSearchChange}
+        onAddClick={(values) => handleAddButtonClick('people', values)}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
+      {tabs[activeTab]}
+    </>
   )
 }

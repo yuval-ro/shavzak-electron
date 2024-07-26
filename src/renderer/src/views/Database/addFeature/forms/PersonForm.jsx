@@ -1,214 +1,312 @@
-import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
-import { Form, Row } from 'react-bootstrap'
+/**
+ * @file PersonForm.jsx
+ */
+import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
+import { Form, Row, Col } from 'react-bootstrap'
+import Select from 'react-select'
 import { Formik } from 'formik'
 import * as yup from 'yup'
+import chroma from 'chroma-js'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 
-import SelectFormGroup from './SelectFormGroup.jsx'
-import TextFormGroup from './TextFormGroup.jsx'
-import labels_ from '#src/labels.json'
+import labels from '#src/labels.json'
+import requirements from '#src/requirements.json'
 import { HEBREW_REGEX, SERVICE_NUMBER_REGEX } from './common.js'
 
-const FormRow = styled(Row)`
-  margin-bottom: 10px;
-`
-const SCHEMA = yup.object().shape({
-  affiliation: yup.string().notOneOf(['0']).required(),
-  first_name: yup.string().required().matches(HEBREW_REGEX),
-  last_name: yup.string().required().matches(HEBREW_REGEX),
-  sex: yup.string().notOneOf(['0']).required(),
-  service_number: yup.string().required().matches(SERVICE_NUMBER_REGEX),
-  service_type: yup.string().notOneOf(['0']).required(),
-  rank: yup.string().notOneOf(['0']).required(),
-  active_role: yup.string().notOneOf(['0']).required()
-})
-const DEFAULT_VALUES = {
-  affiliation: '0',
-  first_name: '',
-  last_name: '',
-  sex: '0',
-  service_number: '',
-  service_type: '0',
-  rank: '0',
-  profession: [],
-  role: '0'
-}
-const LABELS = labels_?.person
-
-const PersonForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => {
-  const isMounted = useRef(false)
-  const [schema, setSchema] = useState(SCHEMA)
-  useEffect(() => {
-    if (takenIds.length > 0) {
-      setSchema((defaultSchema) =>
-        defaultSchema.shape({
-          ...defaultSchema.fields,
-          service_number: yup.string().required().matches(SERVICE_NUMBER_REGEX).notOneOf(takenIds)
-        })
-      )
-    }
-  }, [takenIds])
-
-  const availableRolesByRank = {
-    e1: ['trooper', 'os'],
-    e2: ['trooper', 'os', 'sergeant'],
-    e3: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
-    e4: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
-    e5: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
-    e6: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
-    e7: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
-    e8: ['trooper', 'os', 'sergeant', 'platoon_xo', 'dnco'],
-    o1: ['platoon_co'],
-    o2: ['platoon_co', 'oo'],
-    o3: ['platoon_co', 'oo', 'company_xo'],
-    o4: ['company_co']
+const StyledFormControl = styled(Form.Control)`
+  &:focus {
+    border-color: lightgray;
+    box-shadow: 0 0 0 0.15rem rgba(211, 211, 211, 0.2);
   }
+`
 
+const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref) => {
+  const isMounted = useRef(false)
+  const rubrics = {
+    affiliation: {
+      required: true,
+      type: 'select',
+      validation: yup.string().trim().required('יש לבחור שיוך כנדרש.'),
+      initValue: initValues['affiliation'] ?? null,
+      options: () =>
+        Object.entries(labels.person.affiliation)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .map(([key, val]) => ({ value: key, label: val }))
+    },
+    serviceNumber: {
+      required: true,
+      type: 'free',
+      validation: yup
+        .string()
+        .trim()
+        .required('יש למלא מספר אישי כנדרש.')
+        .matches(SERVICE_NUMBER_REGEX, 'מספר אישי צריך להיות רצף ספרות באורך 7 או 8.')
+        .notOneOf(takenIds, 'מספר זה כבר קיים במערכת.'), // TODO Add a specific message when notOneOf condition is not met
+      initValue: initValues['serviceNumber'] ?? null
+    },
+    firstName: {
+      required: true,
+      type: 'free',
+      validation: yup
+        .string()
+        .trim()
+        .required('יש למלא שם פרטי כנדרש.')
+        .matches(HEBREW_REGEX, 'שם משפחה צריך להיות רצף אותיות בעברית בלבד, ללא רווחים.'),
+      initValue: initValues['firstName'] ?? null
+    },
+    lastName: {
+      required: true,
+      type: 'free',
+      validation: yup
+        .string()
+        .trim()
+        .required('יש למלא שם משפחה כנדרש.')
+        .matches(HEBREW_REGEX, 'שם משפחה צריך להיות רצף אותיות בעברית בלבד, ללא רווחים.'),
+      initValue: initValues['lastName'] ?? null
+    },
+    sex: {
+      required: true,
+      type: 'select',
+      validation: yup.string().trim().required('יש לבחור מין כנדרש.'),
+      initValue: initValues['sex'] ?? null,
+      options: () =>
+        Object.entries(labels.person.sex)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .map(([key, val]) => ({ value: key, label: val }))
+    },
+    serviceType: {
+      required: true,
+      type: 'select',
+      validation: yup.string().trim().required('יש לבחור את סוג השירות כנדרש.'),
+      initValue: initValues['serviceType'] ?? null,
+      options: () =>
+        Object.entries(labels.person.serviceType)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .map(([key, val]) => ({ value: key, label: val }))
+    },
+    rank: {
+      required: true,
+      type: 'select',
+      validation: yup.string().trim().required('יש לבחור את הדרגה כנדרש.'),
+      initValue: initValues['rank'] ?? null,
+      options: ({ serviceType }) =>
+        Object.entries(labels.person.rank)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .filter(([key, val]) => {
+            switch (serviceType) {
+              case 'enlisted':
+                return key.startsWith('e') && key >= 'e1' && key <= 'e3'
+              case 'nco':
+                return key.startsWith('e') && key >= 'e3'
+              case 'officer':
+                return key.startsWith('o')
+            }
+          })
+          .map(([key, val]) => ({ value: key, label: val })),
+      disabled: ({ serviceType }) => !serviceType
+    },
+    activeRole: {
+      required: true,
+      type: 'select',
+      validation: yup.string().trim().required('יש לבחור את התפקיד כנדרש.'),
+      initValue: initValues['rank'] ?? null,
+      options: ({ serviceType, rank }) =>
+        Object.entries(labels.person.activeRole)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .filter(([key, val]) => {
+            switch (serviceType) {
+              case 'enlisted':
+                return true // TODO
+              case 'nco':
+                return true // TODO
+              case 'officer':
+                return true // TODO
+            }
+          })
+          .map(([key, val]) => ({ value: key, label: val })),
+      disabled: ({ serviceType, rank }) => !(serviceType && rank)
+    },
+    professions: {
+      required: false,
+      type: 'multiselect',
+      validation: yup.array().of(yup.string()),
+      initValue: initValues['professions'] ?? null,
+      options: () =>
+        Object.entries(labels.person.professions)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .map(([key, val]) => ({ value: key, label: val }))
+    },
+    licenses: {
+      required: false,
+      type: 'multiselect',
+      // validation: yup
+      //   .array()
+      //   .of(yup.string())
+      //   .when('professions', {
+      //     is: (professions) => professions &&professions.includes('driver'),
+      //     then: yup.array().of(yup.string()).required(),
+      //     otherwise: yup.array().of(yup.string())
+      //   }),
+      initValue: initValues['licenses'] ?? null,
+      options: () =>
+        Object.entries(labels.person.licenses)
+          .filter(([key, val]) => !key.startsWith('_'))
+          .map(([key, val]) => ({ value: key, label: val }))
+    }
+  }
   return (
     <Formik
-      validationSchema={schema}
-      initialValues={initValues ? initValues : DEFAULT_VALUES}
+      initialValues={Object.fromEntries(
+        Object.entries(rubrics).map(([key, rubric]) => [key, rubric.initValue])
+      )}
+      validationSchema={yup
+        .object()
+        .shape(
+          Object.fromEntries(
+            Object.entries(rubrics).map(([key, rubric]) => [key, rubric.validation])
+          )
+        )}
       onSubmit={onSubmit}
     >
       {({
         handleSubmit,
-        handleChange,
-        handleBlur,
         values,
         errors,
         setFieldValue,
         submitCount,
-        submitForm
+        submitForm,
+        initialValues
       }) => {
         useImperativeHandle(ref, () => ({
           submitForm: () => submitForm()
         }))
-        // TODO Prevent the below useEffects on component first-time load
         useEffect(() => {
           if (isMounted.current) {
-            setFieldValue('rank', '0')
-            setFieldValue('active_role', '0')
+            setFieldValue('rank', '')
+            setFieldValue('activeRole', '')
           }
-        }, [values.service_type, setFieldValue])
+        }, [values.serviceType, setFieldValue])
         useEffect(() => {
           if (isMounted.current) {
-            setFieldValue('active_role', '0')
+            setFieldValue('activeRole', '')
           }
         }, [values.rank, setFieldValue])
         useEffect(() => {
           isMounted.current = true
         }, [])
-
         return (
           <Form noValidate onSubmit={handleSubmit}>
-            <FormRow>
-              <TextFormGroup
-                name="service_number"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                additionalValidations={[]}
-                submitCount={submitCount}
-              />
-            </FormRow>
-            <FormRow>
-              <TextFormGroup
-                name="first_name"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-              />
-            </FormRow>
-            <FormRow>
-              <TextFormGroup
-                name="last_name"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-              />
-            </FormRow>
-            <FormRow>
-              <SelectFormGroup
-                name="sex"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-              />
-            </FormRow>
-            <FormRow>
-              <SelectFormGroup
-                name="service_type"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-              />
-            </FormRow>
-            <FormRow>
-              <SelectFormGroup
-                name="rank"
-                values={values}
-                labels={LABELS}
-                labelAbbreivated={true}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-                additionalValidations={[values.service_type !== '0']}
-                additionalOptionFilters={[
-                  (key) => {
-                    if (values.service_type === 'enlisted') {
-                      return key.startsWith('e') && key[1] <= '3'
-                    } else if (values.service_type === 'nco') {
-                      return key.startsWith('e') && key[1] >= '3'
-                    } else {
-                      return key.startsWith('o') // Officer
-                    }
+            <div className="small my-1">
+              <span>שדות המסומנים בכוכבית (</span>
+              <span className="text-danger">*</span>
+              <span>) הינם שדות חובה.</span>
+            </div>
+            {Object.entries(rubrics).map(([key, rubric], idx) => {
+              if (rubric.options) {
+                var options = rubric.options(values) ?? []
+              }
+              const error = errors[key]
+              const value = values[key]
+              const showFeedback = submitCount > 0 && rubric.required
+              const boxShadow = `0 0 0 0.15rem ${chroma(showFeedback ? (error ? 'red' : 'green') : 'lightgray').alpha(0.2)}`
+              const borderColor = chroma(
+                showFeedback ? (error ? 'red' : 'green') : 'lightgray'
+              ).css()
+              const selectStyles = {
+                control: (styles, { isFocused }) => ({
+                  ...styles,
+                  borderColor: borderColor,
+                  boxShadow: isFocused ? boxShadow : styles.boxShadow,
+                  '&:hover': {
+                    borderColor: borderColor // Change border color on hover if focused
                   }
-                ]}
-                disabled={values.service_type === '0'}
-              />
-            </FormRow>
-            <FormRow>
-              <SelectFormGroup
-                name="active_role"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-                disabled={!(values.rank !== '0' && values.service_type !== '0')}
-                additionalOptionFilters={[
-                  (key) => values.rank !== '0' && availableRolesByRank[values.rank].includes(key)
-                ]}
-              />
-            </FormRow>
-            <FormRow>
-              <SelectFormGroup
-                name="affiliation"
-                values={values}
-                labels={LABELS}
-                errors={errors}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                submitCount={submitCount}
-              />
-            </FormRow>
+                }),
+                option: (styles, { isFocused, isSelected }) => ({
+                  ...styles,
+                  backgroundColor: isFocused && !isSelected ? '#f2f2f2' : styles.backgroundColor
+                })
+              }
+              return (
+                <Row
+                  key={key}
+                  style={{
+                    borderBottom:
+                      idx < Object.entries(rubrics).length - 1 ? '1px solid lightgray' : '',
+                    paddingTop: '5px',
+                    paddingBottom: '5px'
+                  }}
+                >
+                  <Col
+                    xs={3}
+                    style={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}
+                  >
+                    {labels.person[key]._title}{' '}
+                    {rubric.required ? <span className="text-danger">*</span> : null}
+                  </Col>
+                  <Col style={{ alignContent: 'center' }}>
+                    {(() => {
+                      switch (rubric.type) {
+                        case 'free':
+                          return (
+                            <StyledFormControl
+                              disabled={false}
+                              type="text"
+                              value={values[key]}
+                              onChange={(event) => setFieldValue(key, event?.target?.value)}
+                              isValid={showFeedback && !error}
+                              isInvalid={showFeedback && error}
+                            />
+                          )
+                        case 'select':
+                          return (
+                            <Select
+                              isClearable={true}
+                              isMulti={false}
+                              value={options.find((option) => option.value === values[key]) ?? null}
+                              options={rubric.options(values) ?? []}
+                              isDisabled={false}
+                              onChange={(option) => setFieldValue(key, option?.value ?? null)}
+                              isRtl={true}
+                              placeholder="בחר..."
+                              styles={selectStyles}
+                              isDisabled={rubric.disabled && rubric.disabled(values)}
+                            />
+                          )
+                        case 'multiselect':
+                          return (
+                            <Select
+                              isClearable={true}
+                              isMulti={true}
+                              values={options.filter((option) => option.value === values[key])}
+                              options={rubric.options(values) ?? []}
+                              isDisabled={false}
+                              onChange={(selectedOptions) =>
+                                setFieldValue(
+                                  key,
+                                  selectedOptions?.map((option) => option.value) ?? null
+                                )
+                              }
+                              isRtl={true}
+                              placeholder="בחר..."
+                              styles={selectStyles}
+                              isDisabled={rubric.disabled && rubric.disabled(values)}
+                            />
+                          )
+                        default:
+                          return null
+                      }
+                    })()}
+                    <Form.Control.Feedback
+                      type="invalid"
+                      style={{ display: showFeedback && errors[key] ? 'block' : 'none' }}
+                    >
+                      {errors[key]}
+                    </Form.Control.Feedback>
+                  </Col>
+                </Row>
+              )
+            })}
+            <button onClick={() => console.debug({ values })}>Click</button>
           </Form>
         )
       }}
@@ -217,9 +315,5 @@ const PersonForm = forwardRef(({ takenIds = [], initValues, onSubmit }, ref) => 
 })
 
 PersonForm.displayName = 'PersonForm'
-PersonForm.propTypes = {
-  initValues: PropTypes.object,
-  onSubmit: PropTypes.func
-}
 
 export default PersonForm

@@ -2,6 +2,14 @@ import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 import TaskSelect from './TaskSelect'
 
+const style = {
+  Col: styled(Col)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  `
+}
+
 export default function TaskRow({
   options,
   shifts,
@@ -15,21 +23,12 @@ export default function TaskRow({
   cellStack,
   bgColor
 }) {
-  const style = {
-    Col: styled(Col)`
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    `
-  }
-
   return (
     <Row
       style={{
         backgroundColor: bgColor,
-        height: '100%',
-        paddingTop: '10px',
-        paddingBottom: '10px'
+        height: '50px',
+        borderTop: '1px solid lightgray'
       }}
     >
       <style.Col xs={1}>{taskLabel}</style.Col>
@@ -81,7 +80,11 @@ export default function TaskRow({
                     idx={i}
                     value={shifts[i] && shifts[i][taskName] ? shifts[i][taskName] : null}
                     onChange={(event) => {
-                      onChange({ idx: i, task: taskName, service_number: event?.target?.value })
+                      onChange({
+                        idx: i,
+                        task: taskName,
+                        service_number: event?.target?.value
+                      })
                     }}
                     isSelectDisabled={isSelectDisabled}
                     isOptionDisabled={isOptionDisabled}

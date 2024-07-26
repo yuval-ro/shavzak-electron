@@ -7,12 +7,9 @@ import RubricTitle from './RubricTitle'
 
 const TableRow = styled(Row)`
   user-select: none;
-  height: 40px;
+  height: 50px;
   align-items: center;
-`
-const TableHeaderRow = styled(TableRow)`
-  font-weight: bold;
-  background-color: lightgray;
+  padding: 8px;
 `
 const TableDataRow = styled(TableRow)`
   user-select: none;
@@ -22,7 +19,7 @@ const TableDataRow = styled(TableRow)`
   align-items: center;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0 !important;
   }
 `
 const Scrollable = styled.div`
@@ -39,36 +36,9 @@ const TableCol = styled(Col)`
   overflow: hidden;
 `
 
-export default function Table({
-  rubrics,
-  data,
-  labels,
-  sortFn,
-  abbreviated,
-  labelFn,
-  onEdit,
-  onDelete,
-  style = {}
-}) {
-  const [activeRubric, setActiveRubric] = useState(null) // which rubric is the one the entries being sorted by
+export default function Table({ rubrics, data, labels, labelFn, onEdit, onDelete, style = {} }) {
+  const [activeRubric, setActiveRubric] = useState(rubrics[0]) // which rubric is the one the entries being sorted by
   const [sortType, setSortType] = useState('ascending') // or 'descending'
-
-  function renderCellValue({ key, translate }, item) {
-    const value = item[key]
-    if (translate) {
-      if (Array.isArray(value)) {
-        const translated_values = value.map((sub_value) => labels[key][sub_value])
-        return translated_values.join(', ')
-      } else {
-        const translated_value = labels[key][value]
-        return Array.isArray(translated_value)
-          ? (abbreviated && translated_value[1]) ?? translated_value[0]
-          : translated_value
-      }
-    } else {
-      return value
-    }
-  }
 
   function handleDelete(id) {
     const item = data.find((item) => item._id === id)
@@ -80,8 +50,8 @@ export default function Table({
     onEdit(item)
   }
 
-  function handleRubricClick(rubricKey) {
-    if (activeRubric === rubricKey) {
+  function handleRubricClick(rubric) {
+    if (activeRubric === rubric) {
       if (sortType === 'ascending') {
         setSortType('descending')
       } else {
@@ -89,7 +59,7 @@ export default function Table({
         setSortType('ascending')
       }
     } else {
-      setActiveRubric(rubricKey)
+      setActiveRubric(rubric)
       setSortType('ascending')
     }
   }
@@ -108,39 +78,38 @@ export default function Table({
 
   return (
     <TableContainer style={style}>
-      <TableHeaderRow>
+      <TableRow className="bg-primary-subtle">
         {rubrics.map((rubric, idx) => (
           <TableCol key={idx}>
             <RubricTitle
-              title={labels[rubric.key]._title}
-              active={activeRubric === rubric.key}
+              title={labels[rubric]?._title ?? 'None'}
+              active={activeRubric === rubric}
               sortType={sortType}
-              onClick={() => handleRubricClick(rubric.key)}
-              disabled={!rubric.sortable}
+              onClick={() => handleRubricClick(rubric)}
+              sortable={true}
             />
           </TableCol>
         ))}
-      </TableHeaderRow>
+      </TableRow>
       <Scrollable>
         {(sortedData && sortedData.length) > 0 ? (
           sortedData.map((item, idx) => (
             <ContextMenu
-              _id={item?._id}
               label={labelFn(item)}
               key={idx}
               menuButton={
-                <TableDataRow>
-                  {rubrics.map((col, idx) => (
-                    <TableCol key={idx}>{renderCellValue(col, item)}</TableCol>
+                <TableDataRow className="bg-body-tertiary">
+                  {rubrics.map((rubric, idx) => (
+                    <TableCol key={idx}>{labels[rubric][item[rubric]] ?? item[rubric]}</TableCol>
                   ))}
                 </TableDataRow>
               }
-              onDelete={handleDelete}
-              onEdit={handleEdit}
+              onDelete={() => handleDelete(item._id)}
+              onEdit={() => handleEdit(item._id)}
             />
           ))
         ) : (
-          <TableDataRow>
+          <TableDataRow className="bg-body-tertiary">
             <TableCol style={{ textAlign: 'center' }}>לא נמצאו נתונים...</TableCol>
           </TableDataRow>
         )}
