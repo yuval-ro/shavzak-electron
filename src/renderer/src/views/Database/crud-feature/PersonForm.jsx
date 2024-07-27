@@ -10,13 +10,17 @@ import chroma from 'chroma-js'
 import styled from 'styled-components'
 
 import labels from '#src/labels.json'
-import requirements from '#src/requirements.json'
-import { HEBREW_REGEX, SERVICE_NUMBER_REGEX } from './common.js'
+import eligible from '#src/eligible.json'
+
+const HEBREW_REGEX = /^[\u0590-\u05FF-]*$/
+const SERVICE_NUMBER_REGEX = /^\d{7,8}$/
+const BS_DANGER = '#DC3545'
+const BS_SUCCESS = '#198754'
 
 const StyledFormControl = styled(Form.Control)`
   &:focus {
     border-color: lightgray;
-    box-shadow: 0 0 0 0.15rem rgba(211, 211, 211, 0.2);
+    box-shadow: 0 0 0 0.25rem rgba(211, 211, 211, 0.2);
   }
 `
 
@@ -25,7 +29,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
   const rubrics = {
     affiliation: {
       required: true,
-      type: 'select',
+      type: 'singleSelect',
       validation: yup.string().trim().required('יש לבחור שיוך כנדרש.'),
       initValue: initValues['affiliation'] ?? null,
       options: () =>
@@ -66,7 +70,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
     },
     sex: {
       required: true,
-      type: 'select',
+      type: 'singleSelect',
       validation: yup.string().trim().required('יש לבחור מין כנדרש.'),
       initValue: initValues['sex'] ?? null,
       options: () =>
@@ -76,7 +80,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
     },
     serviceType: {
       required: true,
-      type: 'select',
+      type: 'singleSelect',
       validation: yup.string().trim().required('יש לבחור את סוג השירות כנדרש.'),
       initValue: initValues['serviceType'] ?? null,
       options: () =>
@@ -86,7 +90,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
     },
     rank: {
       required: true,
-      type: 'select',
+      type: 'singleSelect',
       validation: yup.string().trim().required('יש לבחור את הדרגה כנדרש.'),
       initValue: initValues['rank'] ?? null,
       options: ({ serviceType }) =>
@@ -107,38 +111,31 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
     },
     activeRole: {
       required: true,
-      type: 'select',
+      type: 'singleSelect',
       validation: yup.string().trim().required('יש לבחור את התפקיד כנדרש.'),
       initValue: initValues['rank'] ?? null,
-      options: ({ serviceType, rank }) =>
+      options: ({ rank }) =>
         Object.entries(labels.person.activeRole)
           .filter(([key, val]) => !key.startsWith('_'))
-          .filter(([key, val]) => {
-            switch (serviceType) {
-              case 'enlisted':
-                return true // TODO
-              case 'nco':
-                return true // TODO
-              case 'officer':
-                return true // TODO
-            }
-          })
+          .filter(([key, val]) => !rank || eligible.activeRole[rank].includes(key))
           .map(([key, val]) => ({ value: key, label: val })),
       disabled: ({ serviceType, rank }) => !(serviceType && rank)
     },
     professions: {
       required: false,
-      type: 'multiselect',
+      type: 'multiSelect',
       validation: yup.array().of(yup.string()),
       initValue: initValues['professions'] ?? null,
-      options: () =>
+      options: ({ rank }) =>
         Object.entries(labels.person.professions)
           .filter(([key, val]) => !key.startsWith('_'))
-          .map(([key, val]) => ({ value: key, label: val }))
+          .filter(([key, val]) => !rank || eligible.professions[rank].includes(key))
+          .map(([key, val]) => ({ value: key, label: val })),
+      disabled: ({ serviceType, rank }) => !(serviceType && rank)
     },
     licenses: {
       required: false,
-      type: 'multiselect',
+      type: 'multiSelect',
       // validation: yup
       //   .array()
       //   .of(yup.string())
@@ -151,7 +148,8 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
       options: () =>
         Object.entries(labels.person.licenses)
           .filter(([key, val]) => !key.startsWith('_'))
-          .map(([key, val]) => ({ value: key, label: val }))
+          .map(([key, val]) => ({ value: key, label: val })),
+      hidden: ({ professions }) => !professions?.includes('driver')
     }
   }
   return (
@@ -182,13 +180,13 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
         }))
         useEffect(() => {
           if (isMounted.current) {
-            setFieldValue('rank', '')
-            setFieldValue('activeRole', '')
+            setFieldValue('rank', null)
+            setFieldValue('activeRole', null)
           }
         }, [values.serviceType, setFieldValue])
         useEffect(() => {
           if (isMounted.current) {
-            setFieldValue('activeRole', '')
+            setFieldValue('activeRole', null)
           }
         }, [values.rank, setFieldValue])
         useEffect(() => {
@@ -205,12 +203,14 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
               if (rubric.options) {
                 var options = rubric.options(values) ?? []
               }
+              const hidden = rubric.hidden && rubric.hidden(values)
+              const value = values[key] ?? initialValues[key]
               const error = errors[key]
-              const value = values[key]
+              const disabled = rubric.disabled && rubric.disabled(values)
               const showFeedback = submitCount > 0 && rubric.required
-              const boxShadow = `0 0 0 0.15rem ${chroma(showFeedback ? (error ? 'red' : 'green') : 'lightgray').alpha(0.2)}`
+              const boxShadow = `0 0 0 0.25rem ${chroma(showFeedback ? (error ? BS_DANGER : BS_SUCCESS) : 'lightgray').alpha(0.2)}`
               const borderColor = chroma(
-                showFeedback ? (error ? 'red' : 'green') : 'lightgray'
+                showFeedback ? (error ? BS_DANGER : BS_SUCCESS) : 'lightgray'
               ).css()
               const selectStyles = {
                 control: (styles, { isFocused }) => ({
@@ -233,7 +233,8 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                     borderBottom:
                       idx < Object.entries(rubrics).length - 1 ? '1px solid lightgray' : '',
                     paddingTop: '5px',
-                    paddingBottom: '5px'
+                    paddingBottom: '5px',
+                    display: hidden ? 'none' : 'flex'
                   }}
                 >
                   <Col
@@ -251,45 +252,45 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                             <StyledFormControl
                               disabled={false}
                               type="text"
-                              value={values[key]}
+                              value={value}
                               onChange={(event) => setFieldValue(key, event?.target?.value)}
                               isValid={showFeedback && !error}
                               isInvalid={showFeedback && error}
                             />
                           )
-                        case 'select':
+                        case 'singleSelect':
                           return (
                             <Select
                               isClearable={true}
                               isMulti={false}
-                              value={options.find((option) => option.value === values[key]) ?? null}
+                              value={options.find((option) => option?.value === value) ?? null}
                               options={rubric.options(values) ?? []}
-                              isDisabled={false}
                               onChange={(option) => setFieldValue(key, option?.value ?? null)}
                               isRtl={true}
                               placeholder="בחר..."
                               styles={selectStyles}
-                              isDisabled={rubric.disabled && rubric.disabled(values)}
+                              isDisabled={disabled}
                             />
                           )
-                        case 'multiselect':
+                        case 'multiSelect':
                           return (
                             <Select
                               isClearable={true}
                               isMulti={true}
-                              values={options.filter((option) => option.value === values[key])}
+                              value={options.filter((option) => value?.includes(option?.value))}
                               options={rubric.options(values) ?? []}
-                              isDisabled={false}
                               onChange={(selectedOptions) =>
                                 setFieldValue(
                                   key,
-                                  selectedOptions?.map((option) => option.value) ?? null
+                                  selectedOptions.length > 0
+                                    ? selectedOptions.map((option) => option?.value)
+                                    : null
                                 )
                               }
                               isRtl={true}
                               placeholder="בחר..."
                               styles={selectStyles}
-                              isDisabled={rubric.disabled && rubric.disabled(values)}
+                              isDisabled={disabled}
                             />
                           )
                         default:
@@ -298,15 +299,14 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                     })()}
                     <Form.Control.Feedback
                       type="invalid"
-                      style={{ display: showFeedback && errors[key] ? 'block' : 'none' }}
+                      style={{ display: showFeedback && error ? 'block' : 'none' }}
                     >
-                      {errors[key]}
+                      <small>{error}</small>
                     </Form.Control.Feedback>
                   </Col>
                 </Row>
               )
             })}
-            <button onClick={() => console.debug({ values })}>Click</button>
           </Form>
         )
       }}

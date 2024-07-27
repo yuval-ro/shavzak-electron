@@ -36,19 +36,18 @@ const TableCol = styled(Col)`
   overflow: hidden;
 `
 
-export default function Table({ rubrics, data, labels, labelFn, onEdit, onDelete, style = {} }) {
-  const [activeRubric, setActiveRubric] = useState(rubrics[0]) // which rubric is the one the entries being sorted by
+export default function Table({
+  collection,
+  rubricNames,
+  entries,
+  labels,
+  labelFn,
+  onEdit,
+  onDelete,
+  style = {}
+}) {
+  const [activeRubric, setActiveRubric] = useState(rubricNames[0]) // which rubric is the one the entries being sorted by
   const [sortType, setSortType] = useState('ascending') // or 'descending'
-
-  function handleDelete(id) {
-    const item = data.find((item) => item._id === id)
-    onDelete(item)
-  }
-
-  function handleEdit(id) {
-    const item = data.find((item) => item._id === id)
-    onEdit(item)
-  }
 
   function handleRubricClick(rubric) {
     if (activeRubric === rubric) {
@@ -64,50 +63,46 @@ export default function Table({ rubrics, data, labels, labelFn, onEdit, onDelete
     }
   }
 
-  function getSortedData() {
-    if (!activeRubric) return data
-
-    return [...data].sort((a, b) => {
-      if (a[activeRubric] < b[activeRubric]) return sortType === 'ascending' ? -1 : 1
-      if (a[activeRubric] > b[activeRubric]) return sortType === 'ascending' ? 1 : -1
-      return 0
-    })
-  }
-
-  const sortedData = getSortedData()
-
   return (
     <TableContainer style={style}>
       <TableRow className="bg-primary-subtle">
-        {rubrics.map((rubric, idx) => (
+        {rubricNames.map((rubricName, idx) => (
           <TableCol key={idx}>
             <RubricTitle
-              title={labels[rubric]?._title ?? 'None'}
-              active={activeRubric === rubric}
+              title={labels[rubricName]._title}
+              active={activeRubric === rubricName}
               sortType={sortType}
-              onClick={() => handleRubricClick(rubric)}
+              onClick={() => handleRubricClick(rubricName)}
               sortable={true}
             />
           </TableCol>
         ))}
       </TableRow>
       <Scrollable>
-        {(sortedData && sortedData.length) > 0 ? (
-          sortedData.map((item, idx) => (
-            <ContextMenu
-              label={labelFn(item)}
-              key={idx}
-              menuButton={
-                <TableDataRow className="bg-body-tertiary">
-                  {rubrics.map((rubric, idx) => (
-                    <TableCol key={idx}>{labels[rubric][item[rubric]] ?? item[rubric]}</TableCol>
-                  ))}
-                </TableDataRow>
-              }
-              onDelete={() => handleDelete(item._id)}
-              onEdit={() => handleEdit(item._id)}
-            />
-          ))
+        {entries.length > 0 ? (
+          entries
+            .sort((a, b) => {
+              if (a[activeRubric] < b[activeRubric]) return sortType === 'ascending' ? -1 : 1
+              if (a[activeRubric] > b[activeRubric]) return sortType === 'ascending' ? 1 : -1
+              return 0
+            })
+            .map((entry, idx) => (
+              <ContextMenu
+                label={labelFn(entry)}
+                key={idx}
+                menuButton={
+                  <TableDataRow className="bg-body-tertiary">
+                    {rubricNames.map((rubricName, idx) => (
+                      <TableCol key={idx}>
+                        {labels[rubricName][entry[rubricName]] ?? entry[rubricName]}
+                      </TableCol>
+                    ))}
+                  </TableDataRow>
+                }
+                onDelete={() => onDelete(collection, entry)}
+                onEdit={() => onEdit(collection, entry)}
+              />
+            ))
         ) : (
           <TableDataRow className="bg-body-tertiary">
             <TableCol style={{ textAlign: 'center' }}>לא נמצאו נתונים...</TableCol>

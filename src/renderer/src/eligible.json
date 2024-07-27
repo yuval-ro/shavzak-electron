@@ -1,0 +1,28 @@
+{
+  "activeRole": {
+    "e1": ["os", "trooper"],
+    "e2": ["os", "trooper", "platoonSergeant"],
+    "e3": ["os", "trooper", "platoonSergeant", "platoonXo"],
+    "e4": ["os", "trooper", "platoonSergeant", "platoonXo", "companyDnco"],
+    "e5": ["os", "trooper", "platoonSergeant", "platoonXo", "companyDnco"],
+    "e6": ["os", "trooper", "platoonSergeant", "platoonXo", "companyDnco"],
+    "e7": ["os", "trooper", "platoonSergeant", "platoonXo", "companyDnco"],
+    "o1": ["platoonCo"],
+    "o2": ["platoonCo"],
+    "o3": ["platoonCo", "companyXo", "companyOo"],
+    "o4": ["companyCo"]
+  },
+  "professions": {
+    "e1": ["driver", "medic", "marksman"],
+    "e2": ["driver", "medic", "marksman"],
+    "e3": ["driver", "medic", "marksman"],
+    "e4": ["driver", "medic", "marksman"],
+    "e5": ["driver", "medic", "marksman"],
+    "e6": ["driver", "medic", "marksman"],
+    "e7": ["driver", "medic", "marksman"],
+    "o1": ["fieldOfficer"],
+    "o2": ["fieldOfficer"],
+    "o3": ["fieldOfficer"],
+    "o4": ["fieldOfficer"]
+  }
+}

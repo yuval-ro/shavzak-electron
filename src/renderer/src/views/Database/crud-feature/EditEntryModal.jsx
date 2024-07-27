@@ -4,7 +4,7 @@ import { Modal as BSModal, Button } from 'react-bootstrap'
 import { FormSubmitProvider } from './context'
 import labels from '#src/labels.json'
 
-export default function Modal({ mode, type, form, onCancel }) {
+export default function EditEntryModal({ mode, type, form, onCancel }) {
   const formikRef = useRef()
   function getHeaderClassname() {
     switch (mode) {

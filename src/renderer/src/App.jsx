@@ -61,20 +61,23 @@ export default function App() {
     fetchData()
   }, [])
 
-  async function handlePost(collection, doc) {
-    const updated = await window.api.docs.putOne(collection, toSnakeCase(doc))
-    setData((prevData) => ({
-      ...prevData,
-      [collection]: prevData[collection].map((item) => (item._id === updated._id ? updated : item))
-    }))
-  }
-
-  async function handleDelete(collection, doc) {
-    const deleted = await window.api.docs.deleteOne(collection, toSnakeCase(doc))
-    setData((prevData) => ({
-      ...prevData,
-      [collection]: prevData[collection].filter((item) => item._id !== deleted._id)
-    }))
+  const dbOps = {
+    post: async (collection, doc) => {
+      const updated = await window.api.docs.putOne(collection, toSnakeCase(doc))
+      setData((prevData) => ({
+        ...prevData,
+        [collection]: prevData[collection].map((item) =>
+          item._id === updated._id ? updated : item
+        )
+      }))
+    },
+    delete: async (collection, doc) => {
+      const deleted = await window.api.docs.deleteOne(collection, toSnakeCase(doc))
+      setData((prevData) => ({
+        ...prevData,
+        [collection]: prevData[collection].filter((item) => item._id !== deleted._id)
+      }))
+    }
   }
 
   function handleNavKeySelect(key) {
@@ -97,7 +100,7 @@ export default function App() {
   const views = [
     {
       title: 'מסד נתונים',
-      component: <Database.Main data={data} onPost={handlePost} onDelete={handleDelete} />
+      component: <Database.Main data={data} dbOps={dbOps} />
     },
     {
       title: 'נוכחות'
