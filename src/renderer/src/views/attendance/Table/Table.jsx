@@ -1,9 +1,13 @@
+/**
+ * @file Table.jsx
+ */
 import { useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 
-import ContextMenu from './ContextMenu'
 import RubricTitle from './RubricTitle'
+import ToggleCol from './ToggleCol'
+import labels from '#src/labels.json'
 
 const TableRow = styled(Row)`
   user-select: none;
@@ -12,14 +16,14 @@ const TableRow = styled(Row)`
   padding: 8px;
 `
 const TableDataRow = styled(TableRow)`
-  user-select: none;
-  cursor: pointer;
   border-top: 1px solid lightgray;
-  height: 40px;
   align-items: center;
-
+  transition: background-color 0.3s ease;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  height: 40px;
   &:hover {
-    background-color: #f0f0f0 !important;
+    background-color: #f0f0f0;
   }
 `
 const Scrollable = styled.div`
@@ -31,21 +35,17 @@ const TableContainer = styled.div`
   overflow-x: hidden;
 `
 const TableCol = styled(Col)`
+  height: '100%';
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 `
 
-export default function Table({
-  collection,
-  rubricNames,
-  entries,
-  labels,
-  labelFn,
-  onEdit,
-  onDelete,
-  style = {}
-}) {
+const rubricNames = ['affiliation', 'firstName', 'lastName']
+
+export default function Table({ shifts, entries, onToggle, style = {} }) {
+  const [pagination, setPagination] = useState(0)
+  const [shiftsPerPage, setShiftsPerPage] = useState(3)
   const [activeRubric, setActiveRubric] = useState(rubricNames[0]) // which rubric is the one the entries being sorted by
   const [sortType, setSortType] = useState('ascending') // or 'descending'
 
@@ -69,7 +69,7 @@ export default function Table({
         {rubricNames.map((rubricName, idx) => (
           <TableCol key={idx}>
             <RubricTitle
-              title={labels[rubricName]._title}
+              title={labels.person[rubricName]._title}
               active={activeRubric === rubricName}
               sortType={sortType}
               onClick={() => handleRubricClick(rubricName)}
@@ -77,9 +77,16 @@ export default function Table({
             />
           </TableCol>
         ))}
+        {shifts.slice(pagination, pagination + shiftsPerPage).map((shift, idx) => (
+          <TableCol key={idx} className="px-0">
+            {labels.shift.type[shift.type] +
+              ' ' +
+              shift.time.toLocaleString('he-IL', { day: 'numeric', month: 'numeric' })}
+          </TableCol>
+        ))}
       </TableRow>
       <Scrollable>
-        {entries.length > 0 ? (
+        {entries?.length > 0 ? (
           entries
             .sort((a, b) => {
               if (a[activeRubric] < b[activeRubric]) return sortType === 'ascending' ? -1 : 1
@@ -87,24 +94,24 @@ export default function Table({
               return 0
             })
             .map((entry, idx) => (
-              <ContextMenu
-                label={labelFn(entry)}
-                key={idx}
-                menuButton={
-                  <TableDataRow className="bg-body-tertiary">
-                    {rubricNames.map((rubricName, idx) => (
-                      <TableCol key={idx}>
-                        {labels[rubricName][entry[rubricName]] ?? entry[rubricName]}
-                      </TableCol>
-                    ))}
-                  </TableDataRow>
-                }
-                onDelete={() => onDelete(collection, entry)}
-                onEdit={() => onEdit(collection, entry)}
-              />
+              <TableDataRow key={idx}>
+                {rubricNames.map((rubricName, idx) => {
+                  const value = entry[rubricName]
+                  return <TableCol key={idx}>{labels.person[rubricName][value] ?? value}</TableCol>
+                })}
+                {shifts.slice(pagination, pagination + shiftsPerPage).map((shift, idx) => (
+                  <TableCol key={idx} className="h-100 px-0">
+                    <ToggleCol
+                      as={Col}
+                      state={shift.available.includes(entry._id)}
+                      onClick={() => onToggle(shift._id, entry._id)}
+                    />
+                  </TableCol>
+                ))}
+              </TableDataRow>
             ))
         ) : (
-          <TableDataRow className="bg-body-tertiary">
+          <TableDataRow>
             <TableCol style={{ textAlign: 'center' }}>לא נמצאו נתונים...</TableCol>
           </TableDataRow>
         )}

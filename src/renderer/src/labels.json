@@ -63,7 +63,8 @@
       "medic": "חובש",
       "marksman": "קלע",
       "driver": "נהג",
-      "fieldOfficer": "קצין שטח"
+      "fieldOfficer": "קצין שטח",
+      "dutyOfficer": "מפקד תורן"
     },
     "licenses": {
       "_title": "היתרים",

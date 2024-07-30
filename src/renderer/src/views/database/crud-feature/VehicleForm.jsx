@@ -116,7 +116,13 @@ const VehicleForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, re
                 }),
                 option: (styles, { isFocused, isSelected }) => ({
                   ...styles,
-                  backgroundColor: isFocused && !isSelected ? '#f2f2f2' : styles.backgroundColor
+                  backgroundColor: isFocused
+                    ? '#f2f2f2'
+                    : isSelected
+                      ? '#ffffff'
+                      : styles.backgroundColor,
+                  fontWeight: isSelected ? 'bold' : styles.fontWeight,
+                  color: '#1f1f1f'
                 })
               }
               return (
@@ -154,6 +160,7 @@ const VehicleForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, re
                         case 'singleSelect':
                           return (
                             <Select
+                              isSearchable={false}
                               isClearable={true}
                               isMulti={false}
                               value={options.find((option) => option?.value === value) ?? null}
@@ -168,6 +175,7 @@ const VehicleForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, re
                         case 'multiSelect':
                           return (
                             <Select
+                              isSearchable={false}
                               isClearable={true}
                               isMulti={true}
                               value={options.filter((option) => value?.includes(option?.value))}

@@ -9,16 +9,6 @@ export default function Main({ data, dbOps }) {
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
 
-  function handleAddButtonClick() {
-    if (activeTab === 'people') {
-      setModal(modals.person.create())
-    } else if (activeTab === 'vehicles') {
-      setModal(modals.vehicle.create())
-    } else {
-      throw new Error()
-    }
-  }
-
   function handleEditClick(collection, entry) {
     setModal(modals[collection].edit(entry))
   }
@@ -65,7 +55,7 @@ export default function Main({ data, dbOps }) {
               takenIds={data?.people
                 .map((person) => person.serviceNumber)
                 .filter((sn) => sn !== entry.serviceNumber)}
-              onSubmit={(values) => handleModalSave('people', values)}
+              onSubmit={(values) => handleModalSave('people', { ...entry, ...values })}
               initValues={entry}
             />
           }
@@ -103,7 +93,7 @@ export default function Main({ data, dbOps }) {
               takenIds={data?.vehicles
                 .map((vehicle) => vehicle.plate)
                 .filter((plate) => plate !== entry.plate)}
-              onSubmit={(values) => handleModalSave('vehicles', values)}
+              onSubmit={(values) => handleModalSave('vehicles', { ...entry, ...values })}
               initValues={entry}
             />
           }
@@ -162,7 +152,7 @@ export default function Main({ data, dbOps }) {
           [plate, nickname].some((item) => item && item.includes(keywordFilter))
         )}
         labels={labels.vehicle}
-        labelFn={(vehicle) => `${labels.vehicle.type[vehicle?.type]}, ${vehicle?.plate}`}
+        labelFn={(vehicle) => `${labels.vehicle.type[vehicle.type]}, ${vehicle.plate}`}
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
         style={tableStyle}
@@ -175,7 +165,7 @@ export default function Main({ data, dbOps }) {
       {modal}
       <Toolbar
         onSearchChange={(keyword) => setKeywordFilter(keyword)}
-        onAddClick={(values) => handleAddButtonClick('people', values)}
+        onAddClick={() => setModal(modals[activeTab].create())}
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
       />

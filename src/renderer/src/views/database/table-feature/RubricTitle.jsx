@@ -3,10 +3,10 @@ import styled from 'styled-components'
 const Title = styled.span`
   text-decoration: none; /* Remove default underline */
   position: relative;
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  cursor: ${(props) => (props.$disabled ? 'default' : 'pointer')};
   user-select: none;
-  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
-  color: ${({ disabled }) => (disabled ? 'gray' : 'black')};
+  font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
+  color: ${(props) => (props.$disabled ? 'gray' : 'black')};
 
   &::after {
     content: '';
@@ -19,8 +19,8 @@ const Title = styled.span`
     transform: scaleX(0);
   }
 
-  ${({ disabled }) =>
-    disabled &&
+  ${(props) =>
+    props.$disabled &&
     `
     &:hover::after {
       transform: scaleX(1);
@@ -29,7 +29,7 @@ const Title = styled.span`
 `
 
 const RubricTitle = ({ title, active, sortType, onClick, disabled }) => (
-  <Title onClick={onClick} active={active} disabled={disabled}>
+  <Title onClick={onClick} $active={active} $disabled={disabled}>
     {title}
     {active && (sortType === 'ascending' ? ' ▲' : ' ▼')}
   </Title>

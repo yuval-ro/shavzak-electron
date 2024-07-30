@@ -16,13 +16,13 @@
     "e1": ["driver", "medic", "marksman"],
     "e2": ["driver", "medic", "marksman"],
     "e3": ["driver", "medic", "marksman"],
-    "e4": ["driver", "medic", "marksman"],
-    "e5": ["driver", "medic", "marksman"],
-    "e6": ["driver", "medic", "marksman"],
-    "e7": ["driver", "medic", "marksman"],
-    "o1": ["fieldOfficer"],
-    "o2": ["fieldOfficer"],
-    "o3": ["fieldOfficer"],
-    "o4": ["fieldOfficer"]
+    "e4": ["driver", "medic", "marksman", "fieldOfficer"],
+    "e5": ["driver", "medic", "marksman", "fieldOfficer"],
+    "e6": ["driver", "medic", "marksman", "fieldOfficer"],
+    "e7": ["driver", "medic", "marksman", "fieldOfficer"],
+    "o1": ["driver", "fieldOfficer"],
+    "o2": ["driver", "fieldOfficer"],
+    "o3": ["driver", "fieldOfficer", "dutyOfficer"],
+    "o4": ["driver", "fieldOfficer", "dutyOfficer"]
   }
 }

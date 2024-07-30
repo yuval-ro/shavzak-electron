@@ -5,7 +5,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { DB } from './DB.js'
+import PouchDB from 'pouchdb'
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -37,16 +37,50 @@ function createWindow() {
   }
 }
 
-const db = new DB()
+const db = {
+  people: new PouchDB('db/people'),
+  vehicles: new PouchDB('db/vehicles')
+}
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-  ipcMain.handle('docs/read-all', (event, request) => db.handle(request).readAll())
-  ipcMain.handle('docs/put-one', (event, request) => db.handle(request).putOne())
-  ipcMain.handle('docs/delete-one', (event, request) => db.handle(request).deleteOne())
+  ipcMain.handle('docs/read-all', async (event, { collection }) => {
+    if (!collection) {
+      throw new Error()
+    }
+    const pouch = db[collection]
+    if (!pouch) {
+      throw new Error()
+    }
+    const query = await pouch.allDocs({ include_docs: true })
+    return query.rows.map((row) => row.doc)
+  })
+  ipcMain.handle('docs/put-one', async (event, { collection, document }) => {
+    if (!(collection && document)) {
+      throw new Error()
+    }
+    const pouch = db[collection]
+    if (!pouch) {
+      throw new Error()
+    }
+    const { id } = await pouch.put(document)
+    const freshDocument = await pouch.get(id)
+    return freshDocument
+  })
+  ipcMain.handle('docs/delete-one', async (event, { collection, document }) => {
+    if (!(collection && document)) {
+      throw new Error()
+    }
+    const pouch = db[collection]
+    if (!pouch) {
+      throw new Error()
+    }
+    const { id } = await pouch.remove(document)
+    return id
+  })
   createWindow()
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

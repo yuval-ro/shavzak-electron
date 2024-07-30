@@ -4,9 +4,9 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   docs: {
-    putOne: (collection, doc) => ipcRenderer.invoke('docs/put-one', { collection, doc }),
-    readAll: (collection) => ipcRenderer.invoke('docs/read-all', { collection }),
-    deleteOne: (collection, doc) => ipcRenderer.invoke('docs/delete-one', { collection, doc })
+    readAll: (args) => ipcRenderer.invoke('docs/read-all', args),
+    putOne: (args) => ipcRenderer.invoke('docs/put-one', args),
+    deleteOne: (args) => ipcRenderer.invoke('docs/delete-one', args)
   }
 }
 

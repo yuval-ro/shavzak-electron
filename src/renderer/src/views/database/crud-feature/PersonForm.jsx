@@ -113,7 +113,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
       required: true,
       type: 'singleSelect',
       validation: yup.string().trim().required('יש לבחור את התפקיד כנדרש.'),
-      initValue: initValues['rank'] ?? null,
+      initValue: initValues['activeRole'] ?? null,
       options: ({ rank }) =>
         Object.entries(labels.person.activeRole)
           .filter(([key, val]) => !key.startsWith('_'))
@@ -223,7 +223,13 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                 }),
                 option: (styles, { isFocused, isSelected }) => ({
                   ...styles,
-                  backgroundColor: isFocused && !isSelected ? '#f2f2f2' : styles.backgroundColor
+                  backgroundColor: isFocused
+                    ? '#f2f2f2'
+                    : isSelected
+                      ? '#ffffff'
+                      : styles.backgroundColor,
+                  fontWeight: isSelected ? 'bold' : styles.fontWeight,
+                  color: '#1f1f1f'
                 })
               }
               return (
@@ -261,6 +267,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                         case 'singleSelect':
                           return (
                             <Select
+                              isSearchable={false}  
                               isClearable={true}
                               isMulti={false}
                               value={options.find((option) => option?.value === value) ?? null}
@@ -275,6 +282,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                         case 'multiSelect':
                           return (
                             <Select
+                              isSearchable={false}
                               isClearable={true}
                               isMulti={true}
                               value={options.filter((option) => value?.includes(option?.value))}
