@@ -1,5 +1,5 @@
 /**
- * @file PersonForm.jsx
+ * @file /src/views/database/PersonForm.jsx
  */
 import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
 import { Form, Row, Col } from 'react-bootstrap'
@@ -26,132 +26,7 @@ const StyledFormControl = styled(Form.Control)`
 
 const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref) => {
   const isMounted = useRef(false)
-  const rubrics = {
-    affiliation: {
-      required: true,
-      type: 'singleSelect',
-      validation: yup.string().trim().required('יש לבחור שיוך כנדרש.'),
-      initValue: initValues['affiliation'] ?? null,
-      options: () =>
-        Object.entries(labels.person.affiliation)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .map(([key, val]) => ({ value: key, label: val }))
-    },
-    serviceNumber: {
-      required: true,
-      type: 'free',
-      validation: yup
-        .string()
-        .trim()
-        .required('יש למלא מספר אישי כנדרש.')
-        .matches(SERVICE_NUMBER_REGEX, 'מספר אישי צריך להיות רצף ספרות באורך 7 או 8.')
-        .notOneOf(takenIds, 'מספר זה כבר קיים במערכת.'), // TODO Add a specific message when notOneOf condition is not met
-      initValue: initValues['serviceNumber'] ?? null
-    },
-    firstName: {
-      required: true,
-      type: 'free',
-      validation: yup
-        .string()
-        .trim()
-        .required('יש למלא שם פרטי כנדרש.')
-        .matches(HEBREW_REGEX, 'שם משפחה צריך להיות רצף אותיות בעברית בלבד, ללא רווחים.'),
-      initValue: initValues['firstName'] ?? null
-    },
-    lastName: {
-      required: true,
-      type: 'free',
-      validation: yup
-        .string()
-        .trim()
-        .required('יש למלא שם משפחה כנדרש.')
-        .matches(HEBREW_REGEX, 'שם משפחה צריך להיות רצף אותיות בעברית בלבד, ללא רווחים.'),
-      initValue: initValues['lastName'] ?? null
-    },
-    sex: {
-      required: true,
-      type: 'singleSelect',
-      validation: yup.string().trim().required('יש לבחור מין כנדרש.'),
-      initValue: initValues['sex'] ?? null,
-      options: () =>
-        Object.entries(labels.person.sex)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .map(([key, val]) => ({ value: key, label: val }))
-    },
-    serviceType: {
-      required: true,
-      type: 'singleSelect',
-      validation: yup.string().trim().required('יש לבחור את סוג השירות כנדרש.'),
-      initValue: initValues['serviceType'] ?? null,
-      options: () =>
-        Object.entries(labels.person.serviceType)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .map(([key, val]) => ({ value: key, label: val }))
-    },
-    rank: {
-      required: true,
-      type: 'singleSelect',
-      validation: yup.string().trim().required('יש לבחור את הדרגה כנדרש.'),
-      initValue: initValues['rank'] ?? null,
-      options: ({ serviceType }) =>
-        Object.entries(labels.person.rank)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .filter(([key, val]) => {
-            switch (serviceType) {
-              case 'enlisted':
-                return key.startsWith('e') && key >= 'e1' && key <= 'e3'
-              case 'nco':
-                return key.startsWith('e') && key >= 'e3'
-              case 'officer':
-                return key.startsWith('o')
-            }
-          })
-          .map(([key, val]) => ({ value: key, label: val })),
-      disabled: ({ serviceType }) => !serviceType
-    },
-    activeRole: {
-      required: true,
-      type: 'singleSelect',
-      validation: yup.string().trim().required('יש לבחור את התפקיד כנדרש.'),
-      initValue: initValues['activeRole'] ?? null,
-      options: ({ rank }) =>
-        Object.entries(labels.person.activeRole)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .filter(([key, val]) => !rank || eligible.activeRole[rank].includes(key))
-          .map(([key, val]) => ({ value: key, label: val })),
-      disabled: ({ serviceType, rank }) => !(serviceType && rank)
-    },
-    professions: {
-      required: false,
-      type: 'multiSelect',
-      validation: yup.array().of(yup.string()),
-      initValue: initValues['professions'] ?? null,
-      options: ({ rank }) =>
-        Object.entries(labels.person.professions)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .filter(([key, val]) => !rank || eligible.professions[rank].includes(key))
-          .map(([key, val]) => ({ value: key, label: val })),
-      disabled: ({ serviceType, rank }) => !(serviceType && rank)
-    },
-    licenses: {
-      required: false,
-      type: 'multiSelect',
-      // validation: yup
-      //   .array()
-      //   .of(yup.string())
-      //   .when('professions', {
-      //     is: (professions) => professions &&professions.includes('driver'),
-      //     then: yup.array().of(yup.string()).required(),
-      //     otherwise: yup.array().of(yup.string())
-      //   }),
-      initValue: initValues['licenses'] ?? null,
-      options: () =>
-        Object.entries(labels.person.licenses)
-          .filter(([key, val]) => !key.startsWith('_'))
-          .map(([key, val]) => ({ value: key, label: val })),
-      hidden: ({ professions }) => !professions?.includes('driver')
-    }
-  }
+
   return (
     <Formik
       initialValues={Object.fromEntries(
@@ -267,7 +142,7 @@ const PersonForm = forwardRef(({ takenIds = [], initValues = {}, onSubmit }, ref
                         case 'singleSelect':
                           return (
                             <Select
-                              isSearchable={false}  
+                              isSearchable={false}
                               isClearable={true}
                               isMulti={false}
                               value={options.find((option) => option?.value === value) ?? null}

@@ -1,6 +1,6 @@
 import { Navbar, Nav } from 'react-bootstrap'
 
-export default function TopNavbar({ titles, activeKey, onKeySelect }) {
+export default function TopNavbar({ links, activeKey, onKeySelect }) {
   return (
     <Navbar className="bg-light">
       <Navbar.Brand>פלוגה מד</Navbar.Brand>
@@ -15,9 +15,9 @@ export default function TopNavbar({ titles, activeKey, onKeySelect }) {
           marginRight: '30px'
         }}
       >
-        {titles.map((title, idx) => (
+        {links.map(({ value, label }, idx) => (
           <Nav.Item key={idx}>
-            <Nav.Link eventKey={idx}>{title}</Nav.Link>
+            <Nav.Link eventKey={value}>{label}</Nav.Link>
           </Nav.Item>
         ))}
       </Nav>

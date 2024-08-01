@@ -1,11 +1,13 @@
 /**
  * @file /src/main/index.js
  */
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, systemPreferences } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import PouchDB from 'pouchdb'
+
+systemPreferences.getAnimationSettings() // NOTE Fixes prefers-reduced-motion bug
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -21,8 +23,10 @@ function createWindow() {
   })
 
   mainWindow.on('ready-to-show', () => {
+    if (is.dev) {
+      mainWindow.webContents.openDevTools({ mode: 'right' })
+    }
     mainWindow.show()
-    mainWindow.webContents.openDevTools({ mode: 'bottom' })
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -66,11 +70,14 @@ app.whenReady().then(() => {
     if (!pouch) {
       throw new Error()
     }
+    if (!document._id) {
+      document._id = crypto.randomUUID()
+    }
     const { id } = await pouch.put(document)
-    const freshDocument = await pouch.get(id)
-    return freshDocument
+    const dbDocument = await pouch.get(id)
+    return dbDocument
   })
-  ipcMain.handle('docs/delete-one', async (event, { collection, document }) => {
+  ipcMain.handle('docs/remove-one', async (event, { collection, document }) => {
     if (!(collection && document)) {
       throw new Error()
     }
@@ -87,7 +94,7 @@ app.whenReady().then(() => {
   })
 })
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }

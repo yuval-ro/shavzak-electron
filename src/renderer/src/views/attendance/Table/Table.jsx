@@ -64,7 +64,7 @@ export default function Table({ shifts, entries, onToggle, style = {} }) {
   }
 
   return (
-    <TableContainer style={style}>
+    <>
       <TableRow className="bg-primary-subtle">
         {rubricNames.map((rubricName, idx) => (
           <TableCol key={idx}>
@@ -116,6 +116,6 @@ export default function Table({ shifts, entries, onToggle, style = {} }) {
           </TableDataRow>
         )}
       </Scrollable>
-    </TableContainer>
+    </>
   )
 }

@@ -1,10 +1,20 @@
+/**
+ * @file /src/views/database/Main.jsx
+ */
 import { useState } from 'react'
-import * as crud from './crud-feature'
-import Table from './table-feature'
+
+import Table from './Table'
 import Toolbar from './Toolbar'
 import labels from '#src/labels.json'
+import PersonForm from './PersonForm'
+import VehicleForm from './VehicleForm'
 
-export default function Main({ data, dbOps }) {
+import ConfirmModal from '#src/components/ConfirmModal.jsx'
+import Modal from '#src/components/form-modal/Modal.jsx'
+import TabContainer from '#src/components/TabContainer.jsx'
+import { Modal, Form, INPUT_TYPES } from '#src/components/form-modal'
+
+export default function Main({ data, db }) {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
@@ -18,12 +28,17 @@ export default function Main({ data, dbOps }) {
   }
 
   function handleModalConfirmDelete(collection, entry) {
-    dbOps.delete(collection, entry)
+    db.delete(collection, entry)
     setModal(null)
   }
 
-  function handleModalSave(collection, entry) {
-    dbOps.post(collection, entry)
+  function handleCreateModalSave(collection, entry) {
+    db.create(collection, entry)
+    setModal(null)
+  }
+
+  function handleEditModalSave(collection, entry) {
+    db.update(collection, entry)
     setModal(null)
   }
 
@@ -34,28 +49,26 @@ export default function Main({ data, dbOps }) {
   const modals = {
     people: {
       create: () => (
-        <crud.EditEntryModal
-          mode="new"
-          type="person"
-          form={
-            <crud.PersonForm
+        <Modal
+          title="יצירת רשומה חדשה - שוטר"
+          formComponent={
+            <Form
               takenIds={data?.people.map((person) => person?.serviceNumber)}
-              onSubmit={(values) => handleModalSave('people', values)}
+              onSubmit={(values) => handleCreateModalSave('people', values)}
             />
           }
           onCancel={handleModalCancel}
         />
       ),
       edit: (entry) => (
-        <crud.EditEntryModal
-          mode="existing"
-          type="person"
-          form={
-            <crud.PersonForm
+        <Modal
+          title="עריכת רשומה קיימת - שוטר"
+          formComponent={
+            <PersonForm
               takenIds={data?.people
                 .map((person) => person.serviceNumber)
                 .filter((sn) => sn !== entry.serviceNumber)}
-              onSubmit={(values) => handleModalSave('people', { ...entry, ...values })}
+              onSubmit={(values) => handleEditModalSave('people', { ...entry, ...values })}
               initValues={entry}
             />
           }
@@ -63,8 +76,9 @@ export default function Main({ data, dbOps }) {
         />
       ),
       delete: (entry) => (
-        <crud.DeleteEntryModal
-          type="person"
+        <ConfirmModal
+          title="מחיקת רשומה - שוטר"
+          message="האם אתה בטוח למחוק את הרשומה? הפעולה אינה הפיכה."
           onConfirm={() => handleModalConfirmDelete('people', entry)}
           onCancel={handleModalCancel}
         />
@@ -72,28 +86,26 @@ export default function Main({ data, dbOps }) {
     },
     vehicles: {
       create: () => (
-        <crud.EditEntryModal
-          mode="new"
-          type="vehicle"
-          form={
-            <crud.VehicleForm
+        <Modal
+          title="יצירת רשומה חדשה - רכב"
+          formComponent={
+            <VehicleForm
               takenIds={data?.vehicles.map((vehicle) => vehicle.plate)}
-              onSubmit={(values) => handleModalSave('vehicles', values)}
+              onSubmit={(values) => handleCreateModalSave('vehicles', values)}
             />
           }
           onCancel={handleModalCancel}
         />
       ),
       edit: (entry) => (
-        <crud.EditEntryModal
-          mode="existing"
-          type="vehicle"
-          form={
-            <crud.VehicleForm
+        <Modal
+          title="עריכת רשומה קיימת - רכב"
+          formComponent={
+            <VehicleForm
               takenIds={data?.vehicles
                 .map((vehicle) => vehicle.plate)
                 .filter((plate) => plate !== entry.plate)}
-              onSubmit={(values) => handleModalSave('vehicles', { ...entry, ...values })}
+              onSubmit={(values) => handleEditModalSave('vehicles', { ...entry, ...values })}
               initValues={entry}
             />
           }
@@ -101,8 +113,9 @@ export default function Main({ data, dbOps }) {
         />
       ),
       delete: (entry) => (
-        <crud.DeleteEntryModal
-          type="vehicle"
+        <ConfirmModal
+          title="מחיקת רשומה - רכב"
+          message="האם אתה בטוח למחוק את הרשומה? הפעולה אינה הפיכה."
           onConfirm={() => handleModalConfirmDelete('vehicles', entry)}
           onCancel={handleModalCancel}
         />
@@ -110,16 +123,11 @@ export default function Main({ data, dbOps }) {
     }
   }
 
-  const tableStyle = {
-    border: '1px solid lightgray',
-    borderRadius: '8px',
-    marginTop: '10px'
-  }
-
   const tabs = {
     people: (
       <Table
         collection="people"
+        defaultRubric="affiliation"
         rubricNames={[
           'affiliation',
           'serviceNumber',
@@ -141,11 +149,24 @@ export default function Main({ data, dbOps }) {
         }
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
-        style={tableStyle}
+        customSort={{
+          affiliation: (direction) => (a, b) => {
+            // First, sort by affiliation
+            if (a.affiliation < b.affiliation) return direction === 'ascending' ? -1 : 1
+            if (a.affiliation > b.affiliation) return direction === 'ascending' ? 1 : -1
+            // If serviceType is the same, sort by rank
+            const rankA = a.rank
+            const rankB = b.rank
+            if (rankA < rankB) return direction === 'ascending' ? 1 : -1
+            if (rankA > rankB) return direction === 'ascending' ? -1 : 1
+            return 0
+          }
+        }}
       />
     ),
     vehicles: (
       <Table
+        defaultRubric="plate"
         collection="vehicles"
         rubricNames={['plate', 'type', 'nickname']}
         entries={data.vehicles.filter(({ plate, nickname }) =>
@@ -155,7 +176,6 @@ export default function Main({ data, dbOps }) {
         labelFn={(vehicle) => `${labels.vehicle.type[vehicle.type]}, ${vehicle.plate}`}
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
-        style={tableStyle}
       />
     )
   }
@@ -169,7 +189,13 @@ export default function Main({ data, dbOps }) {
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
       />
-      {tabs[activeTab]}
+      <TabContainer>
+        {Object.entries(tabs).map(([tabName, tabComponent], idx) => (
+          <div key={idx} style={{ display: activeTab === tabName ? 'block' : 'none' }}>
+            {tabComponent}
+          </div>
+        ))}
+      </TabContainer>
     </>
   )
 }

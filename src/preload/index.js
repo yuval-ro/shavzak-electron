@@ -6,7 +6,7 @@ const api = {
   docs: {
     readAll: (args) => ipcRenderer.invoke('docs/read-all', args),
     putOne: (args) => ipcRenderer.invoke('docs/put-one', args),
-    deleteOne: (args) => ipcRenderer.invoke('docs/delete-one', args)
+    removeOne: (args) => ipcRenderer.invoke('docs/remove-one', args)
   }
 }
 

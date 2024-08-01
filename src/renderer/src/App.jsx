@@ -1,5 +1,8 @@
+/**
+ * @file /src/App.jsx
+ */
 import { useEffect, useState } from 'react'
-import { ThemeProvider } from 'react-bootstrap'
+import { Button, ThemeProvider } from 'react-bootstrap'
 
 import TopNavbar from './nav/TopNavbar'
 import Database from './views/database'
@@ -39,52 +42,12 @@ export default function App() {
     generateShift(1, 14),
     generateShift(2, 2)
   ])
-  const [activeView, setActiveView] = useState(0)
+  const [activeView, setActiveView] = useState('database')
 
   function handleShiftChange(updatedShift) {
     setShifts((shifts) =>
       shifts.map((shift) => (shift._id === updatedShift._id ? updatedShift : shift))
     )
-  }
-
-  useEffect(() => {
-    async function fetchData() {
-      const people = await window.api.docs.readAll({ collection: 'people' })
-      const vehicles = await window.api.docs.readAll({ collection: 'vehicles' })
-      setData({ people, vehicles })
-      setShifts((oldShifts) => {
-        const newShifts = oldShifts.map((shift) => {
-          const newShift = shift
-          newShift.available = people.map((person) => person._id)
-          return newShift
-        })
-        return newShifts
-      })
-    }
-    fetchData()
-  }, [])
-
-  const dbOps = {
-    post: async (collection, document) => {
-      const updated = await window.api.docs.putOne({ collection, document })
-      setData((prevData) => ({
-        ...prevData,
-        [collection]: prevData[collection].map((item) =>
-          item._id === updated._id ? updated : item
-        )
-      }))
-    },
-    delete: async (collection, document) => {
-      const deleted = await window.api.docs.deleteOne({ collection, document })
-      setData((prevData) => ({
-        ...prevData,
-        [collection]: prevData[collection].filter((item) => item._id !== deleted._id)
-      }))
-    }
-  }
-
-  function handleNavKeySelect(key) {
-    setActiveView(Number(key))
   }
 
   function handleAttendanceChange(shiftId, personId) {
@@ -100,36 +63,88 @@ export default function App() {
     })
   }
 
-  const views = [
-    {
-      title: 'מסד נתונים',
-      component: <Database.Main data={data} dbOps={dbOps} />
+  const db = {
+    readAll: async (collection) => {
+      const dbDocs = await window.api.docs.readAll({ collection })
+      setData((prevData) => ({
+        ...prevData,
+        [collection]: dbDocs
+      }))
+      return dbDocs
     },
-    {
-      title: 'נוכחות',
+    create: async (collection, document) => {
+      const dbDocument = await window.api.docs.putOne({ collection, document })
+      setData((prevData) => ({
+        ...prevData,
+        [collection]: [...prevData[collection], dbDocument]
+      }))
+    },
+    update: async (collection, document) => {
+      const dbDocument = await window.api.docs.putOne({ collection, document })
+      setData((prevData) => ({
+        ...prevData,
+        [collection]: prevData[collection].map((item) =>
+          item._id === dbDocument._id ? dbDocument : item
+        )
+      }))
+    },
+    delete: async (collection, document) => {
+      const deletedId = await window.api.docs.removeOne({ collection, document })
+      setData((prevData) => ({
+        ...prevData,
+        [collection]: prevData[collection].filter((item) => item._id !== deletedId)
+      }))
+    }
+  }
+
+  const views = {
+    database: {
+      label: 'מסד נתונים',
+      component: <Database.Main data={data} db={db} />
+    },
+    attendance: {
+      label: 'נוכחות',
       component: <Attendance.Main data={data} shifts={shifts} onChange={handleAttendanceChange} />
     },
-    {
-      title: 'שיבוץ',
+    assignment: {
+      label: 'שיבוץ',
       component: <Assignment.Main data={data} shifts={shifts} onShiftChange={handleShiftChange} />
     }
-  ]
+  }
+
+  useEffect(() => {
+    async function initAppStates() {
+      const people = await db.readAll('people')
+      await db.readAll('vehicles')
+      setShifts((oldShifts) => {
+        const newShifts = oldShifts.map((shift) => {
+          const newShift = shift
+          newShift.available = people.map((person) => person._id)
+          return newShift
+        })
+        return newShifts
+      })
+    }
+    initAppStates()
+  }, [])
 
   return (
     <ThemeProvider dir="rtl">
       <TopNavbar
-        titles={views.map((view) => view?.title)}
+        links={Object.entries(views).map(([key, val]) => ({ value: key, label: val.label }))}
         activeKey={activeView}
-        onKeySelect={(key) => setActiveView(Number(key))}
+        onKeySelect={(key) => setActiveView(key)}
       />
       <div style={{ margin: '20px' }}>
-        {views.map((view, idx) => (
-          <div key={idx} style={{ display: activeView === idx ? 'block' : 'none' }}>
-            {view.component}
+        {Object.entries(views).map(([viewName, { component }], idx) => (
+          <div key={idx} style={{ display: activeView === viewName ? 'block' : 'none' }}>
+            {component}
           </div>
         ))}
       </div>
-      <button onClick={() => console.debug({ shifts })}>Console Debug Shifts</button>
+      <Button variant="outline-primary" onClick={() => console.debug({ data, shifts, activeView })}>
+        Console Debug states
+      </Button>
     </ThemeProvider>
   )
 }

@@ -1,3 +1,6 @@
+/**
+ * @file /src/views/database/RubricTitle.jsx
+ */
 import styled from 'styled-components'
 
 const Title = styled.span`

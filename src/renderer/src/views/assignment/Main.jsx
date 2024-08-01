@@ -1,125 +1,83 @@
 import { useState } from 'react'
-import { Row, Col } from 'react-bootstrap'
+import * as yup from 'yup'
 
-import TaskRow from './camp-security-feature/TaskRow'
-import labels from '#src/labels.json'
+import CampSecurityTable from './camp-security-feature'
+import Toolbar from '#src/components/Toolbar.jsx'
+import { FormikForm, FormModal, INPUT_TYPES } from '#src/components/form-modal'
+
+import TabContainer from '#src/components/TabContainer.jsx'
+
+const TABS = [
+  { name: 'campSecurity', title: 'אבטחת מחנה' },
+  { name: 'fieldMissions', title: 'משימות חוץ' }
+]
 
 export default function Main({ data, shifts, onShiftChange }) {
   const [pagination, setPagination] = useState(0)
   const [perView, setPerView] = useState(3)
+  const [activeTab, setActiveTab] = useState(TABS[0].name)
+  const [modal, setModal] = useState(null)
 
-  const handleTaskRowChange = (taskName, shiftId, selectedOption) => {
-    const updatedShift = shifts.find((shift) => shift._id === shiftId)
-    if (Array.isArray(selectedOption)) {
-      updatedShift.assigned[taskName] = selectedOption.map(({ value }) => value)
-    } else {
-      updatedShift.assigned[taskName] = selectedOption?.value ?? null
-    }
-    onShiftChange(updatedShift)
+  function handleModalCancel() {
+    setModal(null)
   }
-  const labelFns = {
-    person: ({ firstName, lastName, rank }) =>
-      `${labels.person.rank[rank]} ${firstName} ${lastName}`
+  function handleAddButtonClick() {
+    setModal(modals[activeTab].create())
+  }
+
+  const tabs = {
+    campSecurity: (
+      <CampSecurityTable
+        pagination={pagination}
+        perView={perView}
+        shifts={shifts}
+        people={data?.people}
+        onShiftChange={onShiftChange}
+      />
+    ),
+    fieldMissions: null
+  }
+
+  const modals = {
+    campSecurity: {
+      create: () => (
+        <FormModal
+          title="יצירת משימה חדשה - אבטחת מחנה"
+          formComponent={
+            <FormikForm
+              rubrics={[
+                {
+                  name: 'name',
+                  label: 'שם',
+                  required: true,
+                  inputType: INPUT_TYPES.free,
+                  validation: yup.string().required()
+                }
+              ]}
+            />
+          }
+          onCancel={handleModalCancel}
+        />
+      )
+    }
   }
 
   return (
     <>
-      <Row className="bg-primary-subtle" style={{ height: '50px' }}>
-        <Col xs={1} />
-        {shifts.slice(pagination, pagination + perView).map((shift, idx) => (
-          <Col key={idx} style={{ alignContent: 'center' }}>
-            {labels.shift.type[shift.type] +
-              ' ' +
-              shift.time.toLocaleString('he-IL', { day: 'numeric', month: 'numeric' })}
-          </Col>
+      <Toolbar
+        tabs={TABS}
+        activeTab={activeTab}
+        onTabChange={(selectedTab) => setActiveTab(selectedTab)}
+        onAddButtonClick={handleAddButtonClick}
+      />
+      <TabContainer>
+        {Object.entries(tabs).map(([tabName, tabComponent], idx) => (
+          <div key={idx} style={{ display: tabName === activeTab ? 'block' : 'none' }}>
+            {tabComponent}
+          </div>
         ))}
-      </Row>
-      <TaskRow
-        people={data?.people}
-        labelFn={labelFns.person}
-        shifts={shifts}
-        peopleFilter={(person) =>
-          person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-        }
-        taskName="guardNorth"
-        taskLabel={labels.task['guardNorth']}
-        startIdx={pagination}
-        perView={perView}
-        onChange={handleTaskRowChange}
-      />
-      <TaskRow
-        people={data?.people}
-        labelFn={labelFns.person}
-        shifts={shifts}
-        peopleFilter={(person) =>
-          person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-        }
-        taskName="guardSouth"
-        taskLabel={labels.task['guardSouth']}
-        startIdx={pagination}
-        perView={perView}
-        onChange={handleTaskRowChange}
-      />
-      <TaskRow
-        multi={true}
-        limit={2}
-        people={data?.people}
-        labelFn={labelFns.person}
-        shifts={shifts}
-        peopleFilter={(person) =>
-          person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-        }
-        taskName="guardGate"
-        taskLabel={labels.task['guardGate']}
-        startIdx={pagination}
-        perView={perView}
-        onChange={handleTaskRowChange}
-      />
-      <TaskRow
-        multi={true}
-        limit={2}
-        people={data?.people}
-        labelFn={labelFns.person}
-        shifts={shifts}
-        peopleFilter={(person) =>
-          person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-        }
-        taskName="guardPatrol"
-        taskLabel={labels.task['guardPatrol']}
-        startIdx={pagination}
-        perView={perView}
-        onChange={handleTaskRowChange}
-      />
-      <TaskRow
-        multi={true}
-        limit={2}
-        people={data?.people}
-        labelFn={labelFns.person}
-        shifts={shifts}
-        peopleFilter={(person) =>
-          person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-        }
-        taskName="guardM2"
-        taskLabel={labels.task['guardM2']}
-        startIdx={pagination}
-        perView={perView}
-        onChange={handleTaskRowChange}
-      />
-      <TaskRow
-        multi={true}
-        limit={2}
-        people={data?.people}
-        labelFn={labelFns.person}
-        shifts={shifts}
-        peopleFilter={(person) =>
-          person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-        }
-        taskName="guardM5"
-        taskLabel={labels.task['guardM5']}
-        startIdx={pagination}
-        perView={perView}
-        onChange={handleTaskRowChange}
-      />
+      </TabContainer>
+      {modal}
     </>
   )
 }

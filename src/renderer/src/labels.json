@@ -64,7 +64,8 @@
       "marksman": "קלע",
       "driver": "נהג",
       "fieldOfficer": "קצין שטח",
-      "dutyOfficer": "מפקד תורן"
+      "dutyOfficer": "מפקד תורן",
+      "supervisor": "מ. א. מחנה"
     },
     "licenses": {
       "_title": "היתרים",
@@ -109,18 +110,14 @@
       "night": "לילה"
     }
   },
-  "task": {
-    "_title": "משימה",
-    "taskCommander": "מפקד משימה",
-    "teamCommander": "מפקד",
-    "teamDriver": "נהג",
-    "teamTrooper": "לוחם",
-    "guardNorth": "צפונית",
-    "guardGate": "ש\"ג",
-    "guardSouth": "דרומית",
-    "guardPatrol": "פטרול",
-    "guardCommander": "מפקד אבטחת מחנה",
-    "guardM2": "מ-2",
-    "guardM5": "מ-5"
+  "guard": {
+    "_title": "עמדה",
+    "supervisor": "מ. א. מחנה",
+    "north": "צפונית",
+    "gate": "ש\"ג",
+    "south": "דרומית",
+    "patrol": "פטרול",
+    "m2": "מ-2",
+    "m5": "מ-5"
   }
 }

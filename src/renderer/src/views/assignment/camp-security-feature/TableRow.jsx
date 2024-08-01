@@ -1,18 +1,15 @@
-import { Row, Col } from 'react-bootstrap'
+import { Col } from 'react-bootstrap'
 import Select from 'react-select'
 
-export default function TaskRow({
+export default function TableRow({
   people,
   shifts,
   labelFn,
-  peopleFilter,
+  optionFilter,
   taskName,
-  taskLabel,
   startIdx,
   perView,
-  onChange,
-  limit,
-  multi = false
+  onSelectChange
 }) {
   function toValue(assigned) {
     if (!assigned) {
@@ -30,43 +27,21 @@ export default function TaskRow({
   function toOption(person) {
     return { value: person._id, label: labelFn(person) }
   }
-  function isOptionDisabled(shiftIdx, id) {
-    var disabled = false
-    Object.values(shifts[shiftIdx].assigned).forEach((assignee) => {
-      if (Array.isArray(assignee) && assignee.includes(id)) {
-        disabled = true
-        return
-      } else if (assignee === id) {
-        disabled = true
-        return
-      }
-    })
-    return disabled
-  }
   return (
-    <Row
-      style={{
-        paddingTop: '5px',
-        paddingBottom: '5px',
-        minHeight: '80px',
-        borderTop: '1px solid lightgray'
-      }}
-      className="bg-body-tertiary"
-    >
-      <Col xs={1} style={{ alignContent: 'center', justifyContent: 'center' }}>
-        {taskLabel}
-      </Col>
+    <>
       {shifts.slice(startIdx, startIdx + perView).map((shift, idx) => (
         <Col key={idx} style={{ alignContent: 'center' }}>
           <Select
+            menuPortalTarget={document.body}
+            menuPosition={'fixed'}
             value={toValue(shift?.assigned[taskName])}
-            isMulti={multi}
+            isMulti={true}
             placeholder="חיפוש"
             isClearable={true}
             shifts={shifts}
             options={people
               .filter((person) => shift.available.includes(person._id))
-              .filter(peopleFilter)
+              .filter(optionFilter)
               .sort((a, b) => {
                 if (a.rank > b.rank) {
                   return 1
@@ -76,24 +51,12 @@ export default function TaskRow({
                 return 0
               })
               .map((person) => toOption(person))}
-            onChange={(selectedOption) => onChange(taskName, shift._id, selectedOption)}
-            isOptionDisabled={({ value, label }) =>
-              isOptionDisabled(idx, value) ||
-              (multi &&
-                shift?.assigned[taskName] &&
-                Array.isArray(shift.assigned[taskName]) &&
-                shift.assigned[taskName].length >= limit)
-            }
+            onChange={(selectedOption) => onSelectChange(taskName, shift._id, selectedOption)}
             hideSelectedOptions={true}
-            // isDisabled={
-            //   shift?.assigned[taskName] &&
-            //   Array.isArray(shift.assigned[taskName]) &&
-            //   shift.assigned[taskName].length >= 2
-            // }
           />
         </Col>
       ))}
-    </Row>
+    </>
   )
 }
 
