@@ -33,7 +33,7 @@ export const INPUT_TYPES = Object.freeze(
 //   getHidden: [(formikValues) => bool],
 // }]]
 const Form = forwardRef(
-  ({ rubrics = {}, onSubmit = (values) => console.debug({ values }) }, ref) => {
+  ({ rubrics = [], onSubmit = (values) => console.debug({ values }) }, ref) => {
     return (
       <Formik
         initialValues={Object.fromEntries(
@@ -68,7 +68,10 @@ const Form = forwardRef(
                 <span>) הינם שדות חובה.</span>
               </div>
               {Object.entries(rubrics).map(
-                ([name, { inputType, getOptions, getHidden, required, getDisabled, label }], idx) => {
+                (
+                  [name, { required, inputType, getOptions, getHidden, getDisabled, label }],
+                  idx
+                ) => {
                   const options = getOptions ? getOptions(values) : []
                   const hidden = getHidden ? getHidden(values) : false
                   const disabled = getDisabled && getDisabled(values)
@@ -137,9 +140,9 @@ const Form = forwardRef(
                                   isSearchable={false}
                                   isClearable={true}
                                   isMulti={false}
-                                  value={options.find((option) => option?.value === value) ?? null}
+                                  value={options.find((option) => option?.value === value) ?? ''}
                                   options={options}
-                                  onChange={(option) => setFieldValue(name, option?.value ?? null)}
+                                  onChange={(option) => setFieldValue(name, option?.value ?? '')}
                                   isRtl={true}
                                   placeholder="בחר..."
                                   styles={selectStyles}
@@ -147,28 +150,36 @@ const Form = forwardRef(
                                 />
                               )
                             case INPUT_TYPES.multiSelect:
-                              return (
-                                <Select
-                                  isSearchable={false}
-                                  isClearable={true}
-                                  isMulti={true}
-                                  value={options.filter((option) => value?.includes(option?.value))}
-                                  options={options}
-                                  onChange={(selectedOptions) =>
-                                    setFieldValue(
-                                      name,
-                                      selectedOptions.length > 0
-                                        ? selectedOptions.map((option) => option?.value)
-                                        : null
-                                    )
-                                  }
-                                  isRtl={true}
-                                  placeholder="בחר..."
-                                  styles={selectStyles}
-                                  isDisabled={disabled}
-                                />
-                              )
+                              try {
+                                return (
+                                  <Select
+                                    isSearchable={false}
+                                    isClearable={true}
+                                    isMulti={true}
+                                    value={
+                                      value?.length > 0
+                                        ? options.filter((option) => value.includes(option?.value))
+                                        : ''
+                                    }
+                                    options={options}
+                                    onChange={(selectedOptions) =>
+                                      setFieldValue(
+                                        name,
+                                        selectedOptions.map((option) => option?.value)
+                                      )
+                                    }
+                                    isRtl={true}
+                                    placeholder="בחר..."
+                                    styles={selectStyles}
+                                    isDisabled={disabled}
+                                  />
+                                )
+                              } catch (err) {
+                                console.error({ values })
+                                throw new Error()
+                              }
                             default:
+                              console.error({ name })
                               throw new Error()
                           }
                         })()}

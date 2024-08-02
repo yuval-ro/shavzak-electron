@@ -67,7 +67,7 @@ export default function Table({
           </TableCol>
         ))}
       </TableRow>
-      <Scrollable>
+      <Scrollable className="bg-body-secondary">
         {entries?.length > 0 ? (
           entries
             .sort(
@@ -91,7 +91,7 @@ export default function Table({
                   }
                 ]}
               >
-                <TableDataRow>
+                <TableDataRow className="bg-body">
                   {rubricNames.map((rubricName, idx) => (
                     <TableCol key={idx}>
                       {(() => {
@@ -108,9 +108,9 @@ export default function Table({
               </ContextMenu>
             ))
         ) : (
-          <TableDataRow className="bg-body-tertiary">
-            <TableCol>לא נמצאו נתונים...</TableCol>
-          </TableDataRow>
+          <Row className="bg-body-tertiary" style={{ height: '2.5rem', cursor: 'auto' }}>
+            <Col>לא נמצאו נתונים...</Col>
+          </Row>
         )}
       </Scrollable>
     </>
@@ -119,15 +119,19 @@ export default function Table({
 
 const TableRow = styled(Row)`
   user-select: none;
-  height: 50px;
+  height: 2.5rem;
   align-items: center;
   padding: 8px;
 `
+const TableCol = styled(Col)`
+  max-width: 7rem;
+  text-overflow: clip;
+  white-space: nowrap;
+  overflow: hidden;
+`
 const TableDataRow = styled(TableRow)`
-  user-select: none;
   cursor: pointer;
   border-top: 1px solid lightgray;
-  height: 40px;
   align-items: center;
   transition: background-color 0.3s ease;
 
@@ -136,12 +140,7 @@ const TableDataRow = styled(TableRow)`
   }
 `
 const Scrollable = styled.div`
-  max-height: 700px;
+  height: 700px;
   overflow-y: scroll;
   overflow-x: hidden;
-`
-const TableCol = styled(Col)`
-  text-overflow: clip;
-  white-space: nowrap;
-  overflow: hidden;
 `

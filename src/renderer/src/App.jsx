@@ -2,12 +2,11 @@
  * @file /src/App.jsx
  */
 import { useEffect, useState } from 'react'
-import { Button, ThemeProvider } from 'react-bootstrap'
+import { ThemeProvider } from 'react-bootstrap'
+import styled from 'styled-components'
 
 import TopNavbar from './nav/TopNavbar'
-import Database from './views/database'
-import Attendance from './views/attendance'
-import Assignment from './views/assignment'
+import * as View from './views'
 
 function generateShift(days, hour) {
   return {
@@ -35,8 +34,14 @@ function generateShift(days, hour) {
   }
 }
 
+const ViewContainer = styled.div`
+  padding-right: 2rem;
+  padding-left: 2rem;
+`
+
 export default function App() {
-  const [data, setData] = useState({ people: [], vehicles: [] })
+  const [bsDisplayMode, setBsDisplayMode] = useState('bg-dark text-light')
+  const [data, setData] = useState({ people: [], vehicles: [], campTasks: [] })
   const [shifts, setShifts] = useState([
     generateShift(1, 6),
     generateShift(1, 14),
@@ -100,15 +105,15 @@ export default function App() {
   const views = {
     database: {
       label: 'מסד נתונים',
-      component: <Database.Main data={data} db={db} />
+      component: <View.Database data={data} db={db} />
     },
     attendance: {
       label: 'נוכחות',
-      component: <Attendance.Main data={data} shifts={shifts} onChange={handleAttendanceChange} />
+      component: <View.Attendance data={data} shifts={shifts} onChange={handleAttendanceChange} />
     },
     assignment: {
       label: 'שיבוץ',
-      component: <Assignment.Main data={data} shifts={shifts} onShiftChange={handleShiftChange} />
+      component: <View.Assignment data={data} shifts={shifts} onShiftChange={handleShiftChange} />
     }
   }
 
@@ -116,6 +121,8 @@ export default function App() {
     async function initAppStates() {
       const people = await db.readAll('people')
       await db.readAll('vehicles')
+      const tasks = await db.readAll('campTasks')
+      console.debug({ tasks })
       setShifts((oldShifts) => {
         const newShifts = oldShifts.map((shift) => {
           const newShift = shift
@@ -135,16 +142,13 @@ export default function App() {
         activeKey={activeView}
         onKeySelect={(key) => setActiveView(key)}
       />
-      <div style={{ margin: '20px' }}>
+      <ViewContainer className="bg-body-tertiary">
         {Object.entries(views).map(([viewName, { component }], idx) => (
           <div key={idx} style={{ display: activeView === viewName ? 'block' : 'none' }}>
             {component}
           </div>
         ))}
-      </div>
-      <Button variant="outline-primary" onClick={() => console.debug({ data, shifts, activeView })}>
-        Console Debug states
-      </Button>
+      </ViewContainer>
     </ThemeProvider>
   )
 }

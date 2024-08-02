@@ -8,7 +8,7 @@ import { FormSubmitProvider } from './context'
 
 export default function Modal({
   title,
-  formComponent,
+  form,
   onCancel,
   cancelButton = { text: 'בטל', variant: 'outline-secondary' },
   submitButton = { text: 'שמור', variant: 'primary' },
@@ -22,7 +22,7 @@ export default function Modal({
       </BSModal.Header>
       <FormSubmitProvider value={formikRef}>
         <BSModal.Body style={{ paddingBottom: '0px', paddingTop: '0px' }}>
-          {cloneElement(formComponent, { ref: formikRef })}
+          {cloneElement(form, { ref: formikRef })}
         </BSModal.Body>
         <BSModal.Footer className="p-1">
           <div style={{ display: 'flex', justifyContent: 'start' }}>

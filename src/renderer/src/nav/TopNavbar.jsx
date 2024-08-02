@@ -1,9 +1,9 @@
 import { Navbar, Nav } from 'react-bootstrap'
 
-export default function TopNavbar({ links, activeKey, onKeySelect }) {
+export default function TopNavbar({ links, activeKey, onKeySelect}) {
   return (
-    <Navbar className="bg-light">
-      <Navbar.Brand>פלוגה מד</Navbar.Brand>
+    <Navbar className="bg-primary bg-gradient" style={{ paddingRight: '2.2rem' }}>
+      <Navbar.Brand className="text-white fw-bold">פלוגה מד</Navbar.Brand>
       <Nav
         variant="underline"
         activeKey={activeKey}
@@ -17,7 +17,9 @@ export default function TopNavbar({ links, activeKey, onKeySelect }) {
       >
         {links.map(({ value, label }, idx) => (
           <Nav.Item key={idx}>
-            <Nav.Link eventKey={value}>{label}</Nav.Link>
+            <Nav.Link eventKey={value} className="text-white">
+              {label}
+            </Nav.Link>
           </Nav.Item>
         ))}
       </Nav>

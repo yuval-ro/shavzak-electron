@@ -1,35 +1,56 @@
-import { ButtonGroup, ToggleButton, Form, Button } from 'react-bootstrap'
+import { ToggleButton, Form, Button, InputGroup } from 'react-bootstrap'
+import { FaSearch } from 'react-icons/fa'
+import { MdOutlineViewCarousel } from 'react-icons/md'
 
 export default function Toolbar({
-  tabs = [],
-  activeTab = null,
-  onTabChange = (tabName) => {},
-  onSearchChange = (searchTerm) => {},
-  onAddButtonClick = () => {}
+  tabs,
+  activeTab,
+  onTabChange,
+  onSearchChange,
+  onAddButtonClick
 }) {
   return (
     <div style={{ display: 'flex' }}>
-      <ButtonGroup style={{ marginLeft: '8px' }}>
-        {tabs.map(({ name, title }, idx) => (
-          <ToggleButton
-            key={idx}
-            variant={activeTab === name ? 'primary' : 'outline-primary'}
-            onClick={() => onTabChange(name)}
-            style={{ minWidth: '8rem' }}
-          >
-            {title}
-          </ToggleButton>
-        ))}
-      </ButtonGroup>
-      <Form.Control
-        type="text"
-        placeholder="חיפוש"
-        style={{ marginLeft: '10px' }}
-        onChange={(event) => onSearchChange(event?.target?.value)}
-      />
-      <Button variant="outline-primary" onClick={onAddButtonClick} style={{ minWidth: '100px' }}>
-        הוסף
-      </Button>
+      {onTabChange && (
+        <InputGroup style={{ width: '20rem' }}>
+          <InputGroup.Text>
+            <MdOutlineViewCarousel size="1.5em" />
+          </InputGroup.Text>
+          {Object.entries(tabs).map(([name, { title }], idx) => (
+            <ToggleButton
+              key={idx}
+              variant={activeTab === name ? 'primary' : 'outline-primary'}
+              onClick={() => onTabChange(name)}
+              style={{ flex: '1' }}
+            >
+              {title}
+            </ToggleButton>
+          ))}
+        </InputGroup>
+      )}
+      {onSearchChange && (
+        <InputGroup>
+          <InputGroup.Text>
+            <FaSearch />
+          </InputGroup.Text>
+          <Form.Control
+            type="text"
+            placeholder="חיפוש..."
+            onChange={(event) => onSearchChange(event?.target?.value)}
+            style={{ flex: 1, marginLeft: onAddButtonClick ? '1rem' : '' }}
+          />
+        </InputGroup>
+      )}
+      {onAddButtonClick && (
+        <Button
+          variant="outline-primary"
+          onClick={onAddButtonClick}
+          style={{ minWidth: '6rem' }}
+          className="ms-auto"
+        >
+          הוסף
+        </Button>
+      )}
     </div>
   )
 }

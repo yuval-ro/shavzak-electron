@@ -1,9 +1,8 @@
 import { useState } from 'react'
 
 import Table from './Table'
-import SearchBar from './SearchBar'
-
-import TabContainer from '#src/components/TabContainer.jsx'
+import Toolbar from '#src/components/Toolbar.jsx'
+import { TabContainer, ToolbarContainer } from '#src/components/styled.jsx'
 
 export default function Main({ data, shifts, onChange }) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -15,7 +14,9 @@ export default function Main({ data, shifts, onChange }) {
 
   return (
     <>
-      <SearchBar onSearchChange={handleSearchBarChange} style={{ marginTop: '15px' }} />
+      <ToolbarContainer>
+        <Toolbar onSearchChange={handleSearchBarChange} />
+      </ToolbarContainer>
       <TabContainer>
         <Table
           shifts={shifts}

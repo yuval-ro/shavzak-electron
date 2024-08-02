@@ -22,7 +22,7 @@ const itemStyle = { paddingTop: '0.3rem', paddingBottom: '0.3rem' }
 // options: [{label, onClick}, ...]
 export default function ContextMenu({ title, options = [], children }) {
   return (
-    <Dropdown>
+    <Dropdown style={{ userSelect: 'none' }}>
       <Dropdown.Toggle as={Toggle}>{children}</Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.Item

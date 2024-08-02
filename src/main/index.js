@@ -43,7 +43,8 @@ function createWindow() {
 
 const db = {
   people: new PouchDB('db/people'),
-  vehicles: new PouchDB('db/vehicles')
+  vehicles: new PouchDB('db/vehicles'),
+  campTasks: new PouchDB('db/campTasks')
 }
 
 app.whenReady().then(() => {
