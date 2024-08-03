@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import Table from './Table'
 import Toolbar from '#src/components/Toolbar.jsx'
-import { TabContainer, ToolbarContainer } from '#src/components/styled.jsx'
+import { TabContainer, ToolbarContainer } from '#src/components/layout.jsx'
 
 export default function Main({ data, shifts, onChange }) {
   const [searchTerm, setSearchTerm] = useState('')

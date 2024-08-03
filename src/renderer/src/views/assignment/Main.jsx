@@ -1,16 +1,16 @@
 import { useState } from 'react'
 
-import CampSecurityTable from './camp-security-feature'
+import CampTasksTable from './camp-tasks-feature'
 
 import Toolbar from '#src/components/Toolbar.jsx'
 import { Modal, Form } from '#src/components/form-modal'
-import { TabContainer, ToolbarContainer } from '#src/components/styled.jsx'
+import { TabContainer, ToolbarContainer } from '#src/components/layout.jsx'
 import { buildCampTaskFormRubrics } from './helpers.js'
 
 export default function Main({ data, shifts, onShiftChange }) {
   const [pagination, setPagination] = useState(0)
   const [perView, setPerView] = useState(3)
-  const [activeTab, setActiveTab] = useState('campSecurity')
+  const [activeTab, setActiveTab] = useState('campTasks')
   const [modal, setModal] = useState(null)
 
   function handleModalSubmit(values) {
@@ -27,7 +27,7 @@ export default function Main({ data, shifts, onShiftChange }) {
     campTasks: {
       title: 'אבטחת מחנה',
       component: (
-        <CampSecurityTable
+        <CampTasksTable
           pagination={pagination}
           perView={perView}
           shifts={shifts}
@@ -47,7 +47,7 @@ export default function Main({ data, shifts, onShiftChange }) {
       create: () => (
         <Modal
           title="יצירת משימה חדשה - אבטחת מחנה"
-          form={<Form rubrics={buildCampTaskFormRubrics()} onSubmit={handleModalSubmit} />}
+          form={<Form rubrics={buildCampTaskFormRubrics({})} onSubmit={handleModalSubmit} />}
           onCancel={handleModalCancel}
         />
       ),

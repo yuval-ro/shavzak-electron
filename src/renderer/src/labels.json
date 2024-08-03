@@ -109,5 +109,11 @@
       "noon": "צהריים",
       "night": "לילה"
     }
+  },
+  "campTask": {
+    "_title": "משימה",
+    "name": "שם משימה",
+    "manning": "איוש",
+    "professions": "הסמכות"
   }
 }

@@ -3,26 +3,14 @@
  */
 import { useState } from 'react'
 
-import Table from './Table'
-import labels from '#src/labels.json'
-import Toolbar from '#src/components/Toolbar.jsx'
-import ConfirmModal from '#src/components/ConfirmModal.jsx'
-import { TabContainer, ToolbarContainer } from '#src/components/styled.jsx'
-import { Modal, Form } from '#src/components/form-modal'
 import { buildPersonFormRubrics, buildVehicleFormRubrics } from './helpers.js'
+import { Table, Toolbar, ConfirmModal, Layout, FormModal } from '#src/components'
+import { Person, Vehicle, label } from '#src/schemas'
 
 export default function Main({ data, db }) {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
-
-  function handleEditClick(collection, entry) {
-    setModal(modals[collection].edit(entry))
-  }
-
-  function handleDeleteClick(collection, entry) {
-    setModal(modals[collection].delete(entry))
-  }
 
   function handleModalConfirmDelete(collection, entry) {
     db.delete(collection, entry)
@@ -50,10 +38,10 @@ export default function Main({ data, db }) {
   const modals = {
     people: {
       create: () => (
-        <Modal
+        <FormModal.Modal
           title="יצירת רשומה חדשה - שוטר"
           form={
-            <Form
+            <FormModal.Form
               rubrics={buildPersonFormRubrics({
                 takenIds: data?.people.map((person) => person?.serviceNumber)
               })}
@@ -64,10 +52,10 @@ export default function Main({ data, db }) {
         />
       ),
       edit: (entry) => (
-        <Modal
+        <FormModal.Modal
           title="עריכת רשומה קיימת - שוטר"
           form={
-            <Form
+            <FormModal.Form
               rubrics={buildPersonFormRubrics({
                 takenIds: data?.people
                   .map((person) => person.serviceNumber)
@@ -91,10 +79,10 @@ export default function Main({ data, db }) {
     },
     vehicles: {
       create: () => (
-        <Modal
+        <FormModal.Modal
           title="יצירת רשומה חדשה - רכב"
           form={
-            <Form
+            <FormModal.Form
               rubrics={buildVehicleFormRubrics({
                 takenIds: data?.vehicles.map((vehicle) => vehicle.plate)
               })}
@@ -105,10 +93,10 @@ export default function Main({ data, db }) {
         />
       ),
       edit: (entry) => (
-        <Modal
+        <FormModal.Modal
           title="עריכת רשומה קיימת - רכב"
           form={
-            <Form
+            <FormModal.Form
               rubrics={buildVehicleFormRubrics({
                 takenIds: data?.vehicles
                   .map((vehicle) => vehicle.plate)
@@ -132,48 +120,67 @@ export default function Main({ data, db }) {
     }
   }
 
+  const handleContextMenuAction = (tableName, entry, action) => {
+    switch (action) {
+      case 'edit':
+        setModal(modals[tableName].edit(entry))
+        break
+      case 'delete':
+        setModal(modals[tableName].delete(entry))
+        break
+      default:
+        throw new Error()
+    }
+  }
+
+  const affiliationSort = (direction) => (a, b) => {
+    if (a.affiliation < b.affiliation) return direction === 'ascending' ? -1 : 1
+    if (a.affiliation > b.affiliation) return direction === 'ascending' ? 1 : -1
+    if (a.rank < b.rank) return direction === 'ascending' ? 1 : -1
+    if (a.rank > b.rank) return direction === 'ascending' ? -1 : 1
+    return 0
+  }
+
+  function schemaToCols(Schema) {
+    return Object.entries(Schema.properties).map(([key, val]) => ({
+      name: key,
+      label: val.hebrew,
+      sortable: true, // TODO Only a defined set of cols will be sortable
+      innerSort: null // TODO Add affiliation special sort
+    }))
+  }
+
+  function collectionToRows(Schema, collection, filter = () => true) {
+    return collection.filter(filter).map((row) =>
+      Object.fromEntries(
+        Object.entries(row).map(([key, value]) => {
+          const prop = Schema.properties[key]
+          let label = value
+          if (prop?.anyOf) {
+            label = prop.anyOf[value]
+          } else if (prop?.oneOf) {
+            label = prop.oneOf[value]
+          }
+          return [key, { value, label }]
+        })
+      )
+    )
+  }
+
+  // FIXME
+  const vicfilter = ({ plate }) => [plate].some((col) => col && col.includes(keywordFilter))
+
   const tabs = {
     people: {
       title: 'כוח אדם',
       component: (
         <Table
-          collection="people"
-          defaultRubric="affiliation"
-          rubricNames={[
-            'affiliation',
-            'serviceNumber',
-            'firstName',
-            'lastName',
-            'sex',
-            'serviceType',
-            'rank',
-            'activeRole',
-            'professions',
-            'licenses'
-          ]}
-          entries={data.people.filter(({ serviceNumber, firstName, lastName }) =>
-            [serviceNumber, firstName, lastName].some(
-              (item) => item && item.includes(keywordFilter)
-            )
+          cols={schemaToCols(Person)}
+          rows={collectionToRows(Person, data.people, ({ serviceNumber, firstName, lastName }) =>
+            [serviceNumber, firstName, lastName].some((col) => col && col.includes(keywordFilter))
           )}
-          labels={labels.person}
-          labelFn={({ firstName, lastName, rank }) =>
-            labels.person.rank[rank] + ' ' + firstName + ' ' + lastName
-          }
-          onEdit={handleEditClick}
-          onDelete={handleDeleteClick}
-          customSort={{
-            affiliation: (direction) => (a, b) => {
-              // First, sort by affiliation
-              if (a.affiliation < b.affiliation) return direction === 'ascending' ? -1 : 1
-              if (a.affiliation > b.affiliation) return direction === 'ascending' ? 1 : -1
-              // If serviceType is the same, sort by rank
-              const rankA = a.rank
-              const rankB = b.rank
-              if (rankA < rankB) return direction === 'ascending' ? 1 : -1
-              if (rankA > rankB) return direction === 'ascending' ? -1 : 1
-              return 0
-            }
+          contextMenu={{
+            handleAction: handleContextMenuAction
           }}
         />
       )
@@ -182,16 +189,11 @@ export default function Main({ data, db }) {
       title: 'רכבים',
       component: (
         <Table
-          defaultRubric="plate"
-          collection="vehicles"
-          rubricNames={['plate', 'type', 'nickname']}
-          entries={data.vehicles.filter(({ plate, nickname }) =>
-            [plate, nickname].some((item) => item && item.includes(keywordFilter))
-          )}
-          labels={labels.vehicle}
-          labelFn={(vehicle) => `${labels.vehicle.type[vehicle.type]}, ${vehicle.plate}`}
-          onEdit={handleEditClick}
-          onDelete={handleDeleteClick}
+          cols={schemaToCols(Vehicle)}
+          rows={collectionToRows(Vehicle, data.vehicles)}
+          contextMenu={{
+            handleAction: handleContextMenuAction
+          }}
         />
       )
     }
@@ -200,7 +202,7 @@ export default function Main({ data, db }) {
   return (
     <>
       {modal}
-      <ToolbarContainer>
+      <Layout.ToolbarContainer>
         <Toolbar
           tabs={tabs}
           onSearchChange={(keyword) => setKeywordFilter(keyword)}
@@ -209,14 +211,14 @@ export default function Main({ data, db }) {
           onTabChange={(tab) => setActiveTab(tab)}
           onAddButtonClick={handleAddButtonClick}
         />
-      </ToolbarContainer>
-      <TabContainer>
+      </Layout.ToolbarContainer>
+      <Layout.TabContainer>
         {Object.entries(tabs).map(([tabName, { component }], idx) => (
           <div key={idx} style={{ display: activeTab === tabName ? 'block' : 'none' }}>
             {component}
           </div>
         ))}
-      </TabContainer>
+      </Layout.TabContainer>
     </>
   )
 }

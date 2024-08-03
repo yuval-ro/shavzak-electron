@@ -109,20 +109,21 @@ export default function App() {
     },
     attendance: {
       label: 'נוכחות',
-      component: <View.Attendance data={data} shifts={shifts} onChange={handleAttendanceChange} />
+      //FIXME component: <View.Attendance data={data} shifts={shifts} onChange={handleAttendanceChange} />
+      component: null
     },
     assignment: {
       label: 'שיבוץ',
-      component: <View.Assignment data={data} shifts={shifts} onShiftChange={handleShiftChange} />
+      // FIXME component: <View.Assignment data={data} shifts={shifts} onShiftChange={handleShiftChange} />
+      component: null
     }
   }
 
   useEffect(() => {
     async function initAppStates() {
       const people = await db.readAll('people')
-      await db.readAll('vehicles')
+      const vehicles = await db.readAll('vehicles')
       const tasks = await db.readAll('campTasks')
-      console.debug({ tasks })
       setShifts((oldShifts) => {
         const newShifts = oldShifts.map((shift) => {
           const newShift = shift

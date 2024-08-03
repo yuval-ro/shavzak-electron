@@ -24,44 +24,35 @@ const TableDataRowToggle = forwardRef(({ children, onClick }, ref) => {
 })
 TableDataRowToggle.displayName = 'TableDataRowToggle'
 
-export default function Table({
-  collection,
-  rubricNames,
-  entries,
-  labels,
-  labelFn,
-  onEdit,
-  onDelete,
-  customSort
-}) {
-  const [activeRubric, setActiveRubric] = useState(rubricNames[0] ?? null) // which rubric is the one the entries being sorted by
-  const [sortDirection, setSortDirection] = useState('ascending') // or 'descending'
+export default function Table({ schema, labelFn, columns, entries, onEdit, onDelete, customSort }) {
+  const [activeColumn, setActiveColumn] = useState(columns[0] ?? null)
+  const [sortDirection, setSortDirection] = useState('ascending')
 
-  function handleRubricClick(rubric) {
-    if (activeRubric === rubric) {
+  function handleColumnHeaderClick(column) {
+    if (activeColumn === column) {
       setSortDirection(sortDirection === 'ascending' ? 'descending' : 'ascending')
     } else {
-      setActiveRubric(rubric)
+      setActiveColumn(column)
       setSortDirection('ascending')
     }
   }
 
   function defaultSort(a, b) {
-    if (a[activeRubric] < b[activeRubric]) return sortDirection === 'ascending' ? -1 : 1
-    if (a[activeRubric] > b[activeRubric]) return sortDirection === 'ascending' ? 1 : -1
+    if (a[activeColumn] < b[activeColumn]) return sortDirection === 'ascending' ? -1 : 1
+    if (a[activeColumn] > b[activeColumn]) return sortDirection === 'ascending' ? 1 : -1
     return 0
   }
 
   return (
     <>
       <TableRow className="bg-primary-subtle">
-        {rubricNames.map((rubricName, idx) => (
+        {columns.map((col, idx) => (
           <TableCol key={idx}>
             <RubricTitle
-              title={labels[rubricName]._title}
-              active={activeRubric === rubricName}
+              title={schema?.properties[col]?.hebrew ?? col}
+              active={activeColumn === col}
               sortType={sortDirection}
-              onClick={() => handleRubricClick(rubricName)}
+              onClick={() => handleColumnHeaderClick(col)}
               sortable={true}
             />
           </TableCol>
@@ -72,8 +63,8 @@ export default function Table({
           entries
             .sort(
               customSort
-                ? customSort[activeRubric]
-                  ? customSort[activeRubric](sortDirection)
+                ? customSort[activeColumn]
+                  ? customSort[activeColumn](sortDirection)
                   : defaultSort
                 : defaultSort
             )
@@ -82,24 +73,24 @@ export default function Table({
                 key={idx}
                 title={labelFn(entry)}
                 options={[
-                  { label: 'ערוך', icon: <FaEdit />, onClick: () => onEdit(collection, entry) },
+                  { label: 'ערוך', icon: <FaEdit />, onClick: () => onEdit(entry) },
                   {
                     label: 'מחק',
                     icon: <FaTrash />,
-                    onClick: () => onDelete(collection, entry),
+                    onClick: () => onDelete(entry),
                     className: 'text-danger'
                   }
                 ]}
               >
                 <TableDataRow className="bg-body">
-                  {rubricNames.map((rubricName, idx) => (
+                  {columns.map((col, idx) => (
                     <TableCol key={idx}>
                       {(() => {
-                        const value = entry[rubricName]
+                        const value = entry[col]
                         if (Array.isArray(value)) {
-                          return value.map((item) => labels[rubricName][item]).join(', ')
+                          return value.map((item) => schema[col][item]).join(', ')
                         } else {
-                          return labels[rubricName][value] ?? value
+                          return schema[col][value] ?? value
                         }
                       })()}
                     </TableCol>

@@ -6,12 +6,16 @@ import styled from 'styled-components'
 const Title = styled.span`
   text-decoration: none; /* Remove default underline */
   position: relative;
-  cursor: ${(props) => (props.$disabled ? 'default' : 'pointer')};
   user-select: none;
   font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
   color: ${(props) => (props.$disabled ? 'gray' : 'black')};
 
-  &::after {
+  &:hover {
+    cursor: ${(props) => (props.$disabled ? 'default' : 'pointer')};
+    text-decoration: underline;
+  }
+
+  /* &::after {
     content: '';
     position: absolute;
     width: 100%;
@@ -20,15 +24,7 @@ const Title = styled.span`
     bottom: 0;
     left: 0;
     transform: scaleX(0);
-  }
-
-  ${(props) =>
-    props.$disabled &&
-    `
-    &:hover::after {
-      transform: scaleX(1);
-    }
-  `}
+  } */
 `
 
 const RubricTitle = ({ title, active, sortType, onClick, disabled }) => (
