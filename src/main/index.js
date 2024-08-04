@@ -24,7 +24,7 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     if (is.dev) {
-      mainWindow.webContents.openDevTools({ mode: 'right' })
+      // mainWindow.webContents.openDevTools({ mode: 'right' })
     }
     mainWindow.show()
   })

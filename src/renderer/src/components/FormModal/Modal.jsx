@@ -1,5 +1,5 @@
 /**
- * @file /src/components/form-modal/Modal.jsx
+ * @file /src/components/FormModal/Modal.jsx
  */
 import { useRef, cloneElement } from 'react'
 import { Modal as BSModal, Button } from 'react-bootstrap'

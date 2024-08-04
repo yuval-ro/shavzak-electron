@@ -1,39 +1,39 @@
 const Person = Object.freeze({
-  hebrew: 'שוטר',
+  label: 'שוטר',
   primaryKey: 'serviceNumber',
   properties: {
-    serviceNumber: {
-      hebrew: 'מספר אישי',
-      required: true,
-      matches: /^\d{7,8}$/
-    },
     affiliation: {
-      hebrew: 'שיוך',
+      label: 'שיוך',
       required: true,
-      oneOf: { p1: 'זכר', p2: 'נקבה', hq: 'מטה' }
+      oneOf: { p2: 'מחלקה 2', p1: 'מחלקה 1', hq: 'מטה' }
+    },
+    serviceNumber: {
+      label: 'מספר אישי',
+      required: true,
+      matches: [/^\d{7,8}$/, 'רצף ספרות באורך 7 או 8']
     },
     firstName: {
-      hebrew: 'שם פרטי',
+      label: 'שם פרטי',
       required: true,
-      matches: /^[\u0590-\u05FF\s]*$/
+      matches: [/^[\u0590-\u05FF\s]*$/, 'רצף אותיות בעברית עם אופציה לרווחים']
     },
     lastName: {
-      hebrew: 'שם משפחה',
+      label: 'שם משפחה',
       required: true,
-      matches: /^[\u0590-\u05FF\s]*$/
+      matches: [/^[\u0590-\u05FF\s]*$/, 'רצף אותיות בעברית עם אופציה לרווחים']
     },
     sex: {
-      hebrew: 'מין',
+      label: 'מין',
       required: true,
       oneOf: { m: 'זכר', f: 'נקבה' }
     },
     serviceType: {
-      hebrew: 'סוג שירות',
+      label: 'סוג שירות',
       required: true,
       oneOf: { enlisted: 'סדיר', nco: 'נגד', officer: 'קצין' }
     },
     rank: {
-      hebrew: 'דרגה',
+      label: 'דרגה',
       required: true,
       oneOf: {
         e1: 'רש"ט',
@@ -50,21 +50,21 @@ const Person = Object.freeze({
       }
     },
     activeRole: {
-      hebrew: 'תפקיד',
+      label: 'תפקיד',
       required: true,
       oneOf: {
         trooper: 'לוחם',
-        os: 'סמב""ץ',
+        os: 'סמב"ץ',
         sergeant: 'מ"כ',
-        pxo: 'סמח',
+        pxo: 'סמ"ח',
         pco: 'מ"מ',
-        cco: 'מ"פ',
+        coo: 'קמב"ץ',
         cxo: 'סמ"פ',
-        coo: 'קמב"ץ'
+        cco: 'מ"פ'
       }
     },
     professions: {
-      hebrew: 'הסמכות',
+      label: 'הסמכות',
       required: false,
       anyOf: {
         commander: 'מפקד',
@@ -77,7 +77,7 @@ const Person = Object.freeze({
       }
     },
     licenses: {
-      hebrew: 'היתרים',
+      label: 'היתרים',
       required: false,
       anyOf: {
         davidManual: 'דוד ידני',

@@ -1,14 +1,14 @@
 const Vehicle = Object.freeze({
-  hebrew: 'רכב',
+  label: 'רכב',
   primaryKey: 'plateNumber',
   properties: {
     plate: {
-      hebrew: 'לוחית זיהוי',
+      label: 'לוחית זיהוי',
       required: true,
       matches: /^(?=[\u05E6\u05DE]?)\u05E6?\u05DE?\d{5,8}$/
     },
     type: {
-      hebrew: 'סוג רכב',
+      label: 'סוג רכב',
       required: true,
       oneOf: {
         davidManual: 'דוד ידני',
@@ -27,7 +27,7 @@ const Vehicle = Object.freeze({
       }
     },
     nickname: {
-      hebrew: 'כינוי',
+      label: 'כינוי',
       required: false,
       matches: /^[\u0590-\u05FF0-9\s]+$/
     }
