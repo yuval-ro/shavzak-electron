@@ -41,3 +41,16 @@ export function useDeleteFromCollection(collection) {
   })
   return mutation.mutate
 }
+
+export function useStore(collections) {
+  return Object.fromEntries(
+    collections.map((collection) => [
+      collection,
+      {
+        data: useGetCollection(collection) ?? [],
+        post: usePostToCollection(collection),
+        delete: useDeleteFromCollection(collection)
+      }
+    ])
+  )
+}

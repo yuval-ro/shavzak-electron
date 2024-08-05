@@ -78,8 +78,7 @@ export default function App() {
     },
     assignment: {
       label: 'שיבוץ',
-      // component: <Views.Assignment shifts={shifts} onShiftChange={handleShiftChange} />
-      component: null
+      component: <Views.Assignment shifts={shifts} onShiftChange={handleShiftChange} />
     }
   }
 

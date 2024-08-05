@@ -10,8 +10,13 @@ const CampTask = Object.freeze({
     },
     manning: {
       label: 'איוש',
-      required: true,
+      required: false,
       anyOf: { officer: 'קצין', nco: 'נגד', enlisted: 'סדיר' }
+    },
+    profession: {
+      label: 'הסמכה',
+      required: false,
+      oneOf: { campOfficer: 'מפקד אבטחת מחנה' }
     }
   }
 })

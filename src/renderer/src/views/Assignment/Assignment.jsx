@@ -6,12 +6,14 @@ import CampTasksTable from './TasksTable'
 import { Toolbar, FormModal, Layout } from '#src/components'
 import { schema2fieldArray } from '#src/helpers.js'
 import { CampTask } from '#src/schemas'
+import { useStore } from '#src/hooks'
 
-export default function Main({ data, shifts, onShiftChange }) {
+export default function Assignment({ shifts, onShiftChange }) {
   const [pagination, setPagination] = useState(0)
   const [perView, setPerView] = useState(3)
   const [activeTab, setActiveTab] = useState('campTasks')
   const [modal, setModal] = useState(null)
+  const store = useStore(['campTasks', 'people'])
 
   function handleModalSubmit(values) {
     console.debug({ values })
@@ -28,10 +30,11 @@ export default function Main({ data, shifts, onShiftChange }) {
       title: 'אבטחת מחנה',
       component: (
         <CampTasksTable
+          tasks={store?.campTasks?.data}
+          people={store?.people?.data}
           pagination={pagination}
           perView={perView}
           shifts={shifts}
-          people={data?.people}
           onShiftChange={onShiftChange}
         />
       )
@@ -53,16 +56,15 @@ export default function Main({ data, shifts, onShiftChange }) {
           <FormModal.InnerForm fieldArray={schema2fieldArray(CampTask)} />
         </FormModal>
       ),
-      edit: (task) =>
-        null
-        // FIXME
-        // <FormModal
-        //   headerText="יצירת משימה חדשה - אבטחת מחנה"
-        //   onSubmit={handleModalSubmit}
-        //   onCancel={handleModalCancel}
-        // >
-        //   <FormModal.InnerForm fieldArray={[]} />
-        // </FormModal>
+      edit: (task) => null
+      // FIXME
+      // <FormModal
+      //   headerText="יצירת משימה חדשה - אבטחת מחנה"
+      //   onSubmit={handleModalSubmit}
+      //   onCancel={handleModalCancel}
+      // >
+      //   <FormModal.InnerForm fieldArray={[]} />
+      // </FormModal>
     }
   }
 

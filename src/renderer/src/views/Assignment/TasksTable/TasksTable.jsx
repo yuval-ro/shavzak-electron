@@ -1,7 +1,6 @@
 /**
  * @file /src/views/assignment/TasksTable/TasksTable.jsx
  */
-import { useState } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import { FaEdit, FaTrash, FaBars } from 'react-icons/fa'
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc'
@@ -29,44 +28,7 @@ const StyledTaskName = styled.span`
   }
 `
 
-export default function TasksTable({ pagination, perView, shifts, people, onShiftChange }) {
-  const [tasks, setTasks] = useState([
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'מפקד אבטחת מחנה',
-      filter: (person) => person.serviceType === 'officer'
-    },
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'צפונית',
-      filter: (person) => person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-    },
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'דרומית',
-      filter: (person) => person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-    },
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'שג',
-      filter: (person) => person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-    },
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'פטרול',
-      filter: (person) => person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-    },
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'מ-2',
-      filter: (person) => person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-    },
-    {
-      _id: crypto.randomUUID(),
-      displayName: 'מ-5',
-      filter: (person) => person.serviceType === 'enlisted' && person.activeRole === 'trooper'
-    }
-  ])
+export default function TasksTable({ tasks, people, pagination, perView, shifts, onShiftChange }) {
   const SortingHandle = SortableHandle(() => <FaBars style={{ cursor: 'grab' }} />)
   const SortableWrapper = SortableContainer(({ children }) => <div>{children}</div>)
   const SortableRow = SortableElement(({ children }) => (
@@ -81,13 +43,14 @@ export default function TasksTable({ pagination, perView, shifts, people, onShif
     </StyledRow>
   ))
   function handleSelectChange(taskName, shiftId, selectedOption) {
-    const updatedShift = shifts.find((shift) => shift._id === shiftId)
-    if (Array.isArray(selectedOption)) {
-      updatedShift.assigned[taskName] = selectedOption.map(({ value }) => value)
-    } else {
-      updatedShift.assigned[taskName] = selectedOption?.value ?? null
-    }
-    onShiftChange(updatedShift)
+    // // FIXME
+    // const updatedShift = shifts.find((shift) => shift._id === shiftId)
+    // if (Array.isArray(selectedOption)) {
+    //   updatedShift.assigned[taskName] = selectedOption.map(({ value }) => value)
+    // } else {
+    //   updatedShift.assigned[taskName] = selectedOption?.value ?? null
+    // }
+    // onShiftChange(updatedShift)
   }
   return (
     <div style={{ userSelect: 'none' }}>
@@ -116,17 +79,17 @@ export default function TasksTable({ pagination, perView, shifts, people, onShif
         useDragHandle
         transitionDuration={0}
         lockAxis="y"
-        onSortEnd={({ newIndex, oldIndex }) =>
-          setTasks((tasks) => arrayMoveImmutable(tasks, oldIndex, newIndex))
+        onSortEnd={
+          ({ newIndex, oldIndex }) => {} //FIXME setTasks((tasks) => arrayMoveImmutable(tasks, oldIndex, newIndex))
         }
       >
-        {tasks.map(({ displayName, filter }, idx) => (
+        {tasks.map(({ name, filter }, idx) => (
           <SortableRow key={idx} index={idx} rowIdx={idx}>
             <Col style={{ alignContent: 'center', maxWidth: '3rem' }}>
               <SortingHandle />
             </Col>
             <Col style={{ alignContent: 'center', maxWidth: '10rem' }}>
-              <ContextMenu toggle={<ContextMenu.Link>{displayName}</ContextMenu.Link>}>
+              <ContextMenu toggle={<ContextMenu.Link>{name}</ContextMenu.Link>}>
                 <ContextMenu.Item label="ערוך" icon={<FaEdit />} />
                 <ContextMenu.Item label="מחק" icon={<FaTrash />} />
               </ContextMenu>
@@ -136,7 +99,7 @@ export default function TasksTable({ pagination, perView, shifts, people, onShif
               people={people}
               shifts={shifts}
               optionFilter={filter}
-              taskName={displayName}
+              taskName={name}
               startIdx={pagination}
               perView={perView}
               onSelectChange={handleSelectChange}

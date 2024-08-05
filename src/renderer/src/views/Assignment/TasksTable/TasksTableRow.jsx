@@ -42,7 +42,7 @@ export default function TaskTableRow({
             shifts={shifts}
             options={people
               .filter((person) => shift.available.includes(person._id))
-              .filter(optionFilter)
+              // .filter(optionFilter) // FIXME
               .sort((a, b) => {
                 if (a.rank > b.rank) {
                   return 1

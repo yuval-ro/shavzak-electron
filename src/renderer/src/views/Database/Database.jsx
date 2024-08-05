@@ -7,7 +7,7 @@ import CollectionTable from './CollectionTable'
 import { Toolbar, ConfirmModal, Layout, FormModal } from '#src/components'
 import { Person, Vehicle } from '#src/schemas'
 import { schema2fieldArray, schema2cols, collection2rows } from '#src/helpers.js'
-import { useGetCollection, usePostToCollection, useDeleteFromCollection } from '#src/hooks/index.js'
+import { useStore } from '#src/hooks'
 
 function getOrder(Schema, propName) {
   return Object.freeze(
@@ -23,34 +23,22 @@ export default function Database() {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
-  const collections = {
-    people: {
-      data: useGetCollection('people') ?? [],
-      post: usePostToCollection('people'),
-      delete: useDeleteFromCollection('people')
-    },
-    vehicles: {
-      data: useGetCollection('vehicles') ?? [],
-      post: usePostToCollection('vehicles'),
-      delete: useDeleteFromCollection('vehicles')
-    }
-  }
-
+  const store = useStore(['people', 'vehicles'])
   function handleModalConfirmDelete(collection, entry) {
-    collections[collection]?.delete(entry)
+    store[collection]?.delete(entry)
     setModal(null)
   }
 
   function handleCreateModalSave(collection, entry) {
-    collections[collection]?.post(entry)
+    store[collection]?.post(entry)
     setModal(null)
   }
 
   function handleEditModalSave(collection, entry) {
-    const existing = collections[collection]?.data?.find((doc) => doc._id === entry._id)
+    const existing = store[collection]?.data?.find((doc) => doc._id === entry._id)
     if (JSON.stringify(entry) !== JSON.stringify(existing)) {
       // NOTE Prevent unnecessary update if no changes were made
-      collections[collection]?.post(entry)
+      store[collection]?.post(entry)
     }
     setModal(null)
   }
@@ -64,7 +52,7 @@ export default function Database() {
   }
 
   function handleContextMenuAction(collection, docId, action) {
-    const doc = collections[collection]?.data?.find((doc) => doc._id == docId)
+    const doc = store[collection]?.data?.find((doc) => doc._id == docId)
     setModal(modals[collection]?.[action]?.(doc))
   }
 
@@ -157,7 +145,7 @@ export default function Database() {
           cols={schema2cols(Person, peopleInnerSort)}
           rows={collection2rows(
             Person,
-            collections?.people?.data,
+            store?.people?.data,
             ({ serviceNumber, firstName, lastName }) =>
               [serviceNumber, firstName, lastName].some((col) => col && col.includes(keywordFilter))
           )}
@@ -174,7 +162,7 @@ export default function Database() {
         <CollectionTable
           name="vehicles"
           cols={schema2cols(Vehicle)}
-          rows={collection2rows(Vehicle, collections?.vehicles?.data)}
+          rows={collection2rows(Vehicle, store?.vehicles?.data)}
           contextMenu={{
             handleAction: handleContextMenuAction
           }}
