@@ -1,3 +1,6 @@
-export { default as Modal } from './Modal.jsx'
-export { default as InnerForm } from './InnerForm.jsx'
+import FormModal from './FormModal.jsx'
+import InnerForm from './InnerForm.jsx'
+FormModal.InnerForm = InnerForm
+export default FormModal
+
 export { default as FieldArray } from './FieldArray.js'

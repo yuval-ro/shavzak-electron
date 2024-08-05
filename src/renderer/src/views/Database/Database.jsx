@@ -1,5 +1,5 @@
 /**
- * @file /src/views/database/Main.jsx
+ * @file /src/views/Database/Database.jsx
  */
 import { useState } from 'react'
 
@@ -18,8 +18,6 @@ function getOrder(Schema, propName) {
 }
 const ACTIVE_ROLE_ORDER = getOrder(Person, 'activeRole')
 const SERVICE_TYPE_ORDER = getOrder(Person, 'serviceType')
-// const SERVICE_TYPE_ORDER = getOrder(Person, "serviceType")
-console.debug(ACTIVE_ROLE_ORDER)
 
 export default function Main({ data, db }) {
   const [modal, setModal] = useState(null)
@@ -87,28 +85,22 @@ export default function Main({ data, db }) {
   const modals = {
     people: {
       create: () => (
-        <FormModal.Modal
-          title="יצירת רשומה חדשה - שוטר"
-          form={
-            <FormModal.InnerForm
-              fieldArray={schema2fieldArray(Person)}
-              onSubmit={(values) => handleCreateModalSave('people', values)}
-            />
-          }
+        <FormModal
+          headerText="יצירת רשומה חדשה - שוטר"
+          onSubmit={(values) => handleCreateModalSave('people', values)}
           onCancel={handleModalCancel}
-        />
+        >
+          <FormModal.InnerForm fieldArray={schema2fieldArray(Person)} />
+        </FormModal>
       ),
       edit: (person) => (
-        <FormModal.Modal
-          title="עריכת רשומה קיימת - שוטר"
-          form={
-            <FormModal.InnerForm
-              fieldArray={schema2fieldArray(Person, person)}
-              onSubmit={(values) => handleEditModalSave('people', { ...person, ...values })}
-            />
-          }
+        <FormModal
+          headerText="עריכת רשומה קיימת - שוטר"
+          onSubmit={(values) => handleEditModalSave('people', { ...person, ...values })}
           onCancel={handleModalCancel}
-        />
+        >
+          <FormModal.InnerForm fieldArray={schema2fieldArray(Person, person)} />
+        </FormModal>
       ),
       delete: (person) => (
         <ConfirmModal
@@ -121,28 +113,22 @@ export default function Main({ data, db }) {
     },
     vehicles: {
       create: () => (
-        <FormModal.Modal
-          title="יצירת רשומה חדשה - רכב"
-          form={
-            <FormModal.InnerForm
-              fieldArray={schema2fieldArray(Vehicle)}
-              onSubmit={(values) => handleCreateModalSave('vehicles', values)}
-            />
-          }
+        <FormModal
+          headerText="יצירת רשומה חדשה - רכב"
+          onSubmit={(values) => handleCreateModalSave('vehicles', values)}
           onCancel={handleModalCancel}
-        />
+        >
+          <FormModal.InnerForm fieldArray={schema2fieldArray(Vehicle)} />
+        </FormModal>
       ),
       edit: (vehicle) => (
-        <FormModal.Modal
-          title="עריכת רשומה קיימת - רכב"
-          form={
-            <FormModal.InnerForm
-              fieldArray={schema2fieldArray(Vehicle, vehicle)}
-              onSubmit={(values) => handleEditModalSave('vehicles', { ...vehicle, ...values })}
-            />
-          }
+        <FormModal
+          headerText="עריכת רשומה קיימת - רכב"
+          onSubmit={(values) => handleEditModalSave('vehicles', { ...vehicle, ...values })}
           onCancel={handleModalCancel}
-        />
+        >
+          <FormModal.InnerForm fieldArray={schema2fieldArray(Vehicle, vehicle)} />
+        </FormModal>
       ),
       delete: (vehicle) => (
         <ConfirmModal
@@ -174,16 +160,16 @@ export default function Main({ data, db }) {
     },
     vehicles: {
       title: 'רכבים',
-      component: null
-      // FIXME
-      // <Table
-      //   name="vehicles"
-      //   cols={schema2cols(Vehicle)}
-      //   rows={collection2rows(Vehicle, data.vehicles)}
-      //   contextMenu={{
-      //     handleAction: handleContextMenuAction
-      //   }}
-      // />
+      component: (
+        <CollectionTable
+          name="vehicles"
+          cols={schema2cols(Vehicle)}
+          rows={collection2rows(Vehicle, data.vehicles)}
+          contextMenu={{
+            handleAction: handleContextMenuAction
+          }}
+        />
+      )
     }
   }
 

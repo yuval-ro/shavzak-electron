@@ -19,19 +19,19 @@ export function schema2fieldArray(Schema, existingValues = {}, excludeProps = []
   return fieldArray
 }
 
-export function schema2cols(Schema, innerSort = {}) {
+export function schema2cols(Schema, innerSort = {}, unsortable = {}) {
   return Object.entries(Schema.properties).map(([propName, { label }]) => ({
     name: propName,
     label,
-    sortable: true, // TODO Only a defined set of cols will be sortable
-    innerSort: innerSort[propName] ?? null // TODO Add affiliation special sort
+    sortable: unsortable[propName] ?? true,
+    innerSort: innerSort[propName] ?? null
   }))
 }
 
 export function collection2rows(Schema, collection) {
-  const result = collection.map((row) =>
-    Object.fromEntries(
-      Object.entries(row).map(([key, value]) => {
+  const result = collection.map((doc) =>
+    Object.fromEntries([
+      ...Object.entries(doc).map(([key, value]) => {
         if (key.startsWith('_')) {
           return [key, value]
         }
@@ -44,8 +44,9 @@ export function collection2rows(Schema, collection) {
               ? { value, label: prop.oneOf[value] }
               : { value }
         ]
-      })
-    )
+      }),
+      ['label', Schema.stringify(doc)]
+    ])
   )
   return result
 }

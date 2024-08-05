@@ -1,30 +1,31 @@
 /**
- * @file /src/components/FormModal/Modal.jsx
+ * @file /src/components/FormModal/FormModal.jsx
  */
-import { useRef, cloneElement } from 'react'
-import { Modal as BSModal, Button } from 'react-bootstrap'
+import { useRef, cloneElement, Children } from 'react'
+import { Modal, Button } from 'react-bootstrap'
 
 import { FormSubmitProvider } from './context'
 
-export default function Modal({
-  title,
-  form,
+export default function FormModal({
+  headerText,
+  onSubmit,
   onCancel,
   cancelButton = { text: 'בטל', variant: 'outline-secondary' },
   submitButton = { text: 'שמור', variant: 'primary' },
-  headerClassName = 'bg-primary-subtle'
+  headerClassName = 'bg-primary-subtle',
+  children
 }) {
   const formikRef = useRef()
   return (
-    <BSModal keyboard={false} backdrop="static" show={true}>
-      <BSModal.Header style={{ fontWeight: 'bold' }} className={headerClassName}>
-        {title}
-      </BSModal.Header>
+    <Modal keyboard={false} backdrop="static" show={true}>
+      <Modal.Header style={{ fontWeight: 'bold' }} className={headerClassName}>
+        {headerText}
+      </Modal.Header>
       <FormSubmitProvider value={formikRef}>
-        <BSModal.Body style={{ paddingBottom: '0px', paddingTop: '0px' }}>
-          {cloneElement(form, { ref: formikRef })}
-        </BSModal.Body>
-        <BSModal.Footer className="p-1">
+        <Modal.Body style={{ paddingBottom: '0px', paddingTop: '0px' }}>
+          {Children.map(children, (child) => cloneElement(child, { ref: formikRef, onSubmit }))}
+        </Modal.Body>
+        <Modal.Footer className="p-1">
           <div style={{ display: 'flex', justifyContent: 'start' }}>
             <Button
               style={{ width: '100px', marginLeft: '5px' }}
@@ -46,8 +47,8 @@ export default function Modal({
               {submitButton.text}
             </Button>
           </div>
-        </BSModal.Footer>
+        </Modal.Footer>
       </FormSubmitProvider>
-    </BSModal>
+    </Modal>
   )
 }

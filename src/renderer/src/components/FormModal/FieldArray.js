@@ -17,14 +17,17 @@ export default class FieldArray {
       initValue: this.existingValues[name] ?? '',
       label: label ?? name,
       required,
-      validation: validation ?? Yup.string().trim()
+      validation: validation ?? Yup.string()
     }
     if (required) {
-      // TODO Add required message
-      field.validation = field.validation.required()
+      field.validation = field.validation.required('יש למלא ' + field.label + ' כנדרש.')
     }
     if (matches) {
-      field.validation = field.validation.matches(...matches)
+      const [regex, description] = matches
+      field.validation = field.validation.matches(
+        regex,
+        field.label + ' צריך להיות ' + description + '.'
+      )
     }
     // FIXME
     // if (this.takenIds.length > 0) {
@@ -45,7 +48,7 @@ export default class FieldArray {
       initValue: this.existingValues[name] ?? (multi ? [] : ''),
       label: label ?? name,
       required,
-      validation: validation ?? Yup.string().trim(),
+      validation: validation ?? multi ? Yup.array().of(Yup.string()) : Yup.string(),
       options: Object.entries(options).map(([key, value]) => ({
         value: key,
         label: value
@@ -53,8 +56,9 @@ export default class FieldArray {
       filter: filter ?? ((values) => true)
     }
     if (required) {
-      // TODO Add required message
-      field.validation = field.validation.required()
+      field.validation = multi
+        ? field.validation.required().min(1, 'יש לבחור לפחות אופציה אחת.')
+        : field.validation.required('יש לבחור אופציה.')
     }
     this.fields.push(field)
   }

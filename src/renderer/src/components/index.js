@@ -1,5 +1,5 @@
 export { default as Toolbar } from './Toolbar'
 export { default as ContextMenu } from './ContextMenu'
 export { default as ConfirmModal } from './ConfirmModal'
-export * as FormModal from './FormModal'
+export { default as FormModal } from './FormModal'
 export * as Layout from './Layout'

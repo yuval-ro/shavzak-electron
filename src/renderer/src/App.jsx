@@ -6,7 +6,8 @@ import { ThemeProvider } from 'react-bootstrap'
 import styled from 'styled-components'
 
 import TopNavbar from './nav/TopNavbar'
-import * as View from './views'
+import * as Views from './views'
+import { Layout } from "#src/components"
 
 function generateShift(days, hour) {
   return {
@@ -34,14 +35,11 @@ function generateShift(days, hour) {
   }
 }
 
-const ViewContainer = styled.div`
-  padding-right: 2rem;
-  padding-left: 2rem;
-`
+
 
 export default function App() {
-  const [bsDisplayMode, setBsDisplayMode] = useState('bg-dark text-light')
-  const [data, setData] = useState({ people: [], vehicles: [], campTasks: [] })
+  const [bsDisplayMode, setBsDisplayMode] = useState('bg-dark text-light') // TODO Implement
+  const [data, setData] = useState({ people: [], vehicles: [], campTasks: [] }) // TODO Use Zustand or React-Query
   const [shifts, setShifts] = useState([
     generateShift(1, 6),
     generateShift(1, 14),
@@ -105,17 +103,15 @@ export default function App() {
   const views = {
     database: {
       label: 'מסד נתונים',
-      component: <View.Database data={data} db={db} />
+      component: <Views.Database data={data} db={db} />
     },
     attendance: {
       label: 'נוכחות',
-      //FIXME component: <View.Attendance data={data} shifts={shifts} onChange={handleAttendanceChange} />
-      component: null
+      component: <Views.Attendance data={data} shifts={shifts} onChange={handleAttendanceChange} />
     },
     assignment: {
       label: 'שיבוץ',
-      // FIXME component: <View.Assignment data={data} shifts={shifts} onShiftChange={handleShiftChange} />
-      component: null
+      component: <Views.Assignment data={data} shifts={shifts} onShiftChange={handleShiftChange} />
     }
   }
 
@@ -143,13 +139,13 @@ export default function App() {
         activeKey={activeView}
         onKeySelect={(key) => setActiveView(key)}
       />
-      <ViewContainer className="bg-body-tertiary">
+      <Layout.ViewContainer>
         {Object.entries(views).map(([viewName, { component }], idx) => (
           <div key={idx} style={{ display: activeView === viewName ? 'block' : 'none' }}>
             {component}
           </div>
         ))}
-      </ViewContainer>
+      </Layout.ViewContainer>
     </ThemeProvider>
   )
 }

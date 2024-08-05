@@ -1,4 +1,3 @@
-// FIXME
-// export { default as Assignment } from "./assignment/Main.jsx"
-// export { default as Attendance } from "./attendance/Main.jsx"
-export { default as Database } from './database/Main.jsx'
+export { default as Assignment } from './Assignment/Assignment.jsx'
+export { default as Attendance } from './Attendance/Attendance.jsx'
+export { default as Database } from './Database/Database.jsx'

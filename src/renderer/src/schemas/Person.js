@@ -1,11 +1,13 @@
 const Person = Object.freeze({
+  stringify: (person) =>
+    `${Person.properties.rank.oneOf[person?.rank]} ${person?.firstName} ${person?.lastName}`,
   label: 'שוטר',
   primaryKey: 'serviceNumber',
   properties: {
     affiliation: {
       label: 'שיוך',
       required: true,
-      oneOf: { p2: 'מחלקה 2', p1: 'מחלקה 1', hq: 'מטה' }
+      oneOf: { hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' }
     },
     serviceNumber: {
       label: 'מספר אישי',

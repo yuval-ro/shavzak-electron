@@ -1,40 +1,52 @@
 /**
- * @file /src/components/DBTable/Styled.jsx
+ * @file /src/components/CollectionTable/Styled.jsx
  */
-import { Row as BSRow, Col as BSCol } from 'react-bootstrap'
+import { Row, Col } from 'react-bootstrap'
 import styled from 'styled-components'
 
-export const Row = styled(BSRow)`
+const TableRow = styled(Row)`
   user-select: none;
   height: 2.5rem;
   align-items: center;
-  padding: 8px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 `
-export const DataCell = styled(BSCol)`
+const TableCell = styled(Col)`
   max-width: 7rem;
   text-overflow: clip;
   white-space: nowrap;
-  overflow: hidden;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 `
-export const HeaderCell = styled(BSCol)`
-  max-width: 7rem;
-  text-overflow: clip;
-  white-space: nowrap;
+export const TableWrapper = styled(Row)`
+  border: 1px solid #cfe2ff;
 `
-export const DataRow = styled(Row)`
+export const HeaderRow = styled(TableRow)`
+  padding-right: 0;
+  margin: 0rem;
+`
+export const DataCell = styled(TableCell)`
+  height: 100%;
+  align-content: center;
+`
+export const HeaderCell = styled(TableCell)``
+export const DataRow = styled(TableRow)`
   cursor: pointer;
   border-top: 1px solid lightgray;
   align-items: center;
   transition: background-color 0.3s ease;
-
   &:hover {
     background-color: #f0f0f0 !important;
   }
 `
 export const Scrollable = styled.div`
-  height: 700px;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
   overflow-y: scroll;
   overflow-x: hidden;
+  height: 70vh;
 `
 
 export const ColName = styled.span`
