@@ -24,6 +24,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
+    "@tanstack/react-query": "^5.51.21",
+    "@tanstack/react-query-devtools": "^5.51.21",
     "array-move": "^4.0.0",
     "bootstrap": "^5.3.3",
     "chroma-js": "^2.4.2",
@@ -40,6 +42,7 @@
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.2",
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
+    "@tanstack/eslint-plugin-query": "^5.51.15",
     "@vitejs/plugin-react": "^4.3.1",
     "concurrently": "^8.2.2",
     "csv-parser": "^3.0.0",

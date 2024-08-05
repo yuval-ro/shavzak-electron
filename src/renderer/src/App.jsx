@@ -1,13 +1,16 @@
 /**
  * @file /src/App.jsx
  */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ThemeProvider } from 'react-bootstrap'
-import styled from 'styled-components'
 
 import TopNavbar from './nav/TopNavbar'
 import * as Views from './views'
-import { Layout } from "#src/components"
+import { Layout } from '#src/components'
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 function generateShift(days, hour) {
   return {
@@ -35,11 +38,8 @@ function generateShift(days, hour) {
   }
 }
 
-
-
 export default function App() {
   const [bsDisplayMode, setBsDisplayMode] = useState('bg-dark text-light') // TODO Implement
-  const [data, setData] = useState({ people: [], vehicles: [], campTasks: [] }) // TODO Use Zustand or React-Query
   const [shifts, setShifts] = useState([
     generateShift(1, 6),
     generateShift(1, 14),
@@ -66,86 +66,39 @@ export default function App() {
     })
   }
 
-  const db = {
-    readAll: async (collection) => {
-      const dbDocs = await window.api.docs.readAll({ collection })
-      setData((prevData) => ({
-        ...prevData,
-        [collection]: dbDocs
-      }))
-      return dbDocs
-    },
-    create: async (collection, document) => {
-      const dbDocument = await window.api.docs.putOne({ collection, document })
-      setData((prevData) => ({
-        ...prevData,
-        [collection]: [...prevData[collection], dbDocument]
-      }))
-    },
-    update: async (collection, document) => {
-      const dbDocument = await window.api.docs.putOne({ collection, document })
-      setData((prevData) => ({
-        ...prevData,
-        [collection]: prevData[collection].map((item) =>
-          item._id === dbDocument._id ? dbDocument : item
-        )
-      }))
-    },
-    delete: async (collection, document) => {
-      const deletedId = await window.api.docs.removeOne({ collection, document })
-      setData((prevData) => ({
-        ...prevData,
-        [collection]: prevData[collection].filter((item) => item._id !== deletedId)
-      }))
-    }
-  }
-
   const views = {
     database: {
       label: 'מסד נתונים',
-      component: <Views.Database data={data} db={db} />
+      component: <Views.Database />
     },
     attendance: {
       label: 'נוכחות',
-      component: <Views.Attendance data={data} shifts={shifts} onChange={handleAttendanceChange} />
+      // component: <Views.Attendance shifts={shifts} onChange={handleAttendanceChange} />
+      component: null
     },
     assignment: {
       label: 'שיבוץ',
-      component: <Views.Assignment data={data} shifts={shifts} onShiftChange={handleShiftChange} />
+      // component: <Views.Assignment shifts={shifts} onShiftChange={handleShiftChange} />
+      component: null
     }
   }
 
-  useEffect(() => {
-    async function initAppStates() {
-      const people = await db.readAll('people')
-      const vehicles = await db.readAll('vehicles')
-      const tasks = await db.readAll('campTasks')
-      setShifts((oldShifts) => {
-        const newShifts = oldShifts.map((shift) => {
-          const newShift = shift
-          newShift.available = people.map((person) => person._id)
-          return newShift
-        })
-        return newShifts
-      })
-    }
-    initAppStates()
-  }, [])
-
   return (
-    <ThemeProvider dir="rtl">
-      <TopNavbar
-        links={Object.entries(views).map(([key, val]) => ({ value: key, label: val.label }))}
-        activeKey={activeView}
-        onKeySelect={(key) => setActiveView(key)}
-      />
-      <Layout.ViewContainer>
-        {Object.entries(views).map(([viewName, { component }], idx) => (
-          <div key={idx} style={{ display: activeView === viewName ? 'block' : 'none' }}>
-            {component}
-          </div>
-        ))}
-      </Layout.ViewContainer>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider dir="rtl">
+        <TopNavbar
+          links={Object.entries(views).map(([key, val]) => ({ value: key, label: val.label }))}
+          activeKey={activeView}
+          onKeySelect={(key) => setActiveView(key)}
+        />
+        <Layout.ViewContainer>
+          {Object.entries(views).map(([viewName, { component }], idx) => (
+            <div key={idx} style={{ display: activeView === viewName ? 'block' : 'none' }}>
+              {component}
+            </div>
+          ))}
+        </Layout.ViewContainer>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }

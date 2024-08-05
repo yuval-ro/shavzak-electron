@@ -4,10 +4,10 @@
 import { useState } from 'react'
 
 import CollectionTable from './CollectionTable'
-
 import { Toolbar, ConfirmModal, Layout, FormModal } from '#src/components'
 import { Person, Vehicle } from '#src/schemas'
 import { schema2fieldArray, schema2cols, collection2rows } from '#src/helpers.js'
+import { useGetCollection, usePostToCollection, useDeleteFromCollection } from '#src/hooks/index.js'
 
 function getOrder(Schema, propName) {
   return Object.freeze(
@@ -19,23 +19,39 @@ function getOrder(Schema, propName) {
 const ACTIVE_ROLE_ORDER = getOrder(Person, 'activeRole')
 const SERVICE_TYPE_ORDER = getOrder(Person, 'serviceType')
 
-export default function Main({ data, db }) {
+export default function Database() {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
+  const collections = {
+    people: {
+      data: useGetCollection('people') ?? [],
+      post: usePostToCollection('people'),
+      delete: useDeleteFromCollection('people')
+    },
+    vehicles: {
+      data: useGetCollection('vehicles') ?? [],
+      post: usePostToCollection('vehicles'),
+      delete: useDeleteFromCollection('vehicles')
+    }
+  }
 
   function handleModalConfirmDelete(collection, entry) {
-    db.delete(collection, entry)
+    collections[collection]?.delete(entry)
     setModal(null)
   }
 
   function handleCreateModalSave(collection, entry) {
-    db.create(collection, entry)
+    collections[collection]?.post(entry)
     setModal(null)
   }
 
   function handleEditModalSave(collection, entry) {
-    db.update(collection, entry)
+    const existing = collections[collection]?.data?.find((doc) => doc._id === entry._id)
+    if (JSON.stringify(entry) !== JSON.stringify(existing)) {
+      // NOTE Prevent unnecessary update if no changes were made
+      collections[collection]?.post(entry)
+    }
     setModal(null)
   }
 
@@ -47,40 +63,31 @@ export default function Main({ data, db }) {
     setModal(modals[activeTab].create())
   }
 
-  function handleContextMenuAction(tableName, docId, action) {
-    const doc = data[tableName]?.find((doc) => doc._id == docId)
-    switch (action) {
-      case 'edit':
-        setModal(modals[tableName].edit(doc))
-        break
-      case 'delete':
-        setModal(modals[tableName].delete(doc))
-        break
-      default:
-        throw new Error()
-    }
+  function handleContextMenuAction(collection, docId, action) {
+    const doc = collections[collection]?.data?.find((doc) => doc._id == docId)
+    setModal(modals[collection]?.[action]?.(doc))
   }
 
   const peopleInnerSort = {
     affiliation: (sortDir) => (a, b) => {
-      if (a.affiliation.value > b.affiliation.value) return sortDir
-      if (a.affiliation.value < b.affiliation.value) return -sortDir
+      if (a.affiliation.value > b.affiliation.value) return -sortDir
+      if (a.affiliation.value < b.affiliation.value) return sortDir
       if (ACTIVE_ROLE_ORDER[a.activeRole.value] > ACTIVE_ROLE_ORDER[b.activeRole.value])
-        return -sortDir
+        return sortDir
       if (ACTIVE_ROLE_ORDER[a.activeRole.value] < ACTIVE_ROLE_ORDER[b.activeRole.value])
-        return sortDir
-      if (SERVICE_TYPE_ORDER[a.serviceType.value] > SERVICE_TYPE_ORDER[b.serviceType.value])
         return -sortDir
-      if (SERVICE_TYPE_ORDER[a.serviceType.value] < SERVICE_TYPE_ORDER[b.serviceType.value])
+      if (SERVICE_TYPE_ORDER[a.serviceType.value] > SERVICE_TYPE_ORDER[b.serviceType.value])
         return sortDir
-      if (a.rank.value < b.rank.value) return -sortDir
-      if (a.rank.value > b.rank.value) return sortDir
+      if (SERVICE_TYPE_ORDER[a.serviceType.value] < SERVICE_TYPE_ORDER[b.serviceType.value])
+        return -sortDir
+      if (a.rank.value < b.rank.value) return sortDir
+      if (a.rank.value > b.rank.value) return -sortDir
       return 0
     }
   }
 
   // FIXME
-  const vicfilter = ({ plate }) => [plate].some((col) => col && col.includes(keywordFilter))
+  // const vicfilter = ({ plate }) => [plate].some((col) => col && col.includes(keywordFilter))
 
   const modals = {
     people: {
@@ -148,8 +155,11 @@ export default function Main({ data, db }) {
         <CollectionTable
           name="people"
           cols={schema2cols(Person, peopleInnerSort)}
-          rows={collection2rows(Person, data.people, ({ serviceNumber, firstName, lastName }) =>
-            [serviceNumber, firstName, lastName].some((col) => col && col.includes(keywordFilter))
+          rows={collection2rows(
+            Person,
+            collections?.people?.data,
+            ({ serviceNumber, firstName, lastName }) =>
+              [serviceNumber, firstName, lastName].some((col) => col && col.includes(keywordFilter))
           )}
           keyword={keywordFilter}
           contextMenu={{
@@ -164,7 +174,7 @@ export default function Main({ data, db }) {
         <CollectionTable
           name="vehicles"
           cols={schema2cols(Vehicle)}
-          rows={collection2rows(Vehicle, data.vehicles)}
+          rows={collection2rows(Vehicle, collections?.vehicles?.data)}
           contextMenu={{
             handleAction: handleContextMenuAction
           }}

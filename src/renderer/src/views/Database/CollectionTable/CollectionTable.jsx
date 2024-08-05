@@ -20,8 +20,8 @@ export default function CollectionTable({ name, cols, rows, keyword = '', contex
 
   function rowSort(row1, row2) {
     const col = cols[sortIdx]?.name
-    if (row1[col]?.value < row2[col]?.value) return -sortDir
-    if (row1[col]?.value > row2[col]?.value) return sortDir
+    if (row1[col]?.value < row2[col]?.value) return sortDir
+    if (row1[col]?.value > row2[col]?.value) return -sortDir
     return 0
   }
 
@@ -58,44 +58,47 @@ export default function CollectionTable({ name, cols, rows, keyword = '', contex
   const rowsComponent = rows
     .filter(rowFilter)
     .sort(cols[sortIdx]?.innerSort ? cols[sortIdx].innerSort(sortDir) : rowSort)
-    .map((row, idx) => {
-      const rowComponent = (
-        <Styled.DataRow key={idx} className="bg-body">
-          {cols.map(({ name }, idx) => (
-            <Styled.DataCell
-              key={idx}
-              style={{ minWidth: MIN_CELL_WIDTH }}
-              className={idx === sortIdx ? 'bg-primary bg-opacity-10' : ''}
-            >
-              {row[name]
-                ? Array.isArray(row[name])
-                  ? row[name].map((item) => item?.label ?? item.value).join(', ')
-                  : row[name]?.label ?? row[name].value
-                : null}
-            </Styled.DataCell>
-          ))}
-        </Styled.DataRow>
-      )
-      if (contextMenu) {
-        return (
-          <ContextMenu key={idx} toggle={rowComponent}>
-            <ContextMenu.Header>{row?.label}</ContextMenu.Header>
-            <ContextMenu.Item
-              label="ערוך"
-              icon={<FaEdit />}
-              onClick={() => contextMenu.handleAction(name, row._id, 'edit')}
-            />
-            <ContextMenu.Item
-              label="מחק"
-              icon={<FaTrash />}
-              onClick={() => contextMenu.handleAction(name, row._id, 'delete')}
-            />
-          </ContextMenu>
-        )
-      } else {
-        return rowComponent
-      }
-    })
+    .map((row, idx) => (
+      <ContextMenu
+        key={idx}
+        toggle={
+          <Styled.DataRow key={idx} className="bg-body">
+            {cols.map(({ name }, idx) => (
+              <Styled.DataCell
+                key={idx}
+                style={{ minWidth: MIN_CELL_WIDTH }}
+                className={
+                  idx === sortIdx
+                    ? 'bg-primary bg-opacity-10'
+                    : keyword.length > 0 &&
+                        (row[name]?.label ?? row[name]?.value)?.includes(keyword)
+                      ? 'bg-warning-subtle'
+                      : ''
+                }
+              >
+                {row[name]
+                  ? Array.isArray(row[name])
+                    ? row[name].map((item) => item?.label ?? item?.value).join(', ')
+                    : row[name]?.label ?? row[name]?.value
+                  : null}
+              </Styled.DataCell>
+            ))}
+          </Styled.DataRow>
+        }
+      >
+        <ContextMenu.Header>{row?.label}</ContextMenu.Header>
+        <ContextMenu.Item
+          label="ערוך"
+          icon={<FaEdit />}
+          onClick={() => contextMenu.handleAction(name, row._id, 'edit')}
+        />
+        <ContextMenu.Item
+          label="מחק"
+          icon={<FaTrash />}
+          onClick={() => contextMenu.handleAction(name, row._id, 'delete')}
+        />
+      </ContextMenu>
+    ))
 
   return (
     <Styled.TableWrapper>

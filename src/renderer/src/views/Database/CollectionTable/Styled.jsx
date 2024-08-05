@@ -21,7 +21,7 @@ const TableCell = styled(Col)`
   padding-right: 0.5rem;
 `
 export const TableWrapper = styled(Row)`
-  border: 1px solid #cfe2ff;
+  border: 1px solid lightgray;
 `
 export const HeaderRow = styled(TableRow)`
   padding-right: 0;
@@ -46,7 +46,7 @@ export const Scrollable = styled.div`
   padding-left: 0.75rem;
   overflow-y: scroll;
   overflow-x: hidden;
-  height: 70vh;
+  height: 73vh;
 `
 
 export const ColName = styled.span`
