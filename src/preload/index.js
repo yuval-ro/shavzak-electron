@@ -2,9 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 const api = {
-  readAll: (args) => ipcRenderer.invoke('docs/read-all', args),
-  putOne: (args) => ipcRenderer.invoke('docs/put-one', args),
-  removeOne: (args) => ipcRenderer.invoke('docs/remove-one', args)
+  db: (args) => ipcRenderer.invoke('db', args)
 }
 
 if (process.contextIsolated) {

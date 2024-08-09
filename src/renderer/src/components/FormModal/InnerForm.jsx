@@ -95,7 +95,15 @@ const InnerForm = forwardRef(function renderInnerForm({ fieldArray, onSubmit }, 
                                   isSearchable={false}
                                   isClearable={true}
                                   isMulti={false}
-                                  value={options.find((option) => option?.value === value) ?? ''}
+                                  value={options.find((option) => {
+                                    if (option?.value?.getTime && value?.getTime) {
+                                      return option.value.getTime() === value.getTime()
+                                    } else if (option?.value) {
+                                      return option?.value === value
+                                    } else {
+                                      return ''
+                                    }
+                                  })}
                                   options={options}
                                   onChange={(option) => setFieldValue(name, option?.value ?? '')}
                                   isRtl={true}

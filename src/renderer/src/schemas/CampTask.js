@@ -1,24 +1,26 @@
-const CampTask = Object.freeze({
+import PropBuilder from './PropBuilder'
+import { REGEX } from './CONSTS'
+
+const prop = new PropBuilder()
+
+const CampTask = {
   stringify: (task) => task?.name,
   label: 'משימת מחנה',
-  primaryKey: 'name',
-  properties: {
-    name: {
-      label: 'שם משימה',
-      required: true,
-      matches: [/^[\u0590-\u05FF0-9\s]+$/, 'רצף אותיות בעברית ו/או ספרות']
-    },
-    manning: {
-      label: 'איוש',
-      required: false,
-      anyOf: { officer: 'קצין', nco: 'נגד', enlisted: 'סדיר' }
-    },
-    profession: {
-      label: 'הסמכה',
-      required: false,
-      oneOf: { campOfficer: 'מפקד אבטחת מחנה' }
-    }
+  props: {
+    name: prop
+      .pk()
+      .label('שם משימה')
+      .matches(...REGEX.task.name)
+      .build(),
+    requirements: prop
+      .optional()
+      .label('דרישות')
+      .options({ officer: 'קצין', nco: 'נגד', enlisted: 'סדיר', campOfficer: 'מפקד אבטחת מחנה' })
+      .multi()
+      .build(),
+    start: prop.label('התייצבות').time().build(),
+    end: prop.label('סיום').time().build()
   }
-})
+}
 
-export default CampTask
+export default Object.freeze(CampTask)

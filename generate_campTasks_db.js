@@ -19,15 +19,17 @@ function parseArrayCell(professionString) {
 // Function to read CSV file and insert data into PouchDB
 function importCSVToPouchDB(csvFilePath) {
   const docs = []
-
+  let idx = 0
   fs.createReadStream(csvFilePath)
     .pipe(csv())
     .on('data', (row) => {
       docs.push({
         ...row,
         serviceTypes: parseArrayCell(row.serviceTypes),
-        professions: parseArrayCell(row.professions)
+        professions: parseArrayCell(row.professions),
+        idx
       })
+      idx += 1
     })
     .on('end', async () => {
       try {

@@ -1,43 +1,35 @@
-const Person = Object.freeze({
+import PropBuilder from './PropBuilder.js'
+import { REGEX } from './CONSTS.js'
+
+const prop = new PropBuilder()
+
+const Person = {
   stringify: (person) =>
-    `${Person.properties.rank.oneOf[person?.rank]} ${person?.firstName} ${person?.lastName}`,
+    Person?.props?.rank?.options[person?.rank] + ' ' + person?.firstName + ' ' + person?.lastName,
   label: 'שוטר',
-  primaryKey: 'serviceNumber',
-  properties: {
-    affiliation: {
-      label: 'שיוך',
-      required: true,
-      oneOf: { hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' }
-    },
-    serviceNumber: {
-      label: 'מספר אישי',
-      required: true,
-      matches: [/^\d{7,8}$/, 'רצף ספרות באורך 7 או 8']
-    },
-    firstName: {
-      label: 'שם פרטי',
-      required: true,
-      matches: [/^[\u0590-\u05FF\s]*$/, 'רצף אותיות בעברית עם אופציה לרווחים']
-    },
-    lastName: {
-      label: 'שם משפחה',
-      required: true,
-      matches: [/^[\u0590-\u05FF\s]*$/, 'רצף אותיות בעברית עם אופציה לרווחים']
-    },
-    sex: {
-      label: 'מין',
-      required: true,
-      oneOf: { m: 'זכר', f: 'נקבה' }
-    },
-    serviceType: {
-      label: 'סוג שירות',
-      required: true,
-      oneOf: { enlisted: 'סדיר', nco: 'נגד', officer: 'קצין' }
-    },
-    rank: {
-      label: 'דרגה',
-      required: true,
-      oneOf: {
+  props: {
+    affiliation: prop.label('שם').options({ hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' }).build(),
+    serviceNumber: prop
+      .pk()
+      .label('מספר אישי')
+      .matches(...REGEX.person.serviceNumber)
+      .build(),
+    firstName: prop
+      .label('שם פרטי')
+      .matches(...REGEX.person.name)
+      .build(),
+    lastName: prop
+      .label('שם משפחה')
+      .matches(...REGEX.person.name)
+      .build(),
+    sex: prop.label('מין').options({ m: 'זכר', f: 'נקבה' }).build(),
+    serviceType: prop
+      .label('סוג שירות')
+      .options({ enlisted: 'סדיר', nco: 'נגד', officer: 'קצין' })
+      .build(),
+    rank: prop
+      .label('דרגה')
+      .options({
         e1: 'רש"ט',
         e2: 'סמ"ש',
         e3: 'סמ"ר',
@@ -49,12 +41,11 @@ const Person = Object.freeze({
         o2: 'מפקח',
         o3: 'פקד',
         o4: 'רפ"ק'
-      }
-    },
-    activeRole: {
-      label: 'תפקיד',
-      required: true,
-      oneOf: {
+      })
+      .build(),
+    activeRole: prop
+      .label('תפקיד')
+      .options({
         trooper: 'לוחם',
         os: 'סמב"ץ',
         sergeant: 'מ"כ',
@@ -63,12 +54,12 @@ const Person = Object.freeze({
         coo: 'קמב"ץ',
         cxo: 'סמ"פ',
         cco: 'מ"פ'
-      }
-    },
-    professions: {
-      label: 'הסמכות',
-      required: false,
-      anyOf: {
+      })
+      .build(),
+    professions: prop
+      .optional()
+      .label('הסמכות')
+      .options({
         commander: 'מפקד',
         medic: 'חובש',
         marksman: 'קלע',
@@ -76,12 +67,13 @@ const Person = Object.freeze({
         fieldOfficer: 'קצין שטח',
         dutyOfficer: 'מפקד תורן',
         campOfficer: 'מפקד אבטחת מחנה'
-      }
-    },
-    licenses: {
-      label: 'היתרים',
-      required: false,
-      anyOf: {
+      })
+      .multi()
+      .build(),
+    licenses: prop
+      .optional()
+      .label('היתרים')
+      .options({
         davidManual: 'דוד ידני',
         davidAutomatic: 'דוד אוטומט',
         private: 'רכב לבן',
@@ -89,12 +81,13 @@ const Person = Object.freeze({
         zeev: 'זאב',
         truck: 'משאית',
         panter: 'פנתר',
-        savannahArmored: 'סוואנה בטש',
+        savannahArmored: 'סוואנה בט"ש',
         savannahUnarmored: 'סוואנה לבנה',
         riotTruck: 'מכתזית'
-      }
-    }
+      })
+      .multi()
+      .build()
   }
-})
+}
 
-export default Person
+export default Object.freeze(Person)

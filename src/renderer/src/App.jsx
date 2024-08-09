@@ -3,82 +3,51 @@
  */
 import { useState } from 'react'
 import { ThemeProvider } from 'react-bootstrap'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import TopNavbar from './nav/TopNavbar'
 import * as Views from './views'
 import { Layout } from '#src/components'
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useShiftStore } from './hooks/zustand'
 
 const queryClient = new QueryClient()
 
-function generateShift(days, hour) {
+const SHIFT_TYPE = Object.freeze({
+  6: 'morning',
+  14: 'noon',
+  22: 'night'
+})
+
+function generateShift(hour) {
+  const start = new Date()
+  start.setDate(start.getDate() + 1)
+  start.setHours(hour, 0, 0, 0)
+  const end = new Date(start)
+  end.setHours(start.getHours() + 8, 0, 0, 0)
   return {
     _id: crypto.randomUUID(),
-    type: (() => {
-      switch (hour) {
-        case 6:
-          return 'morning'
-        case 14:
-          return 'noon'
-        case 2:
-          return 'night'
-        default:
-          throw new Error()
-      }
-    })(),
-    time: (() => {
-      let time = new Date()
-      time.setDate(time.getDate() + days)
-      time.setHours(hour, 0, 0, 0)
-      return time
-    })(),
+    type: SHIFT_TYPE[hour],
+    start,
+    end,
     available: [],
     assigned: {}
   }
 }
 
+useShiftStore.getState().initialize()
+
 export default function App() {
   const [bsDisplayMode, setBsDisplayMode] = useState('bg-dark text-light') // TODO Implement
-  const [shifts, setShifts] = useState([
-    generateShift(1, 6),
-    generateShift(1, 14),
-    generateShift(2, 2)
-  ])
+  const [shifts, setShifts] = useState([generateShift(6), generateShift(14), generateShift(22)])
   const [activeView, setActiveView] = useState('database')
-
-  function handleShiftChange(updatedShift) {
-    setShifts((shifts) =>
-      shifts.map((shift) => (shift._id === updatedShift._id ? updatedShift : shift))
-    )
-  }
-
-  function handleAttendanceChange(shiftId, personId) {
-    setShifts((oldShifts) => {
-      const newShifts = [...oldShifts]
-      const shift = newShifts.find((shift) => shift._id === shiftId)
-      if (shift.available.includes(personId)) {
-        shift.available = shift.available.filter((id) => id !== personId)
-      } else {
-        shift.available.push(personId)
-      }
-      return newShifts
-    })
-  }
-
   const views = {
     database: {
       label: 'מסד נתונים',
       component: <Views.Database />
     },
-    attendance: {
-      label: 'נוכחות',
-      // component: <Views.Attendance shifts={shifts} onChange={handleAttendanceChange} />
-      component: null
-    },
     assignment: {
-      label: 'שיבוץ',
-      component: <Views.Assignment shifts={shifts} onShiftChange={handleShiftChange} />
+      label: 'סידור עבודה',
+      component: <Views.Assignment shifts={shifts} />
     }
   }
 

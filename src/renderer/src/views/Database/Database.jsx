@@ -5,40 +5,39 @@ import { useState } from 'react'
 
 import CollectionTable from './CollectionTable'
 import { Toolbar, ConfirmModal, Layout, FormModal } from '#src/components'
-import { Person, Vehicle } from '#src/schemas'
-import { schema2fieldArray, schema2cols, collection2rows } from '#src/helpers.js'
-import { useStore } from '#src/hooks'
+import { PersonSchema, VehicleSchema } from '#src/schemas'
+import { createFormFieldArray, createTableCols, createTableRows } from '#src/helpers.js'
+import { useQueryStore } from '#src/hooks/react-query'
 
 function getOrder(Schema, propName) {
   return Object.freeze(
-    Object.fromEntries(
-      Object.keys(Schema.properties[propName]?.oneOf).map((role, idx) => [role, idx])
-    )
+    Object.fromEntries(Object.keys(Schema.props[propName]?.options).map((role, idx) => [role, idx]))
   )
 }
-const ACTIVE_ROLE_ORDER = getOrder(Person, 'activeRole')
-const SERVICE_TYPE_ORDER = getOrder(Person, 'serviceType')
+const ACTIVE_ROLE_ORDER = getOrder(PersonSchema, 'activeRole')
+const SERVICE_TYPE_ORDER = getOrder(PersonSchema, 'serviceType')
 
 export default function Database() {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
-  const store = useStore(['people', 'vehicles'])
+  const queryStore = useQueryStore(['people', 'vehicles'])
+
   function handleModalConfirmDelete(collection, entry) {
-    store[collection]?.delete(entry)
+    queryStore[collection]?.delete(entry)
     setModal(null)
   }
 
-  function handleCreateModalSave(collection, entry) {
-    store[collection]?.post(entry)
+  function handleCreateModalSave(collection, values) {
+    queryStore[collection]?.post(values)
     setModal(null)
   }
 
-  function handleEditModalSave(collection, entry) {
-    const existing = store[collection]?.data?.find((doc) => doc._id === entry._id)
-    if (JSON.stringify(entry) !== JSON.stringify(existing)) {
+  function handleEditModalSave(collection, updated) {
+    const existing = queryStore[collection]?.read?.find((doc) => doc._id === updated._id)
+    if (JSON.stringify(updated) !== JSON.stringify(existing)) {
       // NOTE Prevent unnecessary update if no changes were made
-      store[collection]?.post(entry)
+      queryStore[collection]?.post(updated)
     }
     setModal(null)
   }
@@ -52,7 +51,7 @@ export default function Database() {
   }
 
   function handleContextMenuAction(collection, docId, action) {
-    const doc = store[collection]?.data?.find((doc) => doc._id == docId)
+    const doc = queryStore[collection]?.read?.find((doc) => doc._id == docId)
     setModal(modals[collection]?.[action]?.(doc))
   }
 
@@ -74,9 +73,6 @@ export default function Database() {
     }
   }
 
-  // FIXME
-  // const vicfilter = ({ plate }) => [plate].some((col) => col && col.includes(keywordFilter))
-
   const modals = {
     people: {
       create: () => (
@@ -85,7 +81,12 @@ export default function Database() {
           onSubmit={(values) => handleCreateModalSave('people', values)}
           onCancel={handleModalCancel}
         >
-          <FormModal.InnerForm fieldArray={schema2fieldArray(Person)} />
+          <FormModal.InnerForm
+            fieldArray={createFormFieldArray({
+              schema: PersonSchema,
+              docs: queryStore?.people?.read
+            })}
+          />
         </FormModal>
       ),
       edit: (person) => (
@@ -94,7 +95,13 @@ export default function Database() {
           onSubmit={(values) => handleEditModalSave('people', { ...person, ...values })}
           onCancel={handleModalCancel}
         >
-          <FormModal.InnerForm fieldArray={schema2fieldArray(Person, person)} />
+          <FormModal.InnerForm
+            fieldArray={createFormFieldArray({
+              schema: PersonSchema,
+              docs: queryStore?.people?.read,
+              values: person
+            })}
+          />
         </FormModal>
       ),
       delete: (person) => (
@@ -113,7 +120,12 @@ export default function Database() {
           onSubmit={(values) => handleCreateModalSave('vehicles', values)}
           onCancel={handleModalCancel}
         >
-          <FormModal.InnerForm fieldArray={schema2fieldArray(Vehicle)} />
+          <FormModal.InnerForm
+            fieldArray={createFormFieldArray({
+              schema: VehicleSchema,
+              docs: queryStore?.vehicles?.read
+            })}
+          />
         </FormModal>
       ),
       edit: (vehicle) => (
@@ -122,7 +134,13 @@ export default function Database() {
           onSubmit={(values) => handleEditModalSave('vehicles', { ...vehicle, ...values })}
           onCancel={handleModalCancel}
         >
-          <FormModal.InnerForm fieldArray={schema2fieldArray(Vehicle, vehicle)} />
+          <FormModal.InnerForm
+            fieldArray={createFormFieldArray({
+              schema: VehicleSchema,
+              docs: queryStore?.vehicles?.read,
+              values: vehicle
+            })}
+          />
         </FormModal>
       ),
       delete: (vehicle) => (
@@ -142,17 +160,10 @@ export default function Database() {
       component: (
         <CollectionTable
           name="people"
-          cols={schema2cols(Person, peopleInnerSort)}
-          rows={collection2rows(
-            Person,
-            store?.people?.data,
-            ({ serviceNumber, firstName, lastName }) =>
-              [serviceNumber, firstName, lastName].some((col) => col && col.includes(keywordFilter))
-          )}
+          cols={createTableCols(PersonSchema, peopleInnerSort)}
+          rows={createTableRows(PersonSchema, queryStore?.people?.read)}
           keyword={keywordFilter}
-          contextMenu={{
-            handleAction: handleContextMenuAction
-          }}
+          onContextMenuAction={handleContextMenuAction}
         />
       )
     },
@@ -161,11 +172,9 @@ export default function Database() {
       component: (
         <CollectionTable
           name="vehicles"
-          cols={schema2cols(Vehicle)}
-          rows={collection2rows(Vehicle, store?.vehicles?.data)}
-          contextMenu={{
-            handleAction: handleContextMenuAction
-          }}
+          cols={createTableCols(VehicleSchema)}
+          rows={createTableRows(VehicleSchema, queryStore?.vehicles?.read)}
+          onContextMenuAction={handleContextMenuAction}
         />
       )
     }

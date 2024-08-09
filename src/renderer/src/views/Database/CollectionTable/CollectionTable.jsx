@@ -14,7 +14,7 @@ import ContextMenu from '#src/components/ContextMenu'
 // TODO Add docstring:
 // cols: Array[{name: string, label: string, sortable: boolean, innerSort: (sortDir) => { ... }[1,0,-1] }]
 // rows: Array[{key1: { value: ..., label: string }, ..., keyn: { value: ..., label: string}}]
-export default function CollectionTable({ name, cols, rows, keyword = '', contextMenu }) {
+export default function CollectionTable({ name, cols, rows, keyword = '', onContextMenuAction }) {
   const [sortIdx, setSortIdx] = useState(0)
   const [sortDir, setSortDir] = useState(SORT_DIR.asc)
 
@@ -90,12 +90,12 @@ export default function CollectionTable({ name, cols, rows, keyword = '', contex
         <ContextMenu.Item
           label="ערוך"
           icon={<FaEdit />}
-          onClick={() => contextMenu.handleAction(name, row._id, 'edit')}
+          onClick={() => onContextMenuAction(name, row._id, 'edit')}
         />
         <ContextMenu.Item
           label="מחק"
           icon={<FaTrash />}
-          onClick={() => contextMenu.handleAction(name, row._id, 'delete')}
+          onClick={() => onContextMenuAction(name, row._id, 'delete')}
         />
       </ContextMenu>
     ))
@@ -134,8 +134,13 @@ export default function CollectionTable({ name, cols, rows, keyword = '', contex
         {rowsComponent.length > 0 ? (
           rowsComponent
         ) : (
-          <Row className="bg-body-tertiary" style={{ height: '2.5rem', cursor: 'auto' }}>
-            <Col>לא נמצאו נתונים...</Col>
+          <Row style={{ height: '2.5rem', userSelect: 'none' }}>
+            <Col
+              className="bg-danger-subtle text-danger text-center"
+              style={{ justifyContent: 'center', alignContent: 'center' }}
+            >
+              לא נמצאו נתונים..
+            </Col>
           </Row>
         )}
       </Styled.Scrollable>

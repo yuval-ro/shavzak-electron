@@ -1,20 +1,21 @@
-const Vehicle = Object.freeze({
-  stringify: (vehicle) => `${Vehicle.properties.type.oneOf[vehicle?.type]} ${vehicle?.plate}}`,
+import PropBuilder from './PropBuilder'
+import { REGEX } from './CONSTS'
+
+const prop = new PropBuilder()
+
+const Vehicle = {
+  stringify: (vehicle) =>
+    vehicle?.nickname ?? Vehicle?.props?.type?.options[vehicle?.type] + ' ' + vehicle?.plate,
   label: 'רכב',
-  primaryKey: 'plateNumber',
-  properties: {
-    plate: {
-      label: 'לוחית זיהוי',
-      required: true,
-      matches: [
-        /^(?=[\u05E6\u05DE]?)\u05E6?\u05DE?\d{5,8}$/,
-        'רצף ספרות באורך 5-8 עם אפשרות לתחילית "מ" או "צ" '
-      ]
-    },
-    type: {
-      label: 'סוג רכב',
-      required: true,
-      oneOf: {
+  props: {
+    plate: prop
+      .pk()
+      .label('לוחית זיהוי')
+      .matches(...REGEX.vehicle.plate)
+      .build(),
+    type: prop
+      .label('סוג')
+      .options({
         davidManual: 'דוד ידני',
         davidAutomatic: 'דוד אוטומטי',
         savannahArmored: 'סוואנה בט"ש',
@@ -28,13 +29,14 @@ const Vehicle = Object.freeze({
         truck: 'משאית',
         panther: 'פנתר',
         ford: 'פורד'
-      }
-    },
-    nickname: {
-      label: 'כינוי',
-      required: false,
-      matches: [/^[\u0590-\u05FF0-9\s]+$/, 'רצף אותיות בעברית עם אופציה לספרות']
-    }
+      })
+      .build(),
+    nickname: prop
+      .optional()
+      .label('כינוי')
+      .matches(...REGEX.vehicle.nickname)
+      .build()
   }
-})
-export default Vehicle
+}
+
+export default Object.freeze(Vehicle)
