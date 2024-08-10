@@ -1,8 +1,8 @@
 export default function ItemContent({ label, icon }) {
   return (
-    <span>
-      <span style={{ marginLeft: '0.6rem' }}>{label}</span>
-      {icon}
-    </span>
+    <div className="hstack">
+      <div style={{ marginLeft: '0.5rem' }}>{icon}</div>
+      <div>{label}</div>
+    </div>
   )
 }

@@ -23,11 +23,6 @@ const InnerForm = forwardRef(function renderInnerForm({ fieldArray, onSubmit }, 
         }))
         return (
           <Form noValidate onSubmit={handleSubmit}>
-            <div className="small my-1">
-              <span>שדות המסומנים בכוכבית (</span>
-              <span className="text-danger">*</span>
-              <span>) הינם שדות חובה.</span>
-            </div>
             {fieldArray
               .getFields()
               .map(({ name, label, initValue, required, inputType, options }, idx) => {
@@ -76,72 +71,67 @@ const InnerForm = forwardRef(function renderInnerForm({ fieldArray, onSubmit }, 
                     </Col>
                     <Col style={{ alignContent: 'center' }}>
                       {(() => {
-                        try {
-                          switch (inputType) {
-                            case INPUT_TYPES.free:
-                              return (
-                                <Styled.FormControl
-                                  type="text"
-                                  value={value}
-                                  onChange={(event) => setFieldValue(name, event?.target?.value)}
-                                  isValid={showFeedback && !error}
-                                  isInvalid={showFeedback && error}
-                                  disabled={false}
-                                />
-                              )
-                            case INPUT_TYPES.singleSelect:
-                              return (
-                                <Select
-                                  isSearchable={false}
-                                  isClearable={true}
-                                  isMulti={false}
-                                  value={options.find((option) => {
-                                    if (option?.value?.getTime && value?.getTime) {
-                                      return option.value.getTime() === value.getTime()
-                                    } else if (option?.value) {
-                                      return option?.value === value
-                                    } else {
-                                      return ''
-                                    }
-                                  })}
-                                  options={options}
-                                  onChange={(option) => setFieldValue(name, option?.value ?? '')}
-                                  isRtl={true}
-                                  placeholder="בחר..."
-                                  styles={selectStyles}
-                                  isDisabled={false}
-                                />
-                              )
-                            case INPUT_TYPES.multiSelect:
-                              return (
-                                <Select
-                                  isSearchable={false}
-                                  isClearable={true}
-                                  isMulti={true}
-                                  value={
-                                    value?.length > 0
-                                      ? options.filter((option) => value.includes(option?.value))
-                                      : ''
+                        switch (inputType) {
+                          case INPUT_TYPES.free:
+                            return (
+                              <Styled.FormControl
+                                type="text"
+                                value={value}
+                                onChange={(event) => setFieldValue(name, event?.target?.value)}
+                                isValid={showFeedback && !error}
+                                isInvalid={showFeedback && error}
+                                disabled={false}
+                              />
+                            )
+                          case INPUT_TYPES.singleSelect:
+                            return (
+                              <Select
+                                isSearchable={false}
+                                isClearable={true}
+                                isMulti={false}
+                                value={options.find((option) => {
+                                  if (option?.value?.getTime && value?.getTime) {
+                                    return option.value.getTime() === value.getTime()
+                                  } else if (option?.value) {
+                                    return option?.value === value
+                                  } else {
+                                    return ''
                                   }
-                                  options={options}
-                                  onChange={(selectedOptions) =>
-                                    setFieldValue(
-                                      name,
-                                      selectedOptions.map((option) => option?.value)
-                                    )
-                                  }
-                                  isRtl={true}
-                                  placeholder="בחר..."
-                                  styles={selectStyles}
-                                  isDisabled={false}
-                                />
-                              )
-                            default:
-                              console.error({ name })
-                              throw new Error()
-                          }
-                        } catch (err) {
-                          console.error({ name, label, initValue, required, inputType, options })
+                                })}
+                                options={options}
+                                onChange={(option) => setFieldValue(name, option?.value ?? '')}
+                                isRtl={true}
+                                placeholder="בחר..."
+                                styles={selectStyles}
+                                isDisabled={false}
+                              />
+                            )
+                          case INPUT_TYPES.multiSelect:
+                            return (
+                              <Select
+                                isSearchable={false}
+                                isClearable={true}
+                                isMulti={true}
+                                value={
+                                  value?.length > 0
+                                    ? options.filter((option) => value.includes(option?.value))
+                                    : ''
+                                }
+                                options={options}
+                                onChange={(selectedOptions) =>
+                                  setFieldValue(
+                                    name,
+                                    selectedOptions.map((option) => option?.value)
+                                  )
+                                }
+                                isRtl={true}
+                                placeholder="בחר..."
+                                styles={selectStyles}
+                                isDisabled={false}
+                              />
+                            )
+                          default:
+                            throw new Error(name)
                         }
                       })()}
                       <Form.Control.Feedback

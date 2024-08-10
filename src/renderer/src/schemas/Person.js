@@ -8,7 +8,7 @@ const Person = {
     Person?.props?.rank?.options[person?.rank] + ' ' + person?.firstName + ' ' + person?.lastName,
   label: 'שוטר',
   props: {
-    affiliation: prop.label('שם').options({ hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' }).build(),
+    affiliation: prop.label('שיוך').options({ hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' }).build(),
     serviceNumber: prop
       .pk()
       .label('מספר אישי')

@@ -1,11 +1,10 @@
-import { Dropdown } from 'react-bootstrap'
-
+import * as Styled from './Styled'
 import ItemContent from './ItemContent.jsx'
 
-export default function Item({ label, icon, onClick, disabled = false }) {
+export default function Item({ label, icon, disabled, danger, onClick }) {
   return (
-    <Dropdown.Item onClick={onClick} disabled={disabled}>
+    <Styled.Item onClick={onClick} disabled={disabled} $danger={danger}>
       <ItemContent label={label} icon={icon} />
-    </Dropdown.Item>
+    </Styled.Item>
   )
 }

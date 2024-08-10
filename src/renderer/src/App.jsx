@@ -6,9 +6,9 @@ import { ThemeProvider } from 'react-bootstrap'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import TopNavbar from './nav/TopNavbar'
-import * as Views from './views'
+import Assignment from './views/Assignment/Assignment'
+import Database from './views/Database/Database'
 import { Layout } from '#src/components'
-import { useShiftStore } from './hooks/zustand'
 
 const queryClient = new QueryClient()
 
@@ -34,8 +34,6 @@ function generateShift(hour) {
   }
 }
 
-useShiftStore.getState().initialize()
-
 export default function App() {
   const [bsDisplayMode, setBsDisplayMode] = useState('bg-dark text-light') // TODO Implement
   const [shifts, setShifts] = useState([generateShift(6), generateShift(14), generateShift(22)])
@@ -43,11 +41,11 @@ export default function App() {
   const views = {
     database: {
       label: 'מסד נתונים',
-      component: <Views.Database />
+      component: <Database />
     },
     assignment: {
       label: 'סידור עבודה',
-      component: <Views.Assignment shifts={shifts} />
+      component: <Assignment shifts={shifts} />
     }
   }
 

@@ -7,13 +7,16 @@
 ###### Powered by
 
 <span>
-<a href="https://react.dev/">
+    <a href="https://vitejs.dev/">
+        <img src="https://skillicons.dev/icons?i=vite" height="50"/>
+    </a>
+    <a href="https://react.dev/">
         <img src="https://skillicons.dev/icons?i=react" height="50"/>
     </a>
     <a href="https://react-bootstrap.netlify.app/">
         <img src="https://skillicons.dev/icons?i=bootstrap" height="50"/>
     </a>
-        <a href="https://www.electronjs.org/">
+    <a href="https://www.electronjs.org/">
         <img src="https://skillicons.dev/icons?i=electron" height="50"/>
     </a>
     <a href="https://styled-components.com/">

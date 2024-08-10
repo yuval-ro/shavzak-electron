@@ -3,35 +3,38 @@ import { Modal, Button } from 'react-bootstrap'
 export default function ConfirmModal({
   title,
   message,
-  onConfirm,
+  onSubmit,
   onCancel,
-  cancelButton = { text: 'בטל', variant: 'outline-secondary' },
-  confirmButton = { text: 'אשר', variant: 'danger' }
+  cancelButton,
+  submitButton
 }) {
   return (
     <Modal keyboard={false} backdrop="static" show={true} centered>
       <Modal.Header style={{ fontWeight: 'bold' }} className="bg-danger-subtle">
         {title}
       </Modal.Header>
-      <Modal.Body style={{ paddingBottom: '5px', paddingTop: '10px' }}>
-        {<div style={{ textAlign: 'center' }}>{message}</div>}
+      <Modal.Body>
+        {<div style={{ textAlign: 'center', height: '10rem' }}>{message}</div>}
       </Modal.Body>
-      <Modal.Footer>
-        <div style={{ display: 'flex', justifyContent: 'start' }}>
+      <Modal.Footer
+        style={{ borderTop: 'none', paddingTop: '0.25rem', paddingBottom: '0.25rem' }}
+        className="bg-body-tertiary"
+      >
+        <div className="hstack gap-2">
           <Button
-            style={{ width: '100px', marginLeft: '5px' }}
-            variant={cancelButton.variant}
+            style={{ width: '8rem', border: '1px solid lightgray', ...cancelButton?.style }}
+            variant={cancelButton?.variant ?? 'light'}
             onClick={onCancel}
           >
-            {cancelButton.text}
+            {cancelButton?.text ?? 'בטל'}
           </Button>
           <Button
-            style={{ width: '100px' }}
+            style={{ width: '8rem' }}
             type="submit"
-            variant={confirmButton.variant}
-            onClick={onConfirm}
+            variant={submitButton?.variant ?? 'outline-danger'}
+            onClick={onSubmit}
           >
-            {confirmButton.text}
+            {submitButton?.text ?? 'אשר'}
           </Button>
         </div>
       </Modal.Footer>

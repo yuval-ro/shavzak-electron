@@ -6,7 +6,7 @@ import TasksTable from './TasksTable'
 import { Toolbar, FormModal, ConfirmModal, Layout } from '#src/components'
 import { createFormFieldArray } from '#src/helpers.js'
 import { CampTaskSchema } from '#src/schemas'
-import { useQueryStore } from '#src/hooks/react-query'
+import { useQueryStore } from '#src/hooks'
 import { arrayMoveImmutable } from 'array-move'
 
 export default function Assignment({ shifts, onShiftChange }) {

@@ -1,5 +1,5 @@
 /**
- * @file /src/renderer/src/hooks/react-query.js
+ * @file /src/hooks/react-query.js
  */
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 

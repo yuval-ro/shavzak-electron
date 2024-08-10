@@ -7,7 +7,7 @@ import CollectionTable from './CollectionTable'
 import { Toolbar, ConfirmModal, Layout, FormModal } from '#src/components'
 import { PersonSchema, VehicleSchema } from '#src/schemas'
 import { createFormFieldArray, createTableCols, createTableRows } from '#src/helpers.js'
-import { useQueryStore } from '#src/hooks/react-query'
+import { useQueryStore, useShiftStore } from '#src/hooks'
 
 function getOrder(Schema, propName) {
   return Object.freeze(
@@ -22,9 +22,10 @@ export default function Database() {
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
   const queryStore = useQueryStore(['people', 'vehicles'])
+  const { shifts, idx } = useShiftStore()
 
-  function handleModalConfirmDelete(collection, entry) {
-    queryStore[collection]?.delete(entry)
+  function handleModalConfirmDelete(collection, doc) {
+    queryStore[collection]?.delete(doc)
     setModal(null)
   }
 
@@ -159,7 +160,8 @@ export default function Database() {
       title: 'כוח אדם',
       component: (
         <CollectionTable
-          name="people"
+          shift={shifts[idx]}
+          collectionName="people"
           cols={createTableCols(PersonSchema, peopleInnerSort)}
           rows={createTableRows(PersonSchema, queryStore?.people?.read)}
           keyword={keywordFilter}
@@ -171,7 +173,7 @@ export default function Database() {
       title: 'רכבים',
       component: (
         <CollectionTable
-          name="vehicles"
+          collectionName="vehicles"
           cols={createTableCols(VehicleSchema)}
           rows={createTableRows(VehicleSchema, queryStore?.vehicles?.read)}
           onContextMenuAction={handleContextMenuAction}
