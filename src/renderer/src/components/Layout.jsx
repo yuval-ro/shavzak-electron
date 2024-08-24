@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const ToolbarContainer = styled.div`
+const ToolbarContainer = styled.div`
   border: 1px solid lightgray;
   border-radius: 0.3rem;
   padding: 0.75rem;
@@ -9,7 +9,7 @@ export const ToolbarContainer = styled.div`
   background-color: rgba(248, 249, 250, 1); // bg-body-tertiary
 `
 
-export const TabContainer = styled.div`
+const TabContainer = styled.div`
   border: 1px solid lightgray;
   border-radius: 0.3rem;
   overflow-y: hidden;
@@ -20,7 +20,13 @@ export const TabContainer = styled.div`
   background-color: rgba(248, 249, 250, 1); // bg-body-tertiary
 `
 
-export const ViewContainer = styled.div`
+const ViewContainer = styled.div`
   margin-right: 2rem;
   margin-left: 2rem;
 `
+
+export default {
+  ToolbarContainer,
+  TabContainer,
+  ViewContainer
+}

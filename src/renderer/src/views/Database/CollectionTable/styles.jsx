@@ -24,7 +24,6 @@ const TableCell = styled(Col)`
 `
 export const Data = {
   Row: styled(TableRow)`
-    cursor: pointer;
     border-top: 1px solid lightgray;
     align-items: center;
     transition: background-color 0.3s ease;

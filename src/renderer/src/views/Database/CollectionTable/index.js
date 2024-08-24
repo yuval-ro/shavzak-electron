@@ -1,2 +1,2 @@
-import { default as CollectionTable } from './CollectionTable.jsx'
+import CollectionTable from './CollectionTable.jsx'
 export default CollectionTable

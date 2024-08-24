@@ -1,16 +1,18 @@
 /**
  * @file /src/components/FormModal/InnerForm.jsx
  */
-import { forwardRef, useImperativeHandle } from 'react'
+import { useImperativeHandle, useContext } from 'react'
 import { Form, Row, Col } from 'react-bootstrap'
 import Select from 'react-select'
 import { Formik } from 'formik'
 import chroma from 'chroma-js'
 
+import { SubmitContext } from './SubmitProvider'
 import { INPUT_TYPES, BS_DANGER, BS_SUCCESS } from './CONSTS.js'
 import * as Styled from './Styled.jsx'
 
-const InnerForm = forwardRef(function renderInnerForm({ fieldArray, onSubmit }, ref) {
+export default function InnerForm({ fieldArray }) {
+  const { submitRef, onSubmit } = useContext(SubmitContext)
   return (
     <Formik
       initialValues={fieldArray.getInitValues()}
@@ -18,8 +20,8 @@ const InnerForm = forwardRef(function renderInnerForm({ fieldArray, onSubmit }, 
       onSubmit={onSubmit}
     >
       {({ handleSubmit, values, errors, setFieldValue, submitCount, submitForm }) => {
-        useImperativeHandle(ref, () => ({
-          submitForm: () => submitForm()
+        useImperativeHandle(submitRef, () => ({
+          triggerSubmit: () => submitForm()
         }))
         return (
           <Form noValidate onSubmit={handleSubmit}>
@@ -149,5 +151,4 @@ const InnerForm = forwardRef(function renderInnerForm({ fieldArray, onSubmit }, 
       }}
     </Formik>
   )
-})
-export default InnerForm
+}

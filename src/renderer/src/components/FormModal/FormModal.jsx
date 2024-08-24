@@ -1,11 +1,11 @@
 /**
  * @file /src/components/FormModal/FormModal.jsx
  */
-import { useRef, cloneElement, Children } from 'react'
+import { useRef } from 'react'
 import { Modal, Button, OverlayTrigger, Tooltip, NavLink } from 'react-bootstrap'
-import { IoMdHelpCircleOutline as Help } from 'react-icons/io'
+import { QuestionCircleFill as Help } from 'react-bootstrap-icons'
 
-import { FormSubmitProvider } from './context'
+import SubmitProvider from './SubmitProvider'
 import './styles.scss'
 
 export default function FormModal({
@@ -17,9 +17,12 @@ export default function FormModal({
   headerClassName,
   children
 }) {
-  const formikRef = useRef()
+  const submitRef = useRef(null)
+  function handleSubmitButtonClick() {
+    submitRef?.current?.triggerSubmit()
+  }
   return (
-    <Modal backdrop="static" show={true}>
+    <Modal backdrop="static" show={true} dir="rtl">
       <Modal.Header
         style={{ fontWeight: 'bold' }}
         className={headerClassName ?? 'bg-primary-subtle'}
@@ -38,10 +41,8 @@ export default function FormModal({
           </NavLink>
         </OverlayTrigger>
       </Modal.Header>
-      <FormSubmitProvider value={formikRef}>
-        <Modal.Body style={{ paddingBottom: '0px', paddingTop: '0px' }}>
-          {Children.map(children, (child) => cloneElement(child, { ref: formikRef, onSubmit }))}
-        </Modal.Body>
+      <SubmitProvider value={{ submitRef, onSubmit }}>
+        <Modal.Body style={{ paddingBottom: '0px', paddingTop: '0px' }}>{children}</Modal.Body>
         <Modal.Footer
           style={{ borderTop: 'none', paddingTop: '0.25rem', paddingBottom: '0.25rem' }}
           className="bg-body-tertiary"
@@ -56,19 +57,14 @@ export default function FormModal({
             </Button>
             <Button
               style={{ width: '8rem' }}
-              type="submit"
               variant={submitButton?.variant ?? 'primary'}
-              onClick={() => {
-                if (formikRef.current) {
-                  formikRef.current.submitForm()
-                }
-              }}
+              onClick={handleSubmitButtonClick}
             >
               {submitButton?.text ?? 'שלח'}
             </Button>
           </div>
         </Modal.Footer>
-      </FormSubmitProvider>
+      </SubmitProvider>
     </Modal>
   )
 }

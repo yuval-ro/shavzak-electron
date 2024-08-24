@@ -52,17 +52,19 @@ const DB = Object.freeze({
   campTasks: new PouchDB('db/campTasks'),
   shifts: new PouchDB('db/shifts')
 })
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const HANDLERS = Object.freeze({
-  read: async (pouch) => {
+  fetch: async (pouch) => {
     const { rows } = await pouch.allDocs({ include_docs: true })
     return rows.map((row) => row.doc)
   },
-  post: async (pouch, docs) => {
-    console.debug(docs)
+  put: async (pouch, docs) => {
+    // await delay(300) // FIXME Remove
     await pouch.bulkDocs(docs)
   },
-  delete: async (pouch, docs) => {
+  remove: async (pouch, docs) => {
+    // await delay(300) // FIXME Remove
     await pouch.bulkDocs(docs.map((doc) => ({ ...doc, _deleted: true })))
   }
 })
@@ -77,13 +79,13 @@ export async function dbController({ collection, action, docs }) {
     }
     const pouch = DB[collection]
     if (!pouch) {
-      const err = new Error(`Invalid collection: "${collection}"`)
+      const err = new Error('Invalid collection: ' + JSON.stringify(collection))
       err.code = 400
       throw err
     }
     const handler = HANDLERS[action]
     if (!handler) {
-      const err = new Error(`Invalid action: "${action}"`)
+      const err = new Error('Invalid action: ' + JSON.stringify(action))
       err.code = 400
       throw err
     }

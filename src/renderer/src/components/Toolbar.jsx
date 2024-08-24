@@ -2,8 +2,8 @@
  * @file /src/components/Toolbar.jsx
  */
 import { ButtonGroup, ToggleButton, Form, Button, InputGroup } from 'react-bootstrap'
-import { FaSearch } from 'react-icons/fa'
-import { MdOutlineViewCarousel } from 'react-icons/md'
+import { Search } from "react-bootstrap-icons"
+import { WindowStack } from 'react-bootstrap-icons'
 
 export default function Toolbar({
   tabs,
@@ -16,7 +16,7 @@ export default function Toolbar({
     <div className="hstack gap-2">
       <ButtonGroup>
         <InputGroup.Text>
-          <MdOutlineViewCarousel size="1.5em" />
+          <WindowStack size="1.5em" />
         </InputGroup.Text>
         {Object.entries(tabs).map(([name, { title }], idx) => (
           <ToggleButton
@@ -35,7 +35,7 @@ export default function Toolbar({
       </ButtonGroup>
       <InputGroup>
         <InputGroup.Text>
-          <FaSearch />
+          <Search />
         </InputGroup.Text>
         <Form.Control
           type="text"

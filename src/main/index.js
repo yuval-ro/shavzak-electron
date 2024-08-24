@@ -5,8 +5,7 @@ import { app, shell, BrowserWindow, ipcMain, systemPreferences } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { dbController } from "./db.js"
-
+import { dbController } from './db.js'
 
 systemPreferences.getAnimationSettings() // NOTE Fixes prefers-reduced-motion bug
 function createWindow() {
@@ -24,6 +23,9 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    if (is.dev) {
+      mainWindow.webContents.openDevTools({ mode: 'bottom' })
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -37,8 +39,6 @@ function createWindow() {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
-
-
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')

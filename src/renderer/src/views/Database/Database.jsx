@@ -3,11 +3,12 @@
  */
 import { useState } from 'react'
 
+import ViewContext from './Context'
 import CollectionTable from './CollectionTable'
 import { Toolbar, ConfirmModal, Layout, FormModal } from '#src/components'
 import { PersonSchema, VehicleSchema } from '#src/schemas'
 import { createFormFieldArray, createTableCols, createTableRows } from '#src/helpers.js'
-import { useQueryStore, useShiftStore } from '#src/hooks'
+import { useCollection, useShifts } from '#src/store/hooks.js'
 
 function getOrder(Schema, propName) {
   return Object.freeze(
@@ -21,24 +22,28 @@ export default function Database() {
   const [modal, setModal] = useState(null)
   const [activeTab, setActiveTab] = useState('people')
   const [keywordFilter, setKeywordFilter] = useState('')
-  const queryStore = useQueryStore(['people', 'vehicles'])
-  const { shifts, idx } = useShiftStore()
+  const collections = {
+    people: useCollection('people'),
+    vehicles: useCollection('vehicles')
+  }
+  const shifts = useShifts()
 
-  function handleModalConfirmDelete(collection, doc) {
-    queryStore[collection]?.delete(doc)
+  function handleModalConfirmDelete(collectionName, doc) {
+    collections?.[collectionName]?.remove(doc)
     setModal(null)
   }
 
-  function handleCreateModalSave(collection, values) {
-    queryStore[collection]?.post(values)
+  function handleCreateModalSave(collectionName, values) {
+    collections?.[collectionName]?.put(values)
     setModal(null)
   }
 
-  function handleEditModalSave(collection, updated) {
-    const existing = queryStore[collection]?.read?.find((doc) => doc._id === updated._id)
-    if (JSON.stringify(updated) !== JSON.stringify(existing)) {
-      // NOTE Prevent unnecessary update if no changes were made
-      queryStore[collection]?.post(updated)
+  function handleEditModalSave(collectionName, updatedDoc) {
+    const { docs, put } = collections[collectionName]
+    const existingDoc = docs?.find((doc) => doc._id === updatedDoc._id)
+    if (JSON.stringify(updatedDoc) !== JSON.stringify(existingDoc)) {
+      // Prevent unnecessary update if no changes were made
+      put(updatedDoc)
     }
     setModal(null)
   }
@@ -48,12 +53,37 @@ export default function Database() {
   }
 
   function handleAddButtonClick() {
-    setModal(modals[activeTab].create())
+    setModal(modals[activeTab].getCreateModal())
   }
 
-  function handleContextMenuAction(collection, docId, action) {
-    const doc = queryStore[collection]?.read?.find((doc) => doc._id == docId)
-    setModal(modals[collection]?.[action]?.(doc))
+  function findDoc(docId) {
+    const doc = collections[activeTab]?.docs?.find((doc) => doc._id === docId)
+    if (!doc) {
+      throw new Error('Unable to find doc: ' + JSON.stringify(docId))
+    }
+    return doc
+  }
+
+  const actions = {
+    setStatus: (docId, newStatus) => {
+      const shift = { ...shifts?.docs[shifts?.idx] }
+      const includes = shift?.unavailable?.includes(docId)
+      if (!includes && newStatus) {
+        shift.unavailable = [...shift.unavailable, docId]
+        shifts?.put(shift)
+      } else if (includes && !newStatus) {
+        shift.unavailable = shift.unavailable.filter((id) => id !== docId)
+        shifts?.put(shift)
+      }
+    },
+    promptEdit: (docId) => {
+      const doc = findDoc(docId)
+      setModal(modals[activeTab]?.getEditModal(doc))
+    },
+    promptDelete: (docId) => {
+      const doc = findDoc(docId)
+      setModal(modals[activeTab]?.getDeleteModal(doc))
+    }
   }
 
   const peopleInnerSort = {
@@ -76,7 +106,7 @@ export default function Database() {
 
   const modals = {
     people: {
-      create: () => (
+      getCreateModal: () => (
         <FormModal
           headerText="יצירת רשומה חדשה - שוטר"
           onSubmit={(values) => handleCreateModalSave('people', values)}
@@ -85,12 +115,12 @@ export default function Database() {
           <FormModal.InnerForm
             fieldArray={createFormFieldArray({
               schema: PersonSchema,
-              docs: queryStore?.people?.read
+              docs: collections?.people?.docs
             })}
           />
         </FormModal>
       ),
-      edit: (person) => (
+      getEditModal: (person) => (
         <FormModal
           headerText="עריכת רשומה קיימת - שוטר"
           onSubmit={(values) => handleEditModalSave('people', { ...person, ...values })}
@@ -99,13 +129,13 @@ export default function Database() {
           <FormModal.InnerForm
             fieldArray={createFormFieldArray({
               schema: PersonSchema,
-              docs: queryStore?.people?.read,
+              docs: collections?.people?.docs,
               values: person
             })}
           />
         </FormModal>
       ),
-      delete: (person) => (
+      getDeleteModal: (person) => (
         <ConfirmModal
           title="מחיקת רשומה - שוטר"
           message="האם אתה בטוח למחוק את הרשומה? הפעולה אינה הפיכה."
@@ -115,7 +145,7 @@ export default function Database() {
       )
     },
     vehicles: {
-      create: () => (
+      getCreateModal: () => (
         <FormModal
           headerText="יצירת רשומה חדשה - רכב"
           onSubmit={(values) => handleCreateModalSave('vehicles', values)}
@@ -124,12 +154,12 @@ export default function Database() {
           <FormModal.InnerForm
             fieldArray={createFormFieldArray({
               schema: VehicleSchema,
-              docs: queryStore?.vehicles?.read
+              docs: collections?.vehicles?.docs
             })}
           />
         </FormModal>
       ),
-      edit: (vehicle) => (
+      getEditModal: (vehicle) => (
         <FormModal
           headerText="עריכת רשומה קיימת - רכב"
           onSubmit={(values) => handleEditModalSave('vehicles', { ...vehicle, ...values })}
@@ -138,13 +168,13 @@ export default function Database() {
           <FormModal.InnerForm
             fieldArray={createFormFieldArray({
               schema: VehicleSchema,
-              docs: queryStore?.vehicles?.read,
+              docs: collections?.vehicles?.docs,
               values: vehicle
             })}
           />
         </FormModal>
       ),
-      delete: (vehicle) => (
+      getDeleteModal: (vehicle) => (
         <ConfirmModal
           title="מחיקת רשומה - רכב"
           message="האם אתה בטוח למחוק את הרשומה? הפעולה אינה הפיכה."
@@ -160,30 +190,30 @@ export default function Database() {
       title: 'כוח אדם',
       component: (
         <CollectionTable
-          shift={shifts[idx]}
+          shift={shifts?.docs[shifts?.idx]}
           collectionName="people"
           cols={createTableCols(PersonSchema, peopleInnerSort)}
-          rows={createTableRows(PersonSchema, queryStore?.people?.read)}
+          rows={createTableRows(PersonSchema, collections?.people?.docs ?? [])}
           keyword={keywordFilter}
-          onContextMenuAction={handleContextMenuAction}
+          contextMenuActions={actions}
         />
       )
     },
     vehicles: {
       title: 'רכבים',
-      component: (
-        <CollectionTable
-          collectionName="vehicles"
-          cols={createTableCols(VehicleSchema)}
-          rows={createTableRows(VehicleSchema, queryStore?.vehicles?.read)}
-          onContextMenuAction={handleContextMenuAction}
-        />
-      )
+      component:
+        // <CollectionTable
+        //   collectionName="vehicles"
+        //   cols={createTableCols(VehicleSchema)}
+        //   rows={createTableRows(VehicleSchema, collections?.vehicles?.docs ?? [])}
+        //   contextMenuActions={contextMenuActions}
+        // />
+        null
     }
   }
 
   return (
-    <>
+    <ViewContext.Provider value={{ actions }}>
       {modal}
       <Layout.ToolbarContainer>
         <Toolbar
@@ -202,6 +232,6 @@ export default function Database() {
           </div>
         ))}
       </Layout.TabContainer>
-    </>
+    </ViewContext.Provider>
   )
 }

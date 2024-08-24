@@ -3,13 +3,13 @@ import { Modal, Button } from 'react-bootstrap'
 export default function ConfirmModal({
   title,
   message,
-  onSubmit,
+  onConfirm,
   onCancel,
   cancelButton,
-  submitButton
+  confirmButton
 }) {
   return (
-    <Modal keyboard={false} backdrop="static" show={true} centered>
+    <Modal keyboard={false} backdrop="static" show={true} centered style={{direction: "rtl"}}>
       <Modal.Header style={{ fontWeight: 'bold' }} className="bg-danger-subtle">
         {title}
       </Modal.Header>
@@ -31,10 +31,10 @@ export default function ConfirmModal({
           <Button
             style={{ width: '8rem' }}
             type="submit"
-            variant={submitButton?.variant ?? 'outline-danger'}
-            onClick={onSubmit}
+            variant={confirmButton?.variant ?? 'outline-danger'}
+            onClick={onConfirm}
           >
-            {submitButton?.text ?? 'אשר'}
+            {confirmButton?.text ?? 'אשר'}
           </Button>
         </div>
       </Modal.Footer>

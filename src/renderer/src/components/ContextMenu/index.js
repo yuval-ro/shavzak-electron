@@ -1,12 +1,6 @@
-import ContextMenu from './ContextMenu.jsx'
-import Item from './Item.jsx'
-import SubMenu from './SubMenu.jsx'
-import Link from './Link.jsx'
-import Header from './Header.jsx'
+import * as menus from './menus'
+import * as items from './items'
+import Trigger from './Trigger'
+import Provider from './Provider'
 
-ContextMenu.Item = Item
-ContextMenu.SubMenu = SubMenu
-ContextMenu.Link = Link
-ContextMenu.Header = Header
-
-export default ContextMenu
+export default { ...menus, ...items, Trigger, Provider }

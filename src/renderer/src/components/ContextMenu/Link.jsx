@@ -1,14 +1,6 @@
-import styled from 'styled-components'
+// Link.jsx
+import * as Styled from './Styled'
 
-const Link = styled.span`
-  position: relative;
-  user-select: none;
-  font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
-  color: ${(props) => (props.$disabled ? 'gray' : 'black')};
-
-  &:hover {
-    cursor: ${(props) => (props.$disabled ? 'default' : 'pointer')};
-    text-decoration: underline;
-  }
-`
-export default Link
+export default function Link({ active, children }) {
+  return <Styled.Link $active={active}>{children}</Styled.Link>
+}
