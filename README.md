@@ -1,4 +1,4 @@
-# Shavzak App
+# HR Management App
 
 <!-- {project logo}
 
@@ -31,6 +31,11 @@
 
 Manage your human resource with ease using this application.  
 Create, edit and assign people to their task duties in a streamlined manner.  
+
+# Demo
+<img src="./screenshots/1.jpeg" height="450"/>
+<img src="./screenshots/2.jpeg" height="450"/>
+  
 
 # License
 
