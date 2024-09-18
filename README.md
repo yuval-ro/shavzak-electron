@@ -1,4 +1,4 @@
-# UNTITLED
+# Shavzak App
 
 <!-- {project logo}
 
@@ -29,7 +29,8 @@
 
 # About
 
-?
+Manage your human resource with ease using this application.  
+Create, edit and assign people to their task duties in a streamlined manner.  
 
 # License
 
