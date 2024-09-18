@@ -4,7 +4,7 @@ import { FormCheck } from 'react-bootstrap'
 
 import Context from './Context'
 import ContentLayout from './ContentLayout'
-import * as Styled from './styled'
+import Styled from './styled'
 
 export function ActionItem({ label, icon, disabled, variant, onClick, close }) {
   const { setShow } = useContext(Context)

@@ -1,6 +1,6 @@
 import * as Yup from 'yup'
 
-import { INPUT_TYPES } from './CONSTS.js'
+import { INPUT_TYPES } from './CONSTS'
 
 export default class FieldArray {
   constructor(values = {}) {

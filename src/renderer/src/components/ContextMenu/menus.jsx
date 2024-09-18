@@ -1,10 +1,10 @@
 // menus.jsx
-import { useState, useRef, useContext, useCallback } from 'react'
+import { useState, useRef, useContext, useCallback, Children } from 'react'
 import { CaretLeftFill as Left, CaretRightFill as Right } from 'react-bootstrap-icons'
 
 import ContentLayout from './ContentLayout'
 import Context from './Context'
-import * as Styled from './styled'
+import Styled from './styled'
 
 export function MainMenu({ children }) {
   return <Styled.Menu>{children}</Styled.Menu>
@@ -28,7 +28,7 @@ export function SubMenu({ label, icon, children }) {
         {children}
       </Styled.Menu>
     ),
-    [...children]
+    [...Children.toArray(children)]
   )
 
   return (

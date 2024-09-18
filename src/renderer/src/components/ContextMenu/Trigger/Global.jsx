@@ -1,9 +1,9 @@
-// Trigger.jsx
+// Global.jsx
 import { useState, useRef, useEffect, useContext } from 'react'
 
-import Context from './Context'
+import Context from '../Context'
 
-export default function Trigger({ children, menu }) {
+export default function Global({ children, menu }) {
   const [id, setId] = useState(crypto.randomUUID())
   const { setShow, setMenu, updateMenu, updatePosition } = useContext(Context)
   const ref = useRef(null)

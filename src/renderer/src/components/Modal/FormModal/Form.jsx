@@ -1,18 +1,17 @@
-/**
- * @file /src/components/FormModal/InnerForm.jsx
- */
-import { useImperativeHandle, useContext } from 'react'
-import { Form, Row, Col } from 'react-bootstrap'
+// Form.jsx
+import { useContext, useImperativeHandle } from 'react'
+import { Form as BSForm, Row, Col } from 'react-bootstrap'
 import Select from 'react-select'
 import { Formik } from 'formik'
 import chroma from 'chroma-js'
 
-import { SubmitContext } from './SubmitProvider'
-import { INPUT_TYPES, BS_DANGER, BS_SUCCESS } from './CONSTS.js'
-import * as Styled from './Styled.jsx'
+import Context from './Context'
+import './styles.scss'
+import { INPUT_TYPES, BS_DANGER, BS_SUCCESS } from './CONSTS'
+import Styled from './styled'
 
-export default function InnerForm({ fieldArray }) {
-  const { submitRef, onSubmit } = useContext(SubmitContext)
+export default function Form({ fieldArray }) {
+  const { formikRef, onSubmit } = useContext(Context)
   return (
     <Formik
       initialValues={fieldArray.getInitValues()}
@@ -20,11 +19,11 @@ export default function InnerForm({ fieldArray }) {
       onSubmit={onSubmit}
     >
       {({ handleSubmit, values, errors, setFieldValue, submitCount, submitForm }) => {
-        useImperativeHandle(submitRef, () => ({
+        useImperativeHandle(formikRef, () => ({
           triggerSubmit: () => submitForm()
         }))
         return (
-          <Form noValidate onSubmit={handleSubmit}>
+          <BSForm noValidate onSubmit={handleSubmit}>
             {fieldArray
               .getFields()
               .map(({ name, label, initValue, required, inputType, options }, idx) => {
@@ -66,7 +65,11 @@ export default function InnerForm({ fieldArray }) {
                   >
                     <Col
                       xs={3}
-                      style={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'start',
+                        alignItems: 'center'
+                      }}
                     >
                       {label}
                       {required ? <span className="text-danger">*</span> : null}
@@ -136,17 +139,17 @@ export default function InnerForm({ fieldArray }) {
                             throw new Error(name)
                         }
                       })()}
-                      <Form.Control.Feedback
+                      <BSForm.Control.Feedback
                         type="invalid"
                         style={{ display: showFeedback && error ? 'block' : 'none' }}
                       >
                         <small>{error}</small>
-                      </Form.Control.Feedback>
+                      </BSForm.Control.Feedback>
                     </Col>
                   </Row>
                 )
               })}
-          </Form>
+          </BSForm>
         )
       }}
     </Formik>

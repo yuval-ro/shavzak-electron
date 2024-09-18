@@ -1,7 +1,5 @@
-/**
- * @file /src/components/CollectionTable/Styled.jsx
- */
-import { Row, Col } from 'react-bootstrap'
+// styled.jsx
+import { Row, Col, InputGroup as BSInputGroup } from 'react-bootstrap'
 import styled from 'styled-components'
 import chroma from 'chroma-js'
 
@@ -22,7 +20,7 @@ const TableCell = styled(Col)`
   white-space: nowrap;
   overflow-x: hidden;
 `
-export const Data = {
+const Data = {
   Row: styled(TableRow)`
     border-top: 1px solid lightgray;
     align-items: center;
@@ -33,7 +31,7 @@ export const Data = {
   `,
   Cell: TableCell
 }
-export const Header = {
+const Header = {
   Row: styled(TableRow)`
     padding-right: 0;
     margin: 0rem;
@@ -42,30 +40,40 @@ export const Header = {
     overflow: visible;
   `
 }
-export const TableWrapper = styled(Row)`
+const TableWrapper = styled(Row)`
   border: 1px solid lightgray;
 `
-export const Scrollable = styled.div`
+const Scrollable = styled.div`
   padding-right: 0.75rem;
   padding-left: 0.75rem;
   overflow-y: scroll;
   overflow-x: hidden;
   height: 73vh;
 `
-export const ColName = styled.span`
+const ColName = styled.span`
   position: relative;
   user-select: none;
   font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
   color: ${(props) => (props.$disabled ? 'gray' : 'black')};
-
   &:hover {
     cursor: ${(props) => (props.$disabled ? 'default' : 'pointer')};
     text-decoration: underline;
   }
 `
+const SelectWrapper = styled.div`
+  flex-grow: 1;
+`
 
-// export const ToggleStatusCell = styled(TableCell)`
-//   transition: background-color 0.3s ease;
-//   background-color: ${({ $success }) => ($success ? '#d4edda' : '#f8d7da')};
-//   color: ${({ $success }) => ($success ? '#155724' : '#721c24')};
-// `
+const InputGroup = styled(BSInputGroup)`
+  max-width: ${(props) => props?.$width ?? '20%'};
+`
+
+export default {
+  Data,
+  Header,
+  TableWrapper,
+  Scrollable,
+  ColName,
+  SelectWrapper,
+  InputGroup
+}

@@ -1,6 +1,5 @@
 // Styled.jsx
 import styled, { css } from 'styled-components'
-// import { FormCheck } from "react-bootstrap";
 import chroma from 'chroma-js'
 
 const VARIANTS = Object.freeze({
@@ -8,7 +7,7 @@ const VARIANTS = Object.freeze({
   danger: 'danger'
 })
 
-export const Menu = styled.div`
+const Menu = styled.div`
   user-select: none;
   padding: 0;
   border-radius: 0;
@@ -18,7 +17,7 @@ export const Menu = styled.div`
   width: 100%;
 `
 
-export const Item = styled.div`
+const Item = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
@@ -46,7 +45,7 @@ export const Item = styled.div`
     `};
 `
 
-export const Link = styled.span`
+const Link = styled.span`
   position: relative;
   user-select: none;
   font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
@@ -57,10 +56,17 @@ export const Link = styled.span`
   }
 `
 
-export const SubMenuWrapper = styled.div`
+const SubMenuWrapper = styled.div`
   position: relative;
   display: inline-block;
   &:hover > ${Menu} {
     display: block;
   }
 `
+
+export default {
+  Menu,
+  Item,
+  Link,
+  SubMenuWrapper
+}

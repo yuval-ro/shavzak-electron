@@ -2,10 +2,10 @@ import { useEffect, useReducer } from 'react'
 
 import * as backend from './backend'
 import { createShift } from './shift'
-import StoreContext from './StoreContext'
+import Context from './Context'
 import { ACTION_TYPES } from './CONSTS'
 
-export default function StoreProvider(props) {
+export default function Provider(props) {
   const [state, dispatch] = useReducer(
     (oldState, action) => {
       const { type, payload } = action
@@ -79,6 +79,6 @@ export default function StoreProvider(props) {
   }, [])
 
   return (
-    <StoreContext.Provider value={{ state, dispatch }}>{props?.children}</StoreContext.Provider>
+    <Context.Provider value={{ state, dispatch }}>{props?.children}</Context.Provider>
   )
 }

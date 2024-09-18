@@ -1,3 +1,4 @@
+// Provider.jsx
 import { useState, useRef, useEffect } from 'react'
 import Context from './Context'
 
@@ -44,6 +45,7 @@ export default function Provider({ dir, width, children }) {
   return (
     <Context.Provider
       value={{
+        width,
         setShow,
         setMenu,
         updatePosition,
@@ -65,7 +67,7 @@ export default function Provider({ dir, width, children }) {
             position: 'absolute',
             backgroundColor: 'white',
             zIndex: 1000,
-            maxWidth: width
+            width
           }}
         >
           {menu}

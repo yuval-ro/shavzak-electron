@@ -1,4 +1,4 @@
-export const SORT_DIR = Object.freeze({
+export const SORT_DIRECTION = Object.freeze({
   asc: -1,
   desc: 1
 })

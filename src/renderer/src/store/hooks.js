@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import StoreContext from './StoreContext'
+import Context from './Context'
 import { ACTION_TYPES } from './CONSTS'
 import * as backend from './backend'
 
@@ -15,11 +15,11 @@ async function executeAsyncThunk(dispatch, thunk) {
   }
 }
 export function useSelector(selector) {
-  const { state } = useContext(StoreContext)
+  const { state } = useContext(Context)
   return selector(state)
 }
 function useMutate(collectionName, operation) {
-  const { dispatch } = useContext(StoreContext)
+  const { dispatch } = useContext(Context)
   return (docs) =>
     executeAsyncThunk(dispatch, async () => {
       await backend?.[operation]?.(collectionName, docs)
@@ -31,14 +31,22 @@ function useMutate(collectionName, operation) {
     })
 }
 export function useCollection(collectionName) {
-  return {
+  const result = {
     docs: useSelector((state) => state?.collections?.[collectionName]),
     put: useMutate(collectionName, 'put'),
     remove: useMutate(collectionName, 'remove')
   }
+  result.get = (docId) => {
+    const doc = result.docs?.find((doc) => doc._id === docId)
+    if (!doc) {
+      throw new Error('Unable to find doc: ' + JSON.stringify(docId))
+    }
+    return doc
+  }
+  return result
 }
 export function useShifts() {
-  const { state, dispatch } = useContext(StoreContext)
+  const { state, dispatch } = useContext(Context)
   return {
     ...useCollection('shifts'),
     idx: useSelector((state) => state?.shiftIdx),

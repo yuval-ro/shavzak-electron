@@ -7,6 +7,10 @@ export default class PropBuilder {
   constructor() {
     this.value = Object.assign({}, DEFAULT_VALUE)
   }
+  sortable() {
+    this.value.sortable = true
+    return this
+  }
   optional() {
     this.value.required = false
     return this

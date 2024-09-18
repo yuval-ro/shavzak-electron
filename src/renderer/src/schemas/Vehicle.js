@@ -12,6 +12,7 @@ const Vehicle = {
       .pk()
       .label('לוחית זיהוי')
       .matches(...REGEX.vehicle.plate)
+      .sortable()
       .build(),
     type: prop
       .label('סוג')
@@ -35,6 +36,7 @@ const Vehicle = {
       .optional()
       .label('כינוי')
       .matches(...REGEX.vehicle.nickname)
+      .sortable()
       .build()
   }
 }

@@ -1,1 +1,2 @@
-export { default as StoreProvider } from './StoreProvider'
+export { default as Provider } from './Provider'
+export * from './hooks'

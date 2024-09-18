@@ -8,24 +8,32 @@ const Person = {
     Person?.props?.rank?.options[person?.rank] + ' ' + person?.firstName + ' ' + person?.lastName,
   label: 'שוטר',
   props: {
-    affiliation: prop.label('שיוך').options({ hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' }).build(),
+    affiliation: prop
+      .label('שיוך')
+      .options({ hq: 'מטה', p1: 'מחלקה 1', p2: 'מחלקה 2' })
+      .sortable()
+      .build(),
     serviceNumber: prop
       .pk()
       .label('מספר אישי')
       .matches(...REGEX.person.serviceNumber)
+      .sortable()
       .build(),
     firstName: prop
       .label('שם פרטי')
       .matches(...REGEX.person.name)
+      .sortable()
       .build(),
     lastName: prop
       .label('שם משפחה')
       .matches(...REGEX.person.name)
+      .sortable()
       .build(),
-    sex: prop.label('מין').options({ m: 'זכר', f: 'נקבה' }).build(),
+    sex: prop.label('מין').options({ m: 'זכר', f: 'נקבה' }).sortable().build(),
     serviceType: prop
       .label('סוג שירות')
       .options({ enlisted: 'סדיר', nco: 'נגד', officer: 'קצין' })
+      .sortable()
       .build(),
     rank: prop
       .label('דרגה')
@@ -42,6 +50,7 @@ const Person = {
         o3: 'פקד',
         o4: 'רפ"ק'
       })
+      .sortable()
       .build(),
     activeRole: prop
       .label('תפקיד')

@@ -1,6 +1,4 @@
 export { default as AppNavbar } from './AppNavbar'
-export { default as FormModal } from './FormModal'
-export { default as ConfirmModal } from './ConfirmModal'
-export { default as Layout } from './Layout'
-export { default as Toolbar } from './Toolbar'
+export { default as Modal } from './Modal'
+export { default as Layout } from './layout'
 export { default as ContextMenu } from './ContextMenu'
